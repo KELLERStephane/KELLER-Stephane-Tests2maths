@@ -1,7 +1,8 @@
-+ QCM-maths-physique-chimie
-+ Fiches d'utilisation de la calculatrice
-+ TP intervalle de confiance
+- QCM-maths-physique-chimie ;
+- TP intervalle de confiance ;
+- Fiches d'utilisation de la calculatrice CASIO ;
+- Fichiers Geogebra : problèmes d'optimisation.
 
 Fichiers créés par :
 Stéphane KELLER
-; Lycée agricole Louis Pasteur
+Lycée agricole Louis Pasteur
