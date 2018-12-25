@@ -1,6 +1,5 @@
 - Fichiers Libre Office Calc :
-        * QCM de mathématiques et de physique-chimie ;
-        * TP intervalle de confiance ;
+        QCM de mathématiques et de physique-chimie ; TP intervalle de confiance ;
 - Fiches d'utilisation de la calculatrice CASIO ;
 - Fichiers Geogebra : problèmes d'optimisation.
 
