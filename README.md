@@ -4,5 +4,5 @@
 - Fichiers Geogebra : problèmes d'optimisation.
 
 Fichiers créés par :
-Stéphane KELLER
-Lycée agricole Louis Pasteur
+- Stéphane KELLER
+- Lycée agricole Louis Pasteur
