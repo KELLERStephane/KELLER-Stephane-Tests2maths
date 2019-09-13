@@ -1,5 +1,9 @@
 - Fichiers Libre Office Calc :
         Tests de mathématiques et de physique-chimie ; TP intervalle de confiance.
+ 
+        ATTENTION : SUITE A UN BUG SUR LIBRE OFFICE CALC, IL FAUT UTILISER UNE VERSION INFERIEURE A 6.2.X.X.
+        LA VERSION LIBRE OFFICE 6.1.6 CONVIENT SANS PROBLEME.
+
 - Fiches d'utilisation de la calculatrice CASIO.
 - Fichiers Geogebra : problèmes d'optimisation.
 - Filius : logiciel de simulation de réseaux.
