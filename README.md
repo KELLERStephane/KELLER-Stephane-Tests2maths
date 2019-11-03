@@ -1,9 +1,8 @@
 - Fichiers Libre Office Calc :
         Tests de mathématiques, de SNT et de physique-chimie ; TP intervalle de confiance.
  
-        ATTENTION : SUITE A UN BUG SUR LIBRE OFFICE CALC, IL FAUT UTILISER UNE VERSION INFERIEURE A 6.2.X.X.
-        LA VERSION LIBRE OFFICE 6.1.6 CONVIENT SANS PROBLEME.
-        https://downloadarchive.documentfoundation.org/libreoffice/old/6.1.6.3/
+        ATTENTION : LES FICHIERS FONCTIONNENT AVEC LES NOUVELLES VERSIONS DE LIBRE OFFICE.
+        IL EST NECESSAIRE D'ACTIVER LES MACROS POUR LEUR UTILISATION (VOIR L'ONGLET AIDE POUR LA PROCEDURE)
 
 - Fiches d'utilisation de la calculatrice CASIO.
 - Fichiers Geogebra : problèmes d'optimisation.
