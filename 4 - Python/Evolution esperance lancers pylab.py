@@ -17,8 +17,7 @@ def gain(n):
 #        print("li_de", li_de) 
 #        print("li_gain", li_gain)
 #        print("li_esp", li_esp)
-    x = np.array([i+1 for i in range(len(li_esp))]) #tableau des abscisses
-    y = np.array(li_esp) #tableau des ordonnées
+    x = [i+1 for i in range(len(li_esp))] #tableau des abscisses
     plot(x, li_esp) #placement des points
     show() #affichage du graphique
 
