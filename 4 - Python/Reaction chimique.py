@@ -1,4 +1,4 @@
-# Stéhphane KELLER - Lycée agricole Louis Pasteur
+# Stéphane KELLER - Lycée agricole Louis Pasteur
 # https://github.com/KELLERStephane/KELLER-Stephane-Tests2maths
 import matplotlib.pyplot as plt #création d’un alias
 
