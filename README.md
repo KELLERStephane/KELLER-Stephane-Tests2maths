@@ -2,7 +2,7 @@
         Tests de mathématiques, de SNT et de physique-chimie ; TP intervalle de confiance.
  
         ATTENTION : LES FICHIERS FONCTIONNENT AVEC LES NOUVELLES VERSIONS DE LIBRE OFFICE.
-        IL EST NECESSAIRE D'ACTIVER LES MACROS POUR LEUR UTILISATION (VOIR L'ONGLET AIDE POUR LA PROCEDURE)
+       POUR CELA, IL EST NECESSAIRE D'ACTIVER LES MACROS (VOIR L'ONGLET AIDE POUR LA PROCEDURE)
 
 - Fiches d'utilisation de la calculatrice CASIO.
 - Fichiers Geogebra : problèmes d'optimisation.
