@@ -1,3 +1,8 @@
+En 2019,j'ai eu 7 868 téléchargements. Super.
+Quelques remerciements et retour d'utilisation le part de mes élèves et de plusieurs collègues sur FirstClass.
+Peu voire pas des autres utilisateurs.
+C'est peu et cela n'incite pas à poursuivre le développement de mes fichiers. Je pense notamment à la documentation de Filius qui m'a demandé beaucoup, beaucoup de temps et de mes fichiers LibreOffice.
+
 - Fichiers Libre Office Calc :
         Tests de mathématiques, de SNT et de physique-chimie ; TP intervalle de confiance.
  
