@@ -1,4 +1,4 @@
-En 2019,j'ai eu 7 868 téléchargements. Super.
+En 2019, j'ai eu 7 868 téléchargements. Super.
 J'ai eu quelques remerciements et retour d'utilisation de la part de mes élèves et de plusieurs collègues sur FirstClass.
 Peu voire aucun de la part des autres utilisateurs.
 C'est peu et cela n'incite pas à poursuivre le développement de mes fichiers. Je pense notamment à la documentation de Filius qui m'a demandé beaucoup, beaucoup de temps et de mes fichiers LibreOffice.
