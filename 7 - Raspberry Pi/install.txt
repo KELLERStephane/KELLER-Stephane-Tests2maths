@@ -29,3 +29,17 @@ dpkg --install webmin-current.deb && rm -f webmin-current.deb
 ### Installation d'une commande de recherche de fichiers (« locate ») :
 ###...et tant qu'on y est, on déclenche de suite l'indexation des fichiers pour préparer une future recherche:
 apt -y install locate && updatedb
+
+
+### Edition de latable en roo 
+echo "#redémarrage automatique chaque jour a 4H00 :
+#0 4 * * * reboot
+# Purger les fichiers téléchargés chaque jour le matin a 5H00
+0 5 * * * aptitude -y clean
+#mise a jour automatique sans confirmation chaque jour le matin a 6H00 :
+0 6 * * * aptitude update && aptitude upgrade -y" | sudo tee -a /var/spool/cron/crontabs/root
+
+### Mise a jour automatique de l'heure
+aptitude install ntp -y
+/etc/init.d/ntp start
+echo "server 0.fr.pool.ntp.org" | sudo tee -a /etc/ntp.com
