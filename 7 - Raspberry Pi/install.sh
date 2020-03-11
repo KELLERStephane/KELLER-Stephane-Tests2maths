@@ -121,6 +121,22 @@ while "$boucle";do
         fi
 done
 
+boucle=true
+while "$boucle";do
+        echo -e -n "${bleuclair}\nInstallation de Fail2map (nécessite d'abord Fail2ban) (o/n) : ${neutre}"
+        read repfail2map
+        if [ "$repfail2map" = "o" ] || [ "$repfail2map" = "O" ]
+        then
+                echo -e "${jaune}Fail2map sera installé ${neutre}"
+                boucle=false
+        fi
+        if [ "$repfail2map" = "n" ] || [ "$repfail2map" = "N" ]
+        then
+                echo -e "${jaune}Fail2map ne sera pas installé ${neutre}"
+                boucle=false
+        fi
+done
+
 ### ===============================================================
 ### Installayion du gestionnaire de paquets "aptitude" si nécessaire
 ### ===============================================================
@@ -341,54 +357,58 @@ then
 	echo -e "${vertclair}\nPour éviter le surplus d'information dans les mails ${neutre}"
 	echo -e "${vertclair}Création du fichier /etc/fail2ban/action.d/sendmail-common.local ${neutre}"
 	echo -e "[Definition]\naction start =\naction stop =" | sudo tee –a /etc/fail2ban/action.d/sendmail-common.local
+fi
+
+### ===============================================================
+### Installation de Fail2map
+### ===============================================================
+
+if [ "$repfail2map" = "o" ] || [ "$repfail2map" = "O" ]
+then
+        echo -e "${bleuclair}\nInstallation de Fail2map (nécessite Fail2ban) ${neutre}"
 
         echo -e "${vertclair}\nTéléchargement de Fail2map ${neutre}"
- 	git clone https://github.com/mvonthron/fail2map /var/www/html/fail2map
+        git clone https://github.com/mvonthron/fail2map /var/www/html/fail2map
         echo -e "${vertclair}Modification de la géolocalisation ${neutre}"
-	echo -e "${vertclair}Sauvegarde du fichier ${neutre}"
-	echo -e "${vertclair}/var/www/html/fail2map/fail2map.py -> /var/www/html/fail2map/fail2map.copy ${neutre}"
-	cp /var/www/html/fail2map/fail2map.py /var/www/html/fail2map/fail2map.copy
+        echo -e "${vertclair}Sauvegarde du fichier ${neutre}"
+
+        echo -e "${vertclair}/var/www/html/fail2map/fail2map.py -> /var/www/html/fail2map/fail2map.copy ${neutre}"
+        cp /var/www/html/fail2map/fail2map.py /var/www/html/fail2map/fail2map.copy
 
         echo -e "${vertclair}Modification du fichier /var/www/html/fail2map/fail2map.conf ${neutre}"
         L1='GEOIP_API = "http:\/\/www.telize.com\/geoip\/%s"'
         L2='#GEOIP_API = "http:\/\/www.telize.com\/geoip\/%s"'
         L3='\nGEOIP_API = "http:\/\/ip-api.com\/json\/%s"'
-	sed '/'"$L1"'/ c\'"$L2"''"$L3"'' /var/www/html/fail2map/fail2map.py>/home/pi/fail2map.py
-	sed -i -e "s/longitude/lon/g" /home/pi/fail2map.py
-	sed -i -e "s/latitude/lat/g" /home/pi/fail2map.py
-	mv /home/pi/fail2map.py /var/www/html/fail2map/fail2map.py
+        sed '/'"$L1"'/ c\'"$L2"''"$L3"'' /var/www/html/fail2map/fail2map.py>/home/pi/fail2map.py
+        sed -i -e "s/longitude/lon/g" /home/pi/fail2map.py
+        sed -i -e "s/latitude/lat/g" /home/pi/fail2map.py
+        mv /home/pi/fail2map.py /var/www/html/fail2map/fail2map.py
 
         echo -e "${vertclair}Modification du fichier /var/www/html/fail2map/fail2map-action.conf ${neutre}"
- 	cp /var/www/html/fail2map/fail2map-action.conf /var/www/html/fail2map/fail2map-action.copy
+        cp /var/www/html/fail2map/fail2map-action.conf /var/www/html/fail2map/fail2map-action.copy
         L1='fail2map = *'
         L2='#fail2map = cd **FAIL2MAP PATH** && python fail2map.py'
         L3='\nfail2map = cd /var/www/html/fail2map && python fail2map.py'
-	sed '/'"$L1"'/ c\'"$L2"''"$L3"'' /var/www/html/fail2map/fail2map-action.conf>/home/pi/fail2map-action.conf
-	mv /home/pi/fail2map-action.conf /var/www/html/fail2map/fail2map-action.conf
+        sed '/'"$L1"'/ c\'"$L2"''"$L3"'' /var/www/html/fail2map/fail2map-action.conf>/home/pi/fail2map-action.conf
+        mv /home/pi/fail2map-action.conf /var/www/html/fail2map/fail2map-action.conf
         echo -e "${vertclair}Copie du fichier /var/www/html/fail2map/fail2map-action.conf -> /etc/fail2ban/actions.d ${neutre}"
         cp /var/www/html/fail2map/fail2map-action.conf /etc/fail2ban/action.d/
 
-
         echo -e "${vertclair}Suppression du fichier d'exemple de localisation /var/www/html/fail2map/places.geojson ${neutre}"
-	rm /var/www/html/fail2map/places.geojson
+        rm /var/www/html/fail2map/places.geojson
 
         echo -e "${vertclair}Création d'un fichier vide localisation /var/www/html/fail2map/places.geojson ${neutre}"
-	echo "" | sudo tee -a /var/www/html/fail2map/places.geojson
+        echo "" | sudo tee -a /var/www/html/fail2map/places.geojson
         echo -e "${vertclair}Modification des droits du fichier /var/www/html/fail2map/places.geojson en -rwxr-xr-x ${neutre}"
-	chmod 755 /var/www/html/fail2map/places.geojson
+        chmod 755 /var/www/html/fail2map/places.geojson
 
         echo -e "${vertclair}Changement de la carte par défaut en modifiant le fichier /var/www/html/fail2map/js/map.js ${neutre}"
-	sudo sed '/'"$L1"'/ c\'"$L2"''"$L3"'' /var/www/html/fail2map/js/maps.js >>/home/pi/maps.js
+        sudo sed '/'"$L1"'/ c\'"$L2"''"$L3"'' /var/www/html/fail2map/js/maps.js >>/home/pi/maps.js
         L1="baseLayer = *"
         L2="//    baseLayer = L.tileLayer.provider('Thunderforest.Landscape', {"
         L3="\n\tbaseLayer = L.tileLayer.provider('Esri.NatGeoWorldMap', {"
-	sed '/'"$L1"'/ c\'"$L2"''"$L3"'' /var/www/html/fail2map/js/maps.js >/home/pi/maps.js
-	mv /home/pi/maps.js /var/www/html/fail2map/js/maps.js 
-
-#	echo -e "${vertclair}\nDémarrage de Fail2ban ${neutre}"
-#	sudo service fail2ban start
-#        echo -e "${vertclair}\nAffichage du status de Fail2ban ${neutre}"
-# 	fail2ban-client status
+        sed '/'"$L1"'/ c\'"$L2"''"$L3"'' /var/www/html/fail2map/js/maps.js >/home/pi/maps.js
+        mv /home/pi/maps.js /var/www/html/fail2map/js/maps.js
 fi
 
 ### ===============================================================
