@@ -125,25 +125,25 @@ done
 ### Installayion du gestionnaire de paquets "aptitude" si nécessaire
 ### ===============================================================
 echo -e "${vertclair}\nInstallation d'Aptitude si nécessaire ${neutre} ${neutre}"
-#apt -y install aptitude
+apt -y install aptitude
 
 ### ===============================================================
 ### Mises à jour du système
 ### ===============================================================
 echo -e "${vertclair}\nMise à jour des paquets si nécessaire ${neutre}"
-#apt update && apt -y upgrade  && aptitude update
+apt update && apt -y upgrade  && aptitude update
 
 ### ===============================================================
 ### Installation de wget (si nécessaire)
 ### ===============================================================
 echo -e "${vertclair}\nInstallation de wget si nécessaire ${neutre}"
-#apt -y install wget
+apt -y install wget
 
 ### ===============================================================
 ### Installation de git (si nécessaire)
 ### ===============================================================
 echo -e "${vertclair}\nInstallation de git si nécessaire ${neutre}"
-#apt -y install git
+apt -y install git
 
 # puis fixer le probleme de transport sur HTTPS
 #apt -y install ca-certificates apt-transport-https
@@ -155,22 +155,22 @@ echo -e "${vertclair}\nInstallation de git si nécessaire ${neutre}"
 ### Installation du gestionnaire et éditeur de fihciers  "mc" si nécessaire
 ### ===============================================================
 echo -e "${vertclair}\nInstallation du gestionnaire et éditeur de fichier mcedit si nécessaire ${neutre}"
-#apt -y install mc
+apt -y install mc
 
 ### ===============================================================
 ### Installation d'une commande de recherche de fichiers (« locate ») :
 ### et mise à jour de l'index des fichiers
 ### ===============================================================
 echo -e "${vertclair}\nInstallation de locate si nécessaire et indexation des fichiers ${neutre}"
-#apt -y install locate && updatedb
+apt -y install locate && updatedb
 
 ### ===============================================================
 ### Mise a jour automatique de l'heure
 ### ===============================================================
 echo -e "${vertclair}\nInstalltion du protocole de synchronisation de l'heure si nécessaire ${neutre}"
-#aptitude install ntp -y
-#/etc/init.d/ntp start
-#echo "server 0.fr.pool.ntp.org" | sudo tee -a /etc/ntp.com
+aptitude install ntp -y
+/etc/init.d/ntp start
+echo "server 0.fr.pool.ntp.org" | sudo tee -a /etc/ntp.com
 
 ### ===============================================================
 ### Installation de Webmin
