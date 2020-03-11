@@ -278,7 +278,7 @@ fi
 if [ "$repfail2ban" = "o" ] || [ "$repfail2ban" = "O" ]
 then
         echo -e "${bleuclair}\nInstallation de Fail2ban ${neutre}"
-        apt install fail2ban -y
+        apt -y install fail2ban
 	echo -e "${vertclair}Sauvegarde des fichiers de configuration des prisons de Fail2ban${neutre}"
 	echo -e "${vertclair}/etc/fail2ban/jail.conf -> /etc/fail2ban/jail.copy ${neutre}"
 	echo -e "${vertclair}/etc/fail2ban/fail2ban.conf -> /etc/fail2ban/fail2ban.copy ${neutre}"
