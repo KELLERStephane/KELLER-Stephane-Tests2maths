@@ -5,94 +5,145 @@
 ### Stéphane KELLER – Lycée Agricole Louis Pasteur
 ### ===============================================================
 
+### ===============================================================
+### Définition des couleurs
+### ===============================================================
+
+noir='\e[0;30m'
+gris='\e[1;30m'
+rougefonce='\e[0;31m'
+rougeclair='\e[1;31m'
+rose='\e[1;31m'
+vertfonce='\e[0;32m'
+vertclair='\e[1;32m'
+orange='\e[0;33m'
+jaune='\e[1;33m'
+bleufonce='\e[0;34m'
+bleuclair='\e[1;34m'
+violetfonce='\e[0;35m'
+violetclair='\e[1;35m'
+cyanfonce='\e[0;36m'
+cyanclair='\e[1;36m'
+grisclair='\e[0;37m'
+blanc='\e[1;37m'
+blancclignotant='\e[5;37m'
+neutre='\e[0;m'
+
+### ===============================================================
+### Copyright
+### ===============================================================
+
+echo -e "${jaune}\nScript d'installation automatique de Webmin, Motioneye, Apache2, fail2ban et Fail2map pour le Raspberry"
+echo -e "Script réalisé par KELLER Stéphane - Lycée Agricole Louis Pasteur"
+echo -e "https://github.com/KELLERStephane/KELLER-Stephane-Tests2maths ${neutre}"
+
+### ===============================================================
+### Choix des options d'installation
+### ===============================================================
+
 boucle=true
 while "$boucle";do
-        echo "Installation de Webmin (o/n) : "
-        read repwebwin
-        if [ $repwebwin = "o" ] || [ $repwebwin = "O" ]
+        echo -e -n "${bleuclair}\nInstallation de Webmin (o/n) : ${neutre}"
+        read repwebmin
+        if [ "$repwebmin" = "o" ] || [ "$repwebmin" = "O" ]
         then
-                echo "Webmin sera installé"
+                echo -e "${jaune}Webmin sera installé ${neutre}"
                 boucle=false
         fi
-        if [ $repwebwin = "n" ] || [ $repwebwin = "N" ]
+        if [ "$repwebmin" = "n" ] || [ "$repwebmin" = "N" ]
         then
-                echo "Webmin ne sera pas installé"
+                echo -e "${jaune}Webmin ne sera pas installé ${neutre}"
                 boucle=false
         fi
 done
 
 boucle=true
 while "$boucle";do
-        echo "Installation de Motioneye (o/n) : "
+        echo -e -n "${bleuclair}\nInstallation de Motioneye (o/n) : ${neutre}"
         read repmotioneye
-        if [ $repmotioneye = "o" ] || [ $repmotioneye = "O" ]
+        if [ "$repmotioneye" = "o" ] || [ "$repmotioneye" = "O" ]
         then
-                echo "Motioneye sera installé"
+                echo -e "${jaune}Motioneye sera installé ${neutre}"
                 boucle=false
         fi
-        if [ $repmotioneye = "n" ] || [ $repmotioneye = "N" ]
+        if [ "$repmotioneye" = "n" ] || [ "$repmotioneye" = "N" ]
         then
-                echo "Motioneye ne sera pas installé"
+                echo -e "${jaune}Motioneye ne sera pas installé ${neutre}"
                 boucle=false
         fi
 done
 
 boucle=true
 while "$boucle";do
-        echo "Installation d'Apache2 (o/n) : "
+        echo -e -n "${bleuclair}\nInstallation d'Apache2 (o/n) : ${neutre}"
         read repapache
-        if [ $repapache = "o" ] || [ $repapache = "O" ]
+        if [ "$repapache" = "o" ] || [ "$repapache" = "O" ]
         then
-                echo "Apache2 sera installé"
+                echo -e "${jaune}Apache2 sera installé ${neutre}"
                 boucle=false
         fi
-        if [ $repwebwin = "n" ] || [ $repwebwin = "N" ]
+        if [ "$repapache" = "n" ] || [ "$repapache" = "N" ]
         then
-                echo "Apache2 ne sera pas installé"
+                echo -e "${jaune}Apache2 ne sera pas installé ${neutre}"
                 boucle=false
         fi
 done
 
 boucle=true
 while "$boucle";do
-        echo "Installation de Domoticz (o/n) : "
+        echo -e -n "${bleuclair}\nInstallation de Domoticz (o/n) : ${neutre}"
         read repdomoticz
-        if [ $repdomoticz = "o" ] || [ $repdomoticz = "O" ]
+        if [ "$repdomoticz" = "o" ] || [ "$repdomoticz" = "O" ]
         then
-                echo "Domoticz sera installé"
+                echo -e "${jaune}Domoticz sera installé ${neutre}"
                 boucle=false
         fi
-        if [ $repdomoticz = "n" ] || [ $repdomoticz = "N" ]
+        if [ "$repdomoticz" = "n" ] || [ "$repdomoticz" = "N" ]
         then
-                echo "Domoticz ne sera pas installé"
+                echo -e "${jaune}Domoticz ne sera pas installé ${neutre}"
                 boucle=false
         fi
 done
 
 boucle=true
 while "$boucle";do
-        echo "Installation de Fail2ban (o/n) : "
+        echo -e -n "${bleuclair}\nInstallation de Fail2ban (o/n) : ${neutre}"
         read repfail2ban
-        if [ $repfail2ban = "o" ] || [ $repfail2ban = "O" ]
+        if [ "$repfail2ban" = "o" ] || [ "$repfail2ban" = "O" ]
         then
-                echo "Fail2ban sera installé"
+                echo -e "${jaune}Fail2ban sera installé ${neutre}"
                 boucle=false
         fi
-        if [ $repfail2ban = "n" ] || [ $repfail2ban = "N" ]
+        if [ "$repfail2ban" = "n" ] || [ "$repfail2ban" = "N" ]
         then
-                echo "Fail2ban ne sera pas installé"
+                echo -e "${jaune}Fail2ban ne sera pas installé ${neutre}"
                 boucle=false
         fi
 done
 
-### mises à jour
-echo -e "\nMise à jour des paquets"
-apt update && apt -y upgrade  && aptitude update
-apt update && apt -y upgrade
+### ===============================================================
+### Installayion du gestionnaire de paquets "aptitude" si nécessaire
+### ===============================================================
+echo -e "${vertclair}\nInstallation d'Aptitude si nécessaire ${neutre} ${neutre}"
+#apt -y install aptitude
 
-# installer wget (si nécessaire)
-echo -e "\nInstallation de wget si nécessaire"
-apt -y install wget
+### ===============================================================
+### Mises à jour du système
+### ===============================================================
+echo -e "${vertclair}\nMise à jour des paquets si nécessaire ${neutre}"
+#apt update && apt -y upgrade  && aptitude update
+
+### ===============================================================
+### Installation de wget (si nécessaire)
+### ===============================================================
+echo -e "${vertclair}\nInstallation de wget si nécessaire ${neutre}"
+#apt -y install wget
+
+### ===============================================================
+### Installation de git (si nécessaire)
+### ===============================================================
+echo -e "${vertclair}\nInstallation de git si nécessaire ${neutre}"
+#apt -y install git
 
 # puis fixer le probleme de transport sur HTTPS
 #apt -y install ca-certificates apt-transport-https
@@ -100,40 +151,34 @@ apt -y install wget
 # enfin on inscrit le dépot dans sources.list pour les prochaines mises à jour
 #echo "deb https://packages.sury.org/php/ buster main" | sudo tee /etc/apt/sources.list.d/php.list
 
-### installer "aptitude" (gestionnaire de paquets)
-echo -e "\nInstallation d'Aptitude si nécessaire" 
-apt -y install aptitude
+### ===============================================================
+### Installation du gestionnaire et éditeur de fihciers  "mc" si nécessaire
+### ===============================================================
+echo -e "${vertclair}\nInstallation du gestionnaire et éditeur de fichier mcedit si nécessaire ${neutre}"
+#apt -y install mc
 
-### installer "mc" (gestionnaire de fichiers + editeur mcedit)
-echo -e "\nInstallation du gestionnaire et éditeur de fichier mcedit"
-apt -y install mc
-
+### ===============================================================
 ### Installation d'une commande de recherche de fichiers (« locate ») :
-###...et tant qu'on y est, on déclenche de suite l'indexation des fichiers pour préparer une future recherche:
-echo -e "\nInstallation de locate et indexation des fichiers"
-apt -y install locate && updatedb
+### et mise à jour de l'index des fichiers
+### ===============================================================
+echo -e "${vertclair}\nInstallation de locate si nécessaire et indexation des fichiers ${neutre}"
+#apt -y install locate && updatedb
 
+### ===============================================================
 ### Mise a jour automatique de l'heure
-echo -e "\nMise à jour automatique de l'heure"
-aptitude install ntp -y
-/etc/init.d/ntp start
-echo "server 0.fr.pool.ntp.org" | sudo tee -a /etc/ntp.com
-
-### Edition de la table crontab en root
-echo "#redémarrage automatique chaque jour a 4H00 :" | sudo tee -a /var/spool/cron/crontabs/root
-echo "#0 4 * * * reboot" | sudo tee -a /var/spool/cron/crontabs/root
-echo "# Purger les fichiers téléchargés chaque jour le matin a 5H00" | sudo tee -a /var/spool/cron/crontabs/root
-echo "0 5 * * * aptitude -y clean" | sudo tee -a /var/spool/cron/crontabs/root
-echo "#mise a jour automatique sans confirmation chaque jour le matin a 6H00 :" | sudo tee -a /var/spool/cron/crontabs/root
-echo "0 6 * * * aptitude update && aptitude upgrade -y" | sudo tee -a /var/spool/cron/crontabs/root
+### ===============================================================
+echo -e "${vertclair}\nInstalltion du protocole de synchronisation de l'heure si nécessaire ${neutre}"
+#aptitude install ntp -y
+#/etc/init.d/ntp start
+#echo "server 0.fr.pool.ntp.org" | sudo tee -a /etc/ntp.com
 
 ### ===============================================================
 ### Installation de Webmin
 ### ===============================================================
 
-if [ $repwebmin = "o" ] || [$repwebmin = "O" ]
+if [ "$repwebmin" = "o" ] || [ "$repwebmin" = "O" ]
 then
-	echo -e "\nInstallation de Webmin"
+	echo -e "${vertclair}\nInstallation de Webmin ${neutre}"
 	aptitude -y install libnet-ssleay-perl openssl libauthen-pam-perl libio-pty-perl apt-show-versions python
 	wget http://www.webmin.com/download/deb/webmin-current.deb --no-check-certificate
 	dpkg --install webmin-current.deb && rm -f webmin-current.deb
@@ -143,9 +188,9 @@ fi
 ### Installation de Motioneye
 ### ===============================================================
 
-if [ $repmotioneye = "o" ] || [$repmotioneye = "O" ]
+if [ "$repmotioneye" = "o" ] || [ "$repmotioneye" = "O" ]
 then
-	echo "\nInstallation de Motioneye"
+	echo -e "${vertclair}\nInstallation de Motioneye ${neutre}"
         echo "bcm2835_v4l2" | sudo tee -a /etc/modules
         echo -e "\ndisable_camera_led=1" | sudo tee -a /boot/config.txt
         apt -y install ffmpeg libmariadb3 libpq5 libmicrohttpd12
@@ -166,19 +211,63 @@ fi
 ### Installation d'Apache
 ### ===============================================================
 
-if [ $repapache = "o" ] || [ $repapache = "O" ]
+if [ "$repapache" = "o" ] || [ "$repapache" = "O" ]
 then
-        echo -e "\nInstallation d'Apache"
+        echo -e "${vertclair}\nInstallation d'Apache ${neutre}"
         aptitude install apache2 -y
+	echo "Efface la page par défaut d'Apache2"
+	rm /var/www/html/index.html 
+
+	boucle=true
+	while "$boucle";do
+        	echo -e "${rougeclair}\nSécuristion d'Apache2. Attention cela ne doit être effectué qu'une seule fois !"
+		echo -e "\nCréation du fichier de mot de passe sécurisé et modification"
+		echo -e -n "du fichier /etc/apache2/apache2.conf (o/n) : ${neutre}"
+	        read repmdp
+        	if [ "$repmdp" = "o" ] || [ "$repmdp" = "O" ]
+	        then
+        	        echo -e "${vertclair}Sécurisation d'Apache2 en cours"
+		        echo -e "création du répertoire de mot de passe sécurisé /var/wwww/passwd"
+		        cd /var/www/
+		        mkdir passwd
+		        echo -e -n "Saisir le nom de l'utilisateur principal pour Apache2 : "
+		        read username
+		        htpasswd -c /var/www/passwd/passwords "$username"
+		        echo -e "Modification du fichier /etc/apache2/apache2.conf pour sécuriser l'accès à Apache2"
+			echo -e "Sauvegarde du fichier /etc/apache2/apache2.conf dans /etc/apache2/apach2.copy"
+			cp /etc/apache2/apache2.conf /etc/apache2/apache2.copy
+                        L1='#<\/Directory>'
+                        L2='\n\<Directory /var/www/html>'
+                        L3='\n\tAuthType Basic'
+                        L4='\n\tAuthName "ACCES PROTEGE"'
+                        L5='\n\t# (Following line optional)'
+                        L6='\n\tAuthBasicProvider file'
+                        L7='\n\tAuthUserFile "/var/www/passwd/passwords"'
+                        L8='\n\tRequire valid-user'
+                        L9='\n\t# tri horaire décroissant'
+                        L10='\n\tIndexOrderDefault Descending Date'
+                        L11='\n</Directory>'
+			sudo sed '/'"$L1"'/ a\'"$L2"''"$L3"''"$L4"''"$L5"''"$L6"''"$L7"''"$L8"''"$L9"''"$L10"''"$L11"'' /etc/apache2/apache2.conf>/home/pi/apache2.conf
+			cp /home/pi/apache2.conf /etc/apache2/apache2.conf
+			echo -e "Redémarrage du service Apache2 ${neutre}"
+			/etc/init.d/apache2 restart
+                	boucle=false
+	        fi
+	        if [ "$repmdp" = "n" ] || [ "$repmdp" = "N" ]
+	        then
+        	        echo -e "${vertclair}Poursuite de l'installation ${neutre}"
+	                boucle=false
+        	fi
+	done
 fi
 
 ### ===============================================================
 ### Installation de Domoticz
 ### ===============================================================
 
-if [ $repdomoticz = "o" ] || [ $repdomoticz = "O" ]
+if [ "$repdomoticz" = "o" ] || [ "$repdomoticz" = "O" ]
 then
-        echo -e "\nInstallation de Domoticz" 
+        echo -e "${bleuclair}\nInstallation de Domoticz ${neutre}" 
 	curl -L install.domoticz.com | bash
 fi
 
@@ -186,8 +275,134 @@ fi
 ### Installation de Fail2ban
 ### ===============================================================
 
-if [ $repfail2ban = "o" ] || [ $repfail2ban = "O" ]
+if [ "$repfail2ban" = "o" ] || [ "$repfail2ban" = "O" ]
 then
-        echo -e "\nInstallation de Fail2ban"
-        aptitude install fail2ban -y
+        echo -e "${bleuclair}\nInstallation de Fail2ban ${neutre}"
+        apt install fail2ban -y
+	echo -e "${vertclair}Sauvegarde des fichiers de configuration des prisons de Fail2ban${neutre}"
+	echo -e "${vertclair}/etc/fail2ban/jail.conf -> /etc/fail2ban/jail.copy ${neutre}"
+	echo -e "${vertclair}/etc/fail2ban/fail2ban.conf -> /etc/fail2ban/fail2ban.copy ${neutre}"
+ 	cp /etc/fail2ban/jail.conf /etc/fail2ban/jail.copy
+	cp /etc/fail2ban/fail2ban.conf /etc/fail2ban/fail2ban.copy
+
+	echo -e "${vertclair}\nInstallation de Postfix si nécessaire pour l'envoi des mails d'alerte ${neutre} ${neutre}"
+	apt install postfix
+        echo -e "${vertclair}\nTéléchargement du fichier de configuration des prisons (à personnaliser) ${neutre}"
+	wget -P /etc/fail2ban/jail.d/ https://raw.githubusercontent.com/KELLERStephane/KELLER-Stephane-Tests2maths/master/7%20-%20Raspberry%20Pi/custom.conf
+	boucle=true
+	while "$boucle";do
+	        echo -e "${bleuclair}\nSaisir l'adresse mail pour les messages de Fail2ban : ${neutre}"
+	        read repmaila
+	        echo -e "${bleuclair}\nResaisir l'adresse mail : ${neutre}"
+	        read repmailb
+	        if [ "$repmaila" = "$repmailb" ]
+	        then
+	                echo -e "${jaune}Adresse mail correcte ${neutre}"
+	                boucle=false
+	        else
+	                echo -e "${jaune}Adresse mail différente. Recommencer"
+        	fi
+	done
+        echo -e "${vertclair}Sauvegarde du fichier de configuration personnalisable de Fail2ban ${neutre}"
+        echo -e "${vertclair}/etc/fail2ban/jail.d/custom.conf -> /etc/fail2ban/jail.d/custom.copy ${neutre}"
+	cp /etc/fail2ban/jail.d/custom.conf /etc/fail2ban/jail.d/custom.copy
+        echo -e "${vertclair}Ajout de l'adresse dans le fichier de configuration personnalisable de Fail2ban ${neutre}"
+        L1='destemail='
+        L2='\n#destemail='
+        L3='\ndestemail='
+	sed '/'"$L1"'/ c\'"$L2"''"$L3"''"$repmaila"'' /etc/fail2ban/jail.d/custom.conf >/home/pi/custom.conf
+	mv /home/pi/custom.conf /etc/fail2ban/jail.d/custom.conf
+
+	echo -e "${vertclair}Démarrage du service Postfix ${neutre}"
+	service postfix reload
+
+	echo -e "${vertclair}\nTéléchargment du script jails.sh pour l'affichage ${neutre}"
+        echo -e "${vertclair}des prisons et du nombre de bannis dans : ${neutre}"
+	mkdir /home/pi/script
+	wget -P /home/pi/script/ https://raw.githubusercontent.com/KELLERStephane/KELLER-Stephane-Tests2maths/master/7%20-%20Raspberry%20Pi/jails.sh
+	chmod +x /home/pi/script/jails.sh
+	echo -e "${vertclair}\nCréation d'un raccourci vers le bureau ${neutre}"
+	ln -s /home/pi/script/jails.sh /home/pi/
+	echo -e "${rougeclair}Pour la liste des prisons et le nombre de bannis : ${neutre}"
+	echo -e "${rougeclair}cd /home/pi ${neutre}"
+	echo -e "${rougeclair}sudo ./jails.sh ${neutre}"
+
+        echo -e "${vertclair}\nTéléchargment du script banip.sh ${neutre}"
+        echo -e "${vertclair}pour bannir ou débannir une adresse IP : ${neutre}"
+        echo -e "${vertclair}/home/pi/script/jails.sh ${neutre}"
+  	wget -P /home/pi/script/ https://raw.githubusercontent.com/KELLERStephane/KELLER-Stephane-Tests2maths/master/7%20-%20Raspberry%20Pi/banip.sh
+	chmod +x /home/pi/script/banip.sh
+	echo -e "${vertclair}\nCréation d'un raccourci vers le bureau ${neutre}"
+	ln -s /home/pi/script/banip.sh /home/pi/
+        echo -e "${rougeclair}Pour bannir ou débannir une adresse IP : ${neutre}"
+        echo -e "${rougeclair}cd /home/pi ${neutre}"
+        echo -e "${rougeclair}sudo ./banip.sh ${neutre}"
+
+	echo -e "${vertclair}\nPour éviter le surplus d'information dans les mails ${neutre}"
+	echo -e "${vertclair}Création du fichier /etc/fail2ban/action.d/sendmail-common.local ${neutre}"
+	echo -e "[Definition]\naction start =\naction stop =" | sudo tee –a /etc/fail2ban/action.d/sendmail-common.local
+
+        echo -e "${vertclair}\nTéléchargement de Fail2map ${neutre}"
+ 	git clone https://github.com/mvonthron/fail2map /var/www/html/fail2map
+        echo -e "${vertclair}Modification de la géolocalisation ${neutre}"
+	echo -e "${vertclair}Sauvegarde du fichier ${neutre}"
+	echo -e "${vertclair}/var/www/html/fail2map/fail2map.py -> /var/www/html/fail2map/fail2map.copy ${neutre}"
+	cp /var/www/html/fail2map/fail2map.py /var/www/html/fail2map/fail2map.copy
+
+        echo -e "${vertclair}Modification du fichier /var/www/html/fail2map/fail2map.conf ${neutre}"
+        L1='GEOIP_API = "http:\/\/www.telize.com\/geoip\/%s"'
+        L2='#GEOIP_API = "http:\/\/www.telize.com\/geoip\/%s"'
+        L3='\nGEOIP_API = "http:\/\/ip-api.com\/json\/%s"'
+	sed '/'"$L1"'/ c\'"$L2"''"$L3"'' /var/www/html/fail2map/fail2map.py>/home/pi/fail2map.py
+	sed -i -e "s/longitude/lon/g" /home/pi/fail2map.py
+	sed -i -e "s/latitude/lat/g" /home/pi/fail2map.py
+	mv /home/pi/fail2map.py /var/www/html/fail2map/fail2map.py
+
+        echo -e "${vertclair}Modification du fichier /var/www/html/fail2map/fail2map-action.conf ${neutre}"
+ 	cp /var/www/html/fail2map/fail2map-action.conf /var/www/html/fail2map/fail2map-action.copy
+        L1='fail2map = *'
+        L2='#fail2map = cd **FAIL2MAP PATH** && python fail2map.py'
+        L3='\nfail2map = cd /var/www/html/fail2map && python fail2map.py'
+	sed '/'"$L1"'/ c\'"$L2"''"$L3"'' /var/www/html/fail2map/fail2map-action.conf>/home/pi/fail2map-action.conf
+	mv /home/pi/fail2map-action.conf /var/www/html/fail2map/fail2map-action.conf
+        echo -e "${vertclair}Copie du fichier /var/www/html/fail2map/fail2map-action.conf -> /etc/fail2ban/actions.d ${neutre}"
+        cp /var/www/html/fail2map/fail2map-action.conf /etc/fail2ban/action.d/
+
+
+        echo -e "${vertclair}Suppression du fichier d'exemple de localisation /var/www/html/fail2map/places.geojson ${neutre}"
+	rm /var/www/html/fail2map/places.geojson
+
+        echo -e "${vertclair}Création d'un fichier vide localisation /var/www/html/fail2map/places.geojson ${neutre}"
+	echo "" | sudo tee -a /var/www/html/fail2map/places.geojson
+        echo -e "${vertclair}Modification des droits du fichier /var/www/html/fail2map/places.geojson en -rwxr-xr-x ${neutre}"
+	chmod 755 /var/www/html/fail2map/places.geojson
+
+        echo -e "${vertclair}Changement de la carte par défaut en modifiant le fichier /var/www/html/fail2map/js/map.js ${neutre}"
+	sudo sed '/'"$L1"'/ c\'"$L2"''"$L3"'' /var/www/html/fail2map/js/maps.js >>/home/pi/maps.js
+        L1="baseLayer = *"
+        L2="//    baseLayer = L.tileLayer.provider('Thunderforest.Landscape', {"
+        L3="\n\tbaseLayer = L.tileLayer.provider('Esri.NatGeoWorldMap', {"
+	sed '/'"$L1"'/ c\'"$L2"''"$L3"'' /var/www/html/fail2map/js/maps.js >/home/pi/maps.js
+	mv /home/pi/maps.js /var/www/html/fail2map/js/maps.js 
+
+#	echo -e "${vertclair}\nDémarrage de Fail2ban ${neutre}"
+#	sudo service fail2ban start
+#        echo -e "${vertclair}\nAffichage du status de Fail2ban ${neutre}"
+# 	fail2ban-client status
 fi
+
+### ===============================================================
+### Copyright
+### ===============================================================
+
+echo -e "${jaune}\nScript d'installation automatique de Webmin, Motioneye, Apache2, fail2ban et Fail2map pour le Raspberry"
+echo -e "Script réalisé par KELLER Stéphane - Lycée Agricole Louis Pasteur"
+echo -e "https://github.com/KELLERStephane/KELLER-Stephane-Tests2maths ${neutre}"
+
+### ===============================================================
+### Fin de l'installation
+### ===============================================================
+
+echo -e "${blancclignotant}Appuyer une touche pour redémarrer le Raspberry ${neutre}"
+read
+reboot
