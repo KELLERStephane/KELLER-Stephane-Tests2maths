@@ -368,6 +368,10 @@ then
         echo -e "${bleuclair}\nInstallation de Fail2map (nécessite Fail2ban) ${neutre}"
 
         echo -e "${vertclair}\nTéléchargement de Fail2map ${neutre}"
+	if [ -d "/var/www/html/fail2map" ];then
+		echo -e "${vertclair}Le répertoire /var/www/html/fail2map existe déja. Suppression du répertoire avant la nouvelle installation  ${neutre}";
+		rm -r /var/www/html/fail2map
+ 	fi
         git clone https://github.com/mvonthron/fail2map /var/www/html/fail2map
         echo -e "${vertclair}Modification de la géolocalisation ${neutre}"
         echo -e "${vertclair}Sauvegarde du fichier ${neutre}"
