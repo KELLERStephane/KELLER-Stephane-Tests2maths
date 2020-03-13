@@ -168,7 +168,7 @@ apt -y install git
 #echo "deb https://packages.sury.org/php/ buster main" | sudo tee /etc/apt/sources.list.d/php.list
 
 ### ===============================================================
-### Installation du gestionnaire et éditeur de fihciers  "mc" si nécessaire
+### Installation du gestionnaire et éditeur de fichiers  "mc" si nécessaire
 ### ===============================================================
 echo -e "${vertclair}\nInstallation du gestionnaire et éditeur de fichier mcedit si nécessaire ${neutre}"
 apt -y install mc
@@ -185,8 +185,8 @@ apt -y install locate && updatedb
 ### ===============================================================
 echo -e "${vertclair}\nInstalltion du protocole de synchronisation de l'heure si nécessaire ${neutre}"
 
-#aptitude install ntp -y
-#/etc/init.d/ntp start
+aptitude install ntp -y
+/etc/init.d/ntp start
 if [ -e /etc/ntp.com ]
 then
 	echo -e "${cyanclair}\nLe fichier /etc/ntp.com existe déja ${neutre}"
@@ -248,6 +248,12 @@ then
         apt -y install ffmpeg libmariadb3 libpq5 libmicrohttpd12
 
         echo -e "${vertclair}\ntéléchargement de Motioneye ${neutre}"
+	if [ -e /home/pi/pi_buster* ]
+	then
+		echo -e "${cyanclair}\nLe fichier de téléchargement pour Motioneye existe déja ${neutre}"
+		echo -e "${cyanclair}Effacement du fichier puis téléchargement du nouveau fichier ${neutre}"
+		rm /home/pi/pi_buster*
+	fi
         wget https://github.com/Motion-Project/motion/releases/download/release-4.2.2/pi_buster_motion_4.2.2-1_armhf.deb
         echo -e "${vertclair}\nInstallation de Motioneye ${neutre}"
         dpkg -i pi_buster_motion_4.2.2-1_armhf.deb
@@ -270,6 +276,12 @@ fi
 if [ "$repapache" = "o" ] || [ "$repapache" = "O" ]
 then
         echo -e "${vertclair}\nInstallation d'Apache ${neutre}"
+
+#        if [ -d "/etc/apache2" ]
+#        then
+#                echo -e "${cyanclair}Le répertoire d'installation d'Apache2 /etc/apache2 existe déja. Suppression du répertoire avant la nouvelle installation  ${neutre}";
+#                rm -r /etc/apache2
+#        fi
         aptitude install apache2 -y
 
 	echo -e "${vertclair}suppression si nécessaire de la page par défaut d'Apache2 ${neutre}"
@@ -281,7 +293,7 @@ then
         echo -e "${vertclair}\nSécuristion d'Apache2. ${neutre}"
         if [ -d "/var/www/passwd" ]
         then
-                echo -e "${cyanclair}Le répertoire média /var/www/passwd existe déja. Suppression du répertoire avant la nouvelle installation  ${neutre}";
+                echo -e "${cyanclair}Le répertoire de mots de passe /var/www/passwd existe déja. Suppression du répertoire avant la nouvelle installation  ${neutre}";
                 rm -r /var/www/passwd
         fi
         echo -e "${vertclair}\nCréation du répertoire de mot de passe sécurisé /var/wwww/passwd ${neutre}"
@@ -335,6 +347,15 @@ fi
 if [ "$repfail2ban" = "o" ] || [ "$repfail2ban" = "O" ]
 then
         echo -e "${bleuclair}\nInstallation de Fail2ban ${neutre}"
+
+        if [ -d "/etc/fail2ban" ]
+        then
+                echo -e "${cyanclair}Le répertoire d'installation de Fail2ban /etc/fail2ban existe déja. Suppression du répertoire avant la nouvelle installation  ${neutre}";
+	        echo -e "${vertclair}/etc/fail2ban/jail.copy -> /etc/fail2ban/jail.conf ${neutre}"
+        	echo -e "${vertclair}/etc/fail2ban/fail2ban.copy -> /etc/fail2ban/fail2ban.conf ${neutre}"
+     	   	cp /etc/fail2ban/jail.conf /etc/fail2ban/jail.copy
+        	cp /etc/fail2ban/fail2ban.conf /etc/fail2ban/fail2ban.copy
+        fi
         apt -y install fail2ban
 	echo -e "${vertclair}Sauvegarde des fichiers de configuration des prisons de Fail2ban${neutre}"
 	echo -e "${vertclair}/etc/fail2ban/jail.conf -> /etc/fail2ban/jail.copy ${neutre}"
@@ -392,9 +413,11 @@ then
 	wget -P /home/pi/script/ https://raw.githubusercontent.com/KELLERStephane/KELLER-Stephane-Tests2maths/master/7%20-%20Raspberry%20Pi/jails.sh
 	chmod +x /home/pi/script/jails.sh
 	echo -e "${vertclair}\nCréation d'un raccourci vers le bureau ${neutre}"
-	if [ -f "/home/pi/script/jails.sh" ]
+	if [ -h "/home/pi/jails.sh" ]
 	then
-		rm /home/pi/script/jails.sh
+		cd /home/pi
+		rm jails.sh
+#		unlink /home/pi/script/jails.sh
 	fi
 	ln -s /home/pi/script/jails.sh /home/pi/
 	echo -e "${rougeclair}Pour la liste des prisons et le nombre de bannis : ${neutre}"
@@ -402,14 +425,16 @@ then
 	echo -e "${rougeclair}sudo ./jails.sh ${neutre}"
 
 	#téléchargement si nécessaire du script banip
-        echo -e "${vertclair}\nTéléchargment si nécessaire du script banip.sh ${neutre}"
+        echo -e "${vertclair}\nTéléchargement si nécessaire du script banip.sh ${neutre}"
         echo -e "${vertclair}pour bannir ou débannir une adresse IP : ${neutre}"
         echo -e "${vertclair}/home/pi/script/jails.sh ${neutre}"
   	wget -P /home/pi/script/ https://raw.githubusercontent.com/KELLERStephane/KELLER-Stephane-Tests2maths/master/7%20-%20Raspberry%20Pi/banip.sh
 	chmod +x /home/pi/script/banip.sh
-        if [ -f "/home/pi/script/banip.sh" ]
+        if [ -h "/home/pi/banip.sh" ]
         then
-                rm /home/pi/script/banip.sh
+		cd /home/pi
+		rm banip.sh
+                unlink /home/pi/script/banip.sh
         fi
 	echo -e "${vertclair}\nCréation d'un raccourci vers le bureau ${neutre}"
 	ln -s /home/pi/script/banip.sh /home/pi/
@@ -456,8 +481,15 @@ then
         L3='\nfail2map = cd /var/www/html/fail2map && python fail2map.py'
         sed '/'"$L1"'/ c\'"$L2"''"$L3"'' /var/www/html/fail2map/fail2map-action.conf>/home/pi/fail2map-action.conf
         mv /home/pi/fail2map-action.conf /var/www/html/fail2map/fail2map-action.conf
+
         echo -e "${vertclair}Copie du fichier /var/www/html/fail2map/fail2map-action.conf -> /etc/fail2ban/actions.d ${neutre}"
-        cp /var/www/html/fail2map/fail2map-action.conf /etc/fail2ban/action.d/
+	if [ -e /etc/fail2ban/action.d ]
+	then
+		echo -e "${cyanclair}\nLe fichier /etc/fail2ban/action.d existe déja ${neutre}"
+		echo -e "${cyanclair}Effacement du fichier puis création du nouveau fichier ${neutre}"
+		rm /etc/fail2ban/action.d
+	fi
+        cp /var/www/html/fail2map/fail2map-action.conf /etc/fail2ban/action.d
 
         echo -e "${vertclair}Suppression du fichier d'exemple de localisation /var/www/html/fail2map/places.geojson ${neutre}"
         rm /var/www/html/fail2map/places.geojson
