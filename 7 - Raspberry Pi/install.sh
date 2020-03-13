@@ -16,8 +16,8 @@ rougeclair='\e[1;31m'
 rose='\e[1;31m'
 vertfonce='\e[0;32m'
 vertclair='\e[1;32m'
-orange='\e[0;33m'
-jaune='\e[1;33m'
+jaunefonce='\e[0;33m'
+jauneclair='\e[1;33m'
 bleufonce='\e[0;34m'
 bleuclair='\e[1;34m'
 violetfonce='\e[0;35m'
@@ -33,7 +33,7 @@ neutre='\e[0;m'
 ### Copyright
 ### ===============================================================
 
-echo -e "${jaune}\nScript d'installation automatique de Webmin, Motioneye, Apache2, fail2ban et Fail2map pour le Raspberry"
+echo -e "${jauneclair}\nScript d'installation automatique de Webmin, Motioneye, Apache2, fail2ban et Fail2map pour le Raspberry"
 echo -e "Script réalisé par KELLER Stéphane - Lycée Agricole Louis Pasteur"
 echo -e "https://github.com/KELLERStephane/KELLER-Stephane-Tests2maths ${neutre}"
 
@@ -184,8 +184,16 @@ apt -y install locate && updatedb
 ### Mise a jour automatique de l'heure
 ### ===============================================================
 echo -e "${vertclair}\nInstalltion du protocole de synchronisation de l'heure si nécessaire ${neutre}"
-aptitude install ntp -y
-/etc/init.d/ntp start
+
+#aptitude install ntp -y
+#/etc/init.d/ntp start
+if [ -e /etc/ntp.com ]
+then
+	echo -e "${cyanclair}\nLe fichier /etc/ntp.com existe déja ${neutre}"
+	echo -e "${cyanclair}Effacement du fichier puis création du nouveau fichier ${neutre}"
+	rm /etc/ntp.com
+fi
+echo -e "${vertclair}Création du fichier /etc/ntp.com ${neutre}"
 echo "server 0.fr.pool.ntp.org" | sudo tee -a /etc/ntp.com
 
 ### ===============================================================
@@ -206,16 +214,48 @@ fi
 
 if [ "$repmotioneye" = "o" ] || [ "$repmotioneye" = "O" ]
 then
-	echo -e "${vertclair}\nInstallation de Motioneye ${neutre}"
-        echo "bcm2835_v4l2" | sudo tee -a /etc/modules
-        echo -e "\ndisable_camera_led=1" | sudo tee -a /boot/config.txt
+	echo -e "${vertclair}\nInstallation de Motioneye avec le module de caméra CSI OV5647 pour le Rapsberry Pi ${neutre}"
+        if [ -d "/etc/motioneye" ]
+	then
+                echo -e "${cyanclair}Le répertoire d'installation /etc/motioneye existe déja. Suppression du répertoire avant la nouvelle installation  ${neutre}";
+                rm -r /etc/motioneye
+        fi
+
+        if [ -d "/var/lib/motioneye" ]
+	then
+                echo -e "${cyanclair}Le répertoire média /var/lib/motioneye existe déja. Suppression du répertoire avant la nouvelle installation  ${neutre}";
+                rm -r /var/lib/motioneye
+        fi
+
+	echo -e "${vertclair}\nInstallation du module bcm2835-v4l2 pour la caméra CSI OV5647 ${neutre}"
+	if grep -q "bcm2835-v4l2" "/etc/modules"
+	then
+                echo -e "${cyanclair}Le module bcm2835-v4l2 est déja déclaré dans /etc/modules ${neutre}"
+	else
+ 		echo "Déclaration du module bcm2835-v4l2 dans /etc/modules" | sudo tee -a /etc/modules
+	fi
+
+        echo -e "${vertclair}\nDésactivation de la led de la caméra CSI OV5647 pour le Rapsberry Pi ${neutre}"
+	if grep -q "disable_camera_led=1" "/boot/config.txt"
+	then
+                echo -e "${cyanclair}La désactivation de la led de la caméra est déja active dans /boot/config.txt ${neutre}";
+        else
+        	echo "disable_camera_led=1" | sudo tee -a /boot/config.txt
+        fi
+
+	echo -e "${vertclair}\nMise à jour des paquets dépendants si nécessaire ${neutre}"
+        apt -y install python-pip python-dev libssl-dev libcurl4-openssl-dev libjpeg-dev libz-dev
         apt -y install ffmpeg libmariadb3 libpq5 libmicrohttpd12
+
+        echo -e "${vertclair}\ntéléchargement de Motioneye ${neutre}"
         wget https://github.com/Motion-Project/motion/releases/download/release-4.2.2/pi_buster_motion_4.2.2-1_armhf.deb
+        echo -e "${vertclair}\nInstallation de Motioneye ${neutre}"
         dpkg -i pi_buster_motion_4.2.2-1_armhf.deb
-        apt install python-pip python-dev libssl-dev libcurl4-openssl-dev libjpeg-dev libz-dev
         pip install motioneye
+
         mkdir -p /etc/motioneye
         cp /usr/local/share/motioneye/extra/motioneye.conf.sample /etc/motioneye/motioneye.conf
+
         mkdir -p /var/lib/motioneye
         cp /usr/local/share/motioneye/extra/motioneye.systemd-unit-local /etc/systemd/system/motioneye.service
         systemctl daemon-reload
@@ -231,50 +271,51 @@ if [ "$repapache" = "o" ] || [ "$repapache" = "O" ]
 then
         echo -e "${vertclair}\nInstallation d'Apache ${neutre}"
         aptitude install apache2 -y
-	echo "Efface la page par défaut d'Apache2"
-	rm /var/www/html/index.html 
 
-	boucle=true
-	while "$boucle";do
-        	echo -e "${rougeclair}\nSécuristion d'Apache2. Attention cela ne doit être effectué qu'une seule fois !"
-		echo -e "\nCréation du fichier de mot de passe sécurisé et modification"
-		echo -e -n "du fichier /etc/apache2/apache2.conf (o/n) : ${neutre}"
-	        read repmdp
-        	if [ "$repmdp" = "o" ] || [ "$repmdp" = "O" ]
-	        then
-        	        echo -e "${vertclair}Sécurisation d'Apache2 en cours"
-		        echo -e "création du répertoire de mot de passe sécurisé /var/wwww/passwd"
-		        cd /var/www/
-		        mkdir passwd
-		        echo -e -n "Saisir le nom de l'utilisateur principal pour Apache2 : "
-		        read username
-		        htpasswd -c /var/www/passwd/passwords "$username"
-		        echo -e "Modification du fichier /etc/apache2/apache2.conf pour sécuriser l'accès à Apache2"
-			echo -e "Sauvegarde du fichier /etc/apache2/apache2.conf dans /etc/apache2/apach2.copy"
-			cp /etc/apache2/apache2.conf /etc/apache2/apache2.copy
-                        L1='#<\/Directory>'
-                        L2='\n\<Directory /var/www/html>'
-                        L3='\n\tAuthType Basic'
-                        L4='\n\tAuthName "ACCES PROTEGE"'
-                        L5='\n\t# (Following line optional)'
-                        L6='\n\tAuthBasicProvider file'
-                        L7='\n\tAuthUserFile "/var/www/passwd/passwords"'
-                        L8='\n\tRequire valid-user'
-                        L9='\n\t# tri horaire décroissant'
-                        L10='\n\tIndexOrderDefault Descending Date'
-                        L11='\n</Directory>'
-			sudo sed '/'"$L1"'/ a\'"$L2"''"$L3"''"$L4"''"$L5"''"$L6"''"$L7"''"$L8"''"$L9"''"$L10"''"$L11"'' /etc/apache2/apache2.conf>/home/pi/apache2.conf
-			cp /home/pi/apache2.conf /etc/apache2/apache2.conf
-			echo -e "Redémarrage du service Apache2 ${neutre}"
-			/etc/init.d/apache2 restart
-                	boucle=false
-	        fi
-	        if [ "$repmdp" = "n" ] || [ "$repmdp" = "N" ]
-	        then
-        	        echo -e "${vertclair}Poursuite de l'installation ${neutre}"
-	                boucle=false
-        	fi
-	done
+	echo -e "${vertclair}suppression si nécessaire de la page par défaut d'Apache2 ${neutre}"
+	if [ -f "/war/www/html/index.html" ]
+	then
+		rm /var/www/html/index.html
+	fi
+
+        echo -e "${vertclair}\nSécuristion d'Apache2. ${neutre}"
+        if [ -d "/var/www/passwd" ]
+        then
+                echo -e "${cyanclair}Le répertoire média /var/www/passwd existe déja. Suppression du répertoire avant la nouvelle installation  ${neutre}";
+                rm -r /var/www/passwd
+        fi
+        echo -e "${vertclair}\nCréation du répertoire de mot de passe sécurisé /var/wwww/passwd ${neutre}"
+        cd /var/www/
+        mkdir passwd
+        echo -e -n "${vertclair}\nSaisir le nom de l'utilisateur principal pour Apache2 : ${neutre}"
+        read username
+        htpasswd -c /var/www/passwd/passwords "$username"
+
+        echo -e "${vertclair}\nModification du fichier /etc/apache2/apache2.conf pour sécuriser l'accès à Apache2 ${neutre}"
+        if grep -q "AuthName \"ACCES PROTEGE\"" "/etc/modules"
+        then
+                echo -e "${cyanclair}Le fichier /etc/apache2/apache2.conf a déjà été modifiéa ${neutre}"
+		echo -e "${cyanclair}Poursuite de l'installation ${neutre}"
+        else
+                echo -e "${vertclair}Sauvegarde du fichier /etc/apache2/apache2.conf dans /etc/apache2/apach2.copy ${neutre}"
+                cp /etc/apache2/apache2.conf /etc/apache2/apache2.copy
+                L1='#<\/Directory>'
+                L2='\n\<Directory /var/www/html>'
+                L3='\n\tAuthType Basic'
+                L4='\n\tAuthName "ACCES PROTEGE"'
+                L5='\n\t# (Following line optional)'
+                L6='\n\tAuthBasicProvider file'
+                L7='\n\tAuthUserFile "/var/www/passwd/passwords"'
+                L8='\n\tRequire valid-user'
+                L9='\n\t# tri horaire décroissant'
+                L10='\n\tIndexOrderDefault Descending Date'
+                L11='\n</Directory>'
+                sudo sed '/'"$L1"'/ a\'"$L2"''"$L3"''"$L4"''"$L5"''"$L6"''"$L7"''"$L8"''"$L9"''"$L10"''"$L11"'' /etc/apache2/apache2.conf>/home/pi/apache2.conf
+                cp /home/pi/apache2.conf /etc/apache2/apache2.conf
+        fi
+
+	echo -e "${vertclair}Redémarrage du service Apache2 ${neutre}"
+	/etc/init.d/apache2 restart
 fi
 
 ### ===============================================================
@@ -332,31 +373,50 @@ then
 	echo -e "${vertclair}Démarrage du service Postfix ${neutre}"
 	service postfix reload
 
-	echo -e "${vertclair}\nTéléchargment du script jails.sh pour l'affichage ${neutre}"
+        echo -e "${vertclair}\nPour éviter le surplus d'information dans les mails ${neutre}"
+        echo -e "${vertclair}Création du fichier /etc/fail2ban/action.d/sendmail-common.local ${neutre}"
+        echo -e "[Definition]\naction start =\naction stop =" | sudo tee –a /etc/fail2ban/action.d/sendmail-common.local
+
+
+	#Téléchargement si nécessaire du script jails.sh
+        echo -e "${vertclair}\nTéléchargment si nécessaire du script jails.sh pour l'affichage ${neutre}"
         echo -e "${vertclair}des prisons et du nombre de bannis dans : ${neutre}"
+
+        if [ -d "/home/pi/script" ]
+        then
+                echo -e "${cyanclair}Le répertoire /home/pi/script existe déja. Suppression du répertoire avant la nouvelle installation  ${neutre}";
+                rm -r /home/pi/script
+        fi
+
 	mkdir /home/pi/script
 	wget -P /home/pi/script/ https://raw.githubusercontent.com/KELLERStephane/KELLER-Stephane-Tests2maths/master/7%20-%20Raspberry%20Pi/jails.sh
 	chmod +x /home/pi/script/jails.sh
 	echo -e "${vertclair}\nCréation d'un raccourci vers le bureau ${neutre}"
+	if [ -f "/home/pi/script/jails.sh" ]
+	then
+		rm /home/pi/script/jails.sh
+	fi
 	ln -s /home/pi/script/jails.sh /home/pi/
 	echo -e "${rougeclair}Pour la liste des prisons et le nombre de bannis : ${neutre}"
 	echo -e "${rougeclair}cd /home/pi ${neutre}"
 	echo -e "${rougeclair}sudo ./jails.sh ${neutre}"
 
-        echo -e "${vertclair}\nTéléchargment du script banip.sh ${neutre}"
+	#téléchargement si nécessaire du script banip
+        echo -e "${vertclair}\nTéléchargment si nécessaire du script banip.sh ${neutre}"
         echo -e "${vertclair}pour bannir ou débannir une adresse IP : ${neutre}"
         echo -e "${vertclair}/home/pi/script/jails.sh ${neutre}"
   	wget -P /home/pi/script/ https://raw.githubusercontent.com/KELLERStephane/KELLER-Stephane-Tests2maths/master/7%20-%20Raspberry%20Pi/banip.sh
 	chmod +x /home/pi/script/banip.sh
+        if [ -f "/home/pi/script/banip.sh" ]
+        then
+                rm /home/pi/script/banip.sh
+        fi
 	echo -e "${vertclair}\nCréation d'un raccourci vers le bureau ${neutre}"
 	ln -s /home/pi/script/banip.sh /home/pi/
         echo -e "${rougeclair}Pour bannir ou débannir une adresse IP : ${neutre}"
         echo -e "${rougeclair}cd /home/pi ${neutre}"
         echo -e "${rougeclair}sudo ./banip.sh ${neutre}"
 
-	echo -e "${vertclair}\nPour éviter le surplus d'information dans les mails ${neutre}"
-	echo -e "${vertclair}Création du fichier /etc/fail2ban/action.d/sendmail-common.local ${neutre}"
-	echo -e "[Definition]\naction start =\naction stop =" | sudo tee –a /etc/fail2ban/action.d/sendmail-common.local
 fi
 
 ### ===============================================================
@@ -368,8 +428,9 @@ then
         echo -e "${bleuclair}\nInstallation de Fail2map (nécessite Fail2ban) ${neutre}"
 
         echo -e "${vertclair}\nTéléchargement de Fail2map ${neutre}"
-	if [ -d "/var/www/html/fail2map" ];then
-		echo -e "${vertclair}Le répertoire /var/www/html/fail2map existe déja. Suppression du répertoire avant la nouvelle installation  ${neutre}";
+	if [ -d "/var/www/html/fail2map" ]
+	then
+		echo -e "${cyanclair}Le répertoire /var/www/html/fail2map existe déja. Suppression du répertoire avant la nouvelle installation  ${neutre}";
 		rm -r /var/www/html/fail2map
  	fi
         git clone https://github.com/mvonthron/fail2map /var/www/html/fail2map
@@ -419,7 +480,7 @@ fi
 ### Copyright
 ### ===============================================================
 
-echo -e "${jaune}\nScript d'installation automatique de Webmin, Motioneye, Apache2, fail2ban et Fail2map pour le Raspberry"
+echo -e "${jauneclair}\nScript d'installation automatique de Webmin, Motioneye, Apache2, fail2ban et Fail2map pour le Raspberry"
 echo -e "Script réalisé par KELLER Stéphane - Lycée Agricole Louis Pasteur"
 echo -e "https://github.com/KELLERStephane/KELLER-Stephane-Tests2maths ${neutre}"
 
