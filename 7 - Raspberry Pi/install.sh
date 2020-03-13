@@ -482,14 +482,14 @@ then
         sed '/'"$L1"'/ c\'"$L2"''"$L3"'' /var/www/html/fail2map/fail2map-action.conf>/home/pi/fail2map-action.conf
         mv /home/pi/fail2map-action.conf /var/www/html/fail2map/fail2map-action.conf
 
-        echo -e "${vertclair}Copie du fichier /var/www/html/fail2map/fail2map-action.conf -> /etc/fail2ban/actions.d ${neutre}"
-	if [ -e /etc/fail2ban/action.d ]
+        echo -e "${vertclair}Copie du fichier /var/www/html/fail2map/fail2map-action.conf -> /etc/fail2ban/action.d/fail2map-action.conf ${neutre}"
+	if [ -e /etc/fail2ban/actions.d/fail2map-action.conf ]
 	then
-		echo -e "${cyanclair}\nLe fichier /etc/fail2ban/action.d existe déja ${neutre}"
+		echo -e "${cyanclair}\nLe fichier /etc/fail2ban/action.d/fail2map-action.conf existe déja ${neutre}"
 		echo -e "${cyanclair}Effacement du fichier puis création du nouveau fichier ${neutre}"
-		rm /etc/fail2ban/action.d
+		rm /etc/fail2ban/action.d/fail2map-action.conf
 	fi
-        cp /var/www/html/fail2map/fail2map-action.conf /etc/fail2ban/action.d
+        cp /var/www/html/fail2map/fail2map-action.conf /etc/fail2ban/action.d/fail2map-action.conf
 
         echo -e "${vertclair}Suppression du fichier d'exemple de localisation /var/www/html/fail2map/places.geojson ${neutre}"
         rm /var/www/html/fail2map/places.geojson
