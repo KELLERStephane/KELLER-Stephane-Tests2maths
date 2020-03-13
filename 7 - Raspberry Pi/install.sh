@@ -285,7 +285,7 @@ then
         aptitude install apache2 -y
 
 	echo -e "${vertclair}suppression si nécessaire de la page par défaut d'Apache2 ${neutre}"
-	if [ -f "/war/www/html/index.html" ]
+	if [ -f "/var/www/html/index.html" ]
 	then
 		rm /var/www/html/index.html
 	fi
@@ -365,7 +365,14 @@ then
 
 	echo -e "${vertclair}\nInstallation de Postfix si nécessaire pour l'envoi des mails d'alerte ${neutre} ${neutre}"
 	apt install postfix
+
         echo -e "${vertclair}\nTéléchargement du fichier de configuration des prisons (à personnaliser) ${neutre}"
+	if [ -e /etc/fail2ban/jail.d/custom.conf ]
+	then
+		echo -e "${cyanclair}\nLe fichier /etc/fail2ban/jail.d/custom.conf existe déja ${neutre}"
+		echo -e "${cyanclair}Effacement du fichier puis création du nouveau fichier ${neutre}"
+		rm /etc/fail2ban/jail.d/custom.conf
+	fi
 	wget -P /etc/fail2ban/jail.d/ https://raw.githubusercontent.com/KELLERStephane/KELLER-Stephane-Tests2maths/master/7%20-%20Raspberry%20Pi/custom.conf
 	boucle=true
 	while "$boucle";do
