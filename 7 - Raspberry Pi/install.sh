@@ -243,10 +243,6 @@ then
         	echo "disable_camera_led=1" | sudo tee -a /boot/config.txt
         fi
 
-	echo -e "${vertclair}\nMise à jour des paquets dépendants si nécessaire ${neutre}"
-        apt -y install python-pip python-dev libssl-dev libcurl4-openssl-dev libjpeg-dev libz-dev
-        apt -y install ffmpeg libmariadb3 libpq5 libmicrohttpd12
-
         echo -e "${vertclair}\ntéléchargement de Motioneye ${neutre}"
 	if [ -e /home/pi/pi_buster* ]
 	then
@@ -254,8 +250,13 @@ then
 		echo -e "${cyanclair}Effacement du fichier puis téléchargement du nouveau fichier ${neutre}"
 		rm /home/pi/pi_buster*
 	fi
-        wget https://github.com/Motion-Project/motion/releases/download/release-4.2.2/pi_buster_motion_4.2.2-1_armhf.deb
+
+        echo -e "${vertclair}\nMise à jour des paquets dépendants si nécessaire ${neutre}"
+        apt -y install python-pip python-dev libssl-dev libcurl4-openssl-dev libjpeg-dev libz-dev
+        apt -y install ffmpeg libmariadb3 libpq5 libmicrohttpd12
+
         echo -e "${vertclair}\nInstallation de Motioneye ${neutre}"
+        wget https://github.com/Motion-Project/motion/releases/download/release-4.2.2/pi_buster_motion_4.2.2-1_armhf.deb
         dpkg -i pi_buster_motion_4.2.2-1_armhf.deb
         pip install motioneye
 
