@@ -154,13 +154,13 @@ while "$boucle";do
 done
 
 ### ===============================================================
-### Installayion du gestionnaire de paquets "aptitude" si nécessaire
+### Installation du gestionnaire de paquets "aptitude" si nécessaire
 ### ===============================================================
 echo -e "${vertclair}\nInstallation d'Aptitude si nécessaire ${neutre} ${neutre}"
 apt -y install aptitude
 
 ### ===============================================================
-### Mises à jour du système
+### Mise à jour du système
 ### ===============================================================
 echo -e "${vertclair}\nMise à jour des paquets si nécessaire ${neutre}"
 apt update && apt -y upgrade  && aptitude update
@@ -193,7 +193,7 @@ apt -y install locate && updatedb
 ### ===============================================================
 ### Mise a jour automatique de l'heure
 ### ===============================================================
-echo -e "${vertclair}\nInstalltion du protocole de synchronisation de l'heure si nécessaire ${neutre}"
+echo -e "${vertclair}\nInstallation du protocole de synchronisation de l'heure si nécessaire ${neutre}"
 
 aptitude install ntp -y
 /etc/init.d/ntp start
@@ -205,6 +205,20 @@ then
 fi
 echo -e "${vertclair}Création du fichier /etc/ntp.com ${neutre}"
 echo "server 0.fr.pool.ntp.org" | sudo tee -a /etc/ntp.com
+
+### ===============================================================
+### Installation de python3
+### ===============================================================
+#echo -e "${vertclair}\nInstallation de python3 si nécessaire ${neutre$
+#apt install python3
+
+### ===============================================================
+### Installation de pip pour python2
+### ===============================================================
+echo -e "${vertclair}\nInstallation de pip pour python2 si nécessaire ${neutre$ 
+#apt install python-pip
+#commande pour python3
+#apt install python3-pip
 
 ### ===============================================================
 ### Installation de Webmin
