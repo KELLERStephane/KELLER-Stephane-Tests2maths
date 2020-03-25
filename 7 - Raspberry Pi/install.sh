@@ -3,6 +3,7 @@
 ### ===============================================================
 ### Script d'installation du Raspberry et des logiciels tiers
 ### Stéphane KELLER – Lycée Agricole Louis Pasteur
+###José De Castro - Insitu
 ### ===============================================================
 
 ### ===============================================================
@@ -35,6 +36,7 @@ neutre='\e[0;m'
 
 echo -e "${jauneclair}\nScript d'installation automatique de Webmin, Motioneye, Apache2, fail2ban et Fail2map pour le Raspberry"
 echo -e "Script réalisé par KELLER Stéphane - Lycée Agricole Louis Pasteur"
+echo -e "et José De Castro - Insitu"
 echo -e "https://github.com/KELLERStephane/KELLER-Stephane-Tests2maths ${neutre}"
 
 ### ===============================================================
@@ -213,12 +215,10 @@ echo "server 0.fr.pool.ntp.org" | sudo tee -a /etc/ntp.com
 #apt install python3
 
 ### ===============================================================
-### Installation de pip pour python2
+### Installation de pip pour python3
 ### ===============================================================
-echo -e "${vertclair}\nInstallation de pip pour python2 si nécessaire ${neutre$ 
-#apt install python-pip
-#commande pour python3
-#apt install python3-pip
+echo -e "${vertclair}\nInstallation de pip pour python3 si nécessaire ${neutre$ 
+apt install python3-pip
 
 ### ===============================================================
 ### Installation de Webmin
@@ -575,6 +575,7 @@ fi
 
 echo -e "${jauneclair}\nScript d'installation automatique de Webmin, Motioneye, Apache2, fail2ban et Fail2map pour le Raspberry"
 echo -e "Script réalisé par KELLER Stéphane - Lycée Agricole Louis Pasteur"
+echo -e "et José De Castro - Insitu"
 echo -e "https://github.com/KELLERStephane/KELLER-Stephane-Tests2maths ${neutre}"
 
 ### ===============================================================
