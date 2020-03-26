@@ -69,8 +69,6 @@ CHOIX=$(whiptail --title "Menu d'installation du Raspberry" --checklist \
 
 exitstatus=$?
 
-read
-
 if [[ $exitstatus = 0 ]]; then
     echo -e -n "${jauneclair}  ======================================= \n ${neutre}"
     echo -e -n "${jauneclair} Les logiciels suivants seront installes \n ${neutre}"
@@ -91,45 +89,44 @@ if [[ $exitstatus = 0 ]]; then
 ### ===============================================================
 
     if [[ $CHOIX =~ "Paquets" ]]; then
-	echo -e "${bleuclair}\nInstallation d'Aptitude si nécessaire ${neutre} ${neutre}"
-	apt -y install aptitude
+        echo -e "${bleuclair}\nInstallation d'Aptitude si nécessaire ${neutre} ${neutre}"
+        apt -y install aptitude
 
-	echo -e "${bleuclair}\nInstallation de wget si nécessaire ${neutre}"
-	apt -y install wget
+        echo -e "${bleuclair}\nInstallation de wget si nécessaire ${neutre}"
+        apt -y install wget
 
-	echo -e "${bleuclair}\nInstallation de git si nécessaire ${neutre}"
-	apt -y install git
+        echo -e "${bleuclair}\nInstallation de git si nécessaire ${neutre}"
+        apt -y install git
 
-	echo -e "${bleuclair}\nInstallation du gestionnaire et éditeur de fichier mcedit si nécessaire ${neutre}"
-	apt -y install mc
+        echo -e "${bleuclair}\nInstallation du gestionnaire et éditeur de fichier mcedit si nécessaire ${neutre}"
+        apt -y install mc
 
-	echo -e "${bleuclair}\nInstallation de locate si nécessaire et indexation des fichiers ${neutre}"
-	apt -y install locate && updatedb
+        echo -e "${bleuclair}\nInstallation de locate si nécessaire et indexation des fichiers ${neutre}"
+        apt -y install locate && updatedb
 
-	echo -e "${bleuclair}\nInstallation du protocole de synchronisation de l'heure si nécessaire ${neutre}"
-	aptitude install ntp -y
-	/etc/init.d/ntp start
-	if [ -e /etc/ntp.com ]
-		then
-			echo -e "${cyanclair}\nLe fichier /etc/ntp.com existe déja ${neutre}"
-			echo -e "${cyanclair}Effacement du fichier puis création du nouveau fichier ${neutre}"
-			rm /etc/ntp.com
-		fi
-	echo -e "${vertclair}Création du fichier /etc/ntp.com ${neutre}"
-	echo "server 0.fr.pool.ntp.org" | sudo tee -a /etc/ntp.com
+        echo -e "${bleuclair}\nInstallation du protocole de synchronisation de l'heure si nécessaire ${neutre}"
+        aptitude install ntp -y
+        /etc/init.d/ntp start
+        if [ -e /etc/ntp.com ] ; then
+             echo -e "${cyanclair}\nLe fichier /etc/ntp.com existe déja ${neutre}"
+             echo -e "${cyanclair}Effacement du fichier puis création du nouveau fichier ${neutre}"
+             rm /etc/ntp.com
+        fi
+        echo -e "${vertclair}Création du fichier /etc/ntp.com ${neutre}"
+        echo "server 0.fr.pool.ntp.org" | sudo tee -a /etc/ntp.com
 
-	echo -e "${bleuclair}\nInstallation de python3 si nécessaire ${neutre$"
-	apt install python3
+        echo -e "${vertclair}\nInstallation de python3 si nécessaire ${neutre}"
+        apt -y install python3
 
-	echo -e "${bleuclair}\nInstallation de pip pour python3 si nécessaire ${neutre$"
-	apt install python3-pip
+        echo -e "${vertclair}\nInstallation de pip pour python3 si nécessaire ${neutre}"
+        apt -y install python3-pip
     fi
 
 ### ===============================================================
 ### Installation de Webmin
 ### ===============================================================
 
-  if [[ $CHOIX =~ "Webmin" ]]; then
+    if [[ $CHOIX =~ "Webmin" ]]; then
         ### Installation de l interface WEB du gestionnaire systeme si necessaire
 	echo -e -n "${bleuclair}\nInstallation/MAJ de la derniere version de WEBMIN...\n ${neutre}"
 	### installer les dépendances
@@ -144,33 +141,29 @@ if [[ $exitstatus = 0 ]]; then
 ### Installation de Motioneye
 ### ===============================================================
 
-  if [[ $CHOIX =~ "Webmin" ]]; then
+    if [[ $CHOIX =~ "Webmin" ]]; then
 	echo -e "${bleuclair}\nInstallation de Motioneye avec le module de caméra CSI OV5647 pour le Rapsberry Pi ${neutre}" 
 	echo -e "${rougeclair}\nNe pas oublier d'activer la caméra avec sudo raspi-config ${neutre}"
 
-        if [ -d "/etc/motioneye" ]
-	then
+        if [ -d "/etc/motioneye" ]; then
                 echo -e "${cyanclair}Le répertoire d'installation /etc/motioneye existe déja. Suppression du répertoire avant la nouvelle installation  ${neutre}"
                 rm -r /etc/motioneye
         fi
 
-        if [ -d "/var/lib/motioneye" ]
-	then
+        if [ -d "/var/lib/motioneye" ]; then
                 echo -e "${cyanclair}Le répertoire média /var/lib/motioneye existe déja. Suppression du répertoire avant la nouvelle installation  ${neutre}"
                 rm -r /var/lib/motioneye
         fi
 
 	echo -e "${vertclair}\nInstallation du module bcm2835-v4l2 pour la caméra CSI OV5647 ${neutre}"
-	if grep -q "bcm2835-v4l2" "/etc/modules"
-	then
+	if [ grep -q "bcm2835-v4l2" "/etc/modules" ]; then
                 echo -e "${cyanclair}Le module bcm2835-v4l2 est déja déclaré dans /etc/modules ${neutre}"
 	else
  		echo "Déclaration du module bcm2835-v4l2 dans /etc/modules" | sudo tee -a /etc/modules
 	fi
 
         echo -e "${vertclair}\nDésactivation de la led de la caméra CSI OV5647 pour le Rapsberry Pi ${neutre}"
-	if grep -q "disable_camera_led=1" "/boot/config.txt"
-	then
+	if [ grep -q "disable_camera_led=1" "/boot/config.txt" ]; then
                 echo -e "${cyanclair}La désactivation de la led de la caméra est déja active dans /boot/config.txt ${neutre}"
         else
         	echo "disable_camera_led=1" | sudo tee -a /boot/config.txt
@@ -181,8 +174,7 @@ if [[ $exitstatus = 0 ]]; then
         apt -y install ffmpeg libmariadb3 libpq5 libmicrohttpd12
 
         echo -e "${vertclair}\ntéléchargement de Motioneye ${neutre}"
-	if [ -e /home/pi/pi_buster* ]
-	then
+	if [ -e /home/pi/pi_buster* ]; 	then
 		echo -e "${cyanclair}\nLe fichier de téléchargement pour Motioneye existe déja ${neutre}"
 		echo -e "${cyanclair}Effacement du fichier puis téléchargement du nouveau fichier ${neutre}"
 		rm /home/pi/pi_buster*
@@ -206,27 +198,24 @@ if [[ $exitstatus = 0 ]]; then
 ### Installation d'Apache
 ### ===============================================================
 
-   if [[ $CHOIX =~ "Apache2" ]]; then
+    if [[ $CHOIX =~ "Apache2" ]]; then
         echo -e "${bleuclair}\nInstallation d'Apache ${neutre}"
 
-#        if [ -d "/etc/apache2" ]
-#        then
+#        if [ -d "/etc/apache2" ]; then
 #                echo -e "${cyanclair}Le répertoire d'installation d'Apache2 /etc/apache2 existe déja. Suppression du répertoire avant la nouvelle installation  ${neutre}"
 #                rm -r /etc/apache2
 #        fi
         aptitude install apache2 -y
 
 	echo -e "${vertclair}suppression si nécessaire de la page par défaut d'Apache2 ${neutre}"
-	if [ -f "/var/www/html/index.html" ]
-	then
+	if [ -f "/var/www/html/index.html" ]; then
 		rm /var/www/html/index.html
 	fi
 
 	boucle=true
 	while "$boucle";do
         	echo -e "${vertclair}\nSécuristion d'Apache2. ${neutre}"
-	        if [ -d "/var/www/passwd" ]
-	        then
+	        if [ -d "/var/www/passwd" ]; then
         	        echo -e "${cyanclair}Le répertoire de mots de passe /var/www/passwd existe déja. Suppression du répertoire avant la nouvelle installation  ${neutre}"
                 	rm -r /var/www/passwd
 	        fi
@@ -238,8 +227,7 @@ if [[ $exitstatus = 0 ]]; then
 	        htpasswd -c /var/www/passwd/passwords "$username"
 		erreur=$?
 #		echo -e "L'erreur est $erreur"
-		if [ "$erreur" = 0 ]
-		then
+		if [ "$erreur" = 0 ]; then
 			boucle=false
 		else
 			echo -e "${rougeclair}Erreur. Recommencer ${neutre}"
@@ -247,8 +235,7 @@ if [[ $exitstatus = 0 ]]; then
 	done
 
         echo -e "${vertclair}\nModification du fichier /etc/apache2/apache2.conf pour sécuriser l'accès à Apache2 ${neutre}"
-        if grep -q "AuthName \"ACCES PROTEGE\"" "/etc/modules"
-        then
+        if [ grep -q "AuthName \"ACCES PROTEGE\"" "/etc/modules"]; then
                 echo -e "${cyanclair}Le fichier /etc/apache2/apache2.conf a déjà été modifiéa ${neutre}"
 		echo -e "${cyanclair}Poursuite de l'installation ${neutre}"
         else
@@ -277,7 +264,7 @@ if [[ $exitstatus = 0 ]]; then
 ### Installation de Domoticz
 ### ===============================================================
 
-   if [[ $CHOIX =~ "Domoticz" ]]; then
+    if [[ $CHOIX =~ "Domoticz" ]]; then
         echo -e "${bleuclair}\nInstallation de Domoticz ${neutre}" 
 	curl -L install.domoticz.com | bash
     fi
@@ -286,11 +273,10 @@ if [[ $exitstatus = 0 ]]; then
 ### Installation de Fail2ban
 ### ===============================================================
 
-   if [[ $CHOIX =~ "Fail2ban" ]]; then
+    if [[ $CHOIX =~ "Fail2ban" ]]; then
         echo -e "${bleuclair}\nInstallation de Fail2ban ${neutre}"
 
-        if [ -d "/etc/fail2ban" ]
-        then
+        if [ -d "/etc/fail2ban" ]; then
                 echo -e "${cyanclair}Le répertoire d'installation de Fail2ban /etc/fail2ban existe déja. Suppression du répertoire avant la nouvelle installation  ${neutre}"
 	        echo -e "${vertclair}/etc/fail2ban/jail.copy -> /etc/fail2ban/jail.conf ${neutre}"
         	echo -e "${vertclair}/etc/fail2ban/fail2ban.copy -> /etc/fail2ban/fail2ban.conf ${neutre}"
@@ -308,8 +294,7 @@ if [[ $exitstatus = 0 ]]; then
 	apt install postfix
 
         echo -e "${vertclair}\nTéléchargement du fichier de configuration des prisons (à personnaliser) ${neutre}"
-	if [ -e /etc/fail2ban/jail.d/custom.conf ]
-	then
+	if [ -e /etc/fail2ban/jail.d/custom.conf ]; then
 		echo -e "${cyanclair}\nLe fichier /etc/fail2ban/jail.d/custom.conf existe déja ${neutre}"
 		echo -e "${cyanclair}Effacement du fichier puis création du nouveau fichier ${neutre}"
 		rm /etc/fail2ban/jail.d/custom.conf
@@ -322,8 +307,7 @@ if [[ $exitstatus = 0 ]]; then
 	        read repmaila
 	        echo -e "${jauneclair}\nResaisir l'adresse mail : ${neutre}"
 	        read repmailb
-	        if [ "$repmaila" = "$repmailb" ]
-	        then
+	        if [ "$repmaila" = "$repmailb" ]; then
 	                echo -e "${rougelclair}Adresse mail correcte ${neutre}"
 	                boucle=false
 	        else
@@ -353,8 +337,7 @@ if [[ $exitstatus = 0 ]]; then
         echo -e "${vertclair}\nTéléchargment si nécessaire du script jails.sh pour l'affichage ${neutre}"
         echo -e "${vertclair}des prisons et du nombre de bannis dans : ${neutre}"
 
-        if [ -d "/home/pi/script" ]
-        then
+        if [ -d "/home/pi/script" ]; then
                 echo -e "${cyanclair}Le répertoire /home/pi/script existe déja. Suppression du répertoire avant la nouvelle installation  ${neutre}"
                 rm -r /home/pi/script
         fi
@@ -363,8 +346,7 @@ if [[ $exitstatus = 0 ]]; then
 	wget -P /home/pi/script/ https://raw.githubusercontent.com/KELLERStephane/KELLER-Stephane-Tests2maths/master/7%20-%20Raspberry%20Pi/jails.sh
 	chmod +x /home/pi/script/jails.sh
 	echo -e "${vertclair}\nCréation d'un raccourci vers le bureau ${neutre}"
-	if [ -h "/home/pi/jails.sh" ]
-	then
+	if [ -h "/home/pi/jails.sh" ]; 	then
 		cd /home/pi
 		rm jails.sh
 	fi
@@ -379,8 +361,7 @@ if [[ $exitstatus = 0 ]]; then
         echo -e "${vertclair}/home/pi/script/jails.sh ${neutre}"
   	wget -P /home/pi/script/ https://raw.githubusercontent.com/KELLERStephane/KELLER-Stephane-Tests2maths/master/7%20-%20Raspberry%20Pi/banip.sh
 	chmod +x /home/pi/script/banip.sh
-        if [ -h "/home/pi/banip.sh" ]
-        then
+        if [ -h "/home/pi/banip.sh" ]; then
 		cd /home/pi
 		rm banip.sh
                 unlink /home/pi/script/banip.sh
@@ -397,12 +378,11 @@ if [[ $exitstatus = 0 ]]; then
 ### Installation de Fail2map
 ### ===============================================================
 
-   if [[ $CHOIX =~ "GLPI" ]]; then
+    if [[ $CHOIX =~ "GLPI" ]]; then
         echo -e "${bleuclair}\nInstallation de Fail2map (nécessite Fail2ban) ${neutre}"
 
         echo -e "${vertclair}\nTéléchargement de Fail2map ${neutre}"
-	if [ -d "/var/www/html/fail2map" ]
-	then
+	if [ -d "/var/www/html/fail2map" ]; then
 		echo -e "${cyanclair}Le répertoire /var/www/html/fail2map existe déja. Suppression du répertoire avant la nouvelle installation  ${neutre}"
 		rm -r /var/www/html/fail2map
  	fi
@@ -431,8 +411,7 @@ if [[ $exitstatus = 0 ]]; then
         mv /home/pi/fail2map-action.conf /var/www/html/fail2map/fail2map-action.conf
 
         echo -e "${vertclair}Copie du fichier /var/www/html/fail2map/fail2map-action.conf -> /etc/fail2ban/action.d/fail2map-action.conf ${neutre}"
-	if [ -e /etc/fail2ban/actions.d/fail2map-action.conf ]
-	then
+	if [ -e /etc/fail2ban/actions.d/fail2map-action.conf ]; then
 		echo -e "${cyanclair}\nLe fichier /etc/fail2ban/action.d/fail2map-action.conf existe déja ${neutre}"
 		echo -e "${cyanclair}Effacement du fichier puis création du nouveau fichier ${neutre}"
 		rm /etc/fail2ban/action.d/fail2map-action.conf
@@ -460,7 +439,7 @@ if [[ $exitstatus = 0 ]]; then
 ### GPIO
 ### ===============================================================
 
-   if [[ $CHOIX =~ "GPIO" ]]; then
+    if [[ $CHOIX =~ "GPIO" ]]; then
         echo -e "${bleuclair}\nInstallation de wiringpi pour l'utilisation des GPIO (nécessite Fail2ban) ${neutre}"
         echo -e "${rougeclair}\nNe pas oublier d'activer les GPIO avec sudo raspi-config ${neutre}"
 	cd /tmp
@@ -486,6 +465,7 @@ if [[ $exitstatus = 0 ]]; then
     echo -e "${blancclignotant}Appuyer une touche pour redémarrer le Raspberry ${neutre}"
     read
     reboot
+
 else
     echo "Annulation des installations."
 fi
