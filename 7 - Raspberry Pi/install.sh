@@ -141,7 +141,7 @@ if [[ $exitstatus = 0 ]]; then
 ### Installation de Motioneye
 ### ===============================================================
 
-    if [[ $CHOIX =~ "Webmin" ]]; then
+    if [[ $CHOIX =~ "Motioneye" ]]; then
 	echo -e "${bleuclair}\nInstallation de Motioneye avec le module de caméra CSI OV5647 pour le Rapsberry Pi ${neutre}" 
 	echo -e "${rougeclair}\nNe pas oublier d'activer la caméra avec sudo raspi-config ${neutre}"
 
@@ -170,7 +170,7 @@ if [[ $exitstatus = 0 ]]; then
         fi
 
 	echo -e "${vertclair}\nMise à jour des paquets dépendants si nécessaire ${neutre}"
-        apt -y install python-dev libssl-dev libcurl4-openssl-dev libjpeg-dev libz-dev
+        apt -y install python-pip python-dev libssl-dev libcurl4-openssl-dev libjpeg-dev libz-dev
         apt -y install ffmpeg libmariadb3 libpq5 libmicrohttpd12
 
         echo -e "${vertclair}\ntéléchargement de Motioneye ${neutre}"
@@ -332,6 +332,8 @@ if [[ $exitstatus = 0 ]]; then
         echo -e "${vertclair}Création du fichier /etc/fail2ban/action.d/sendmail-common.local ${neutre}"
         echo -e "[Definition]\naction start =\naction stop =" | sudo tee –a /etc/fail2ban/action.d/sendmail-common.local
 
+        echo -e "${vertclair}\nDémarrer Fail2ban automatiquement lors du démarrage du système ${neutre}"
+	sudo systemctl enable fail2ban
 
 	#Téléchargement si nécessaire du script jails.sh
         echo -e "${vertclair}\nTéléchargment si nécessaire du script jails.sh pour l'affichage ${neutre}"
@@ -378,7 +380,7 @@ if [[ $exitstatus = 0 ]]; then
 ### Installation de Fail2map
 ### ===============================================================
 
-    if [[ $CHOIX =~ "GLPI" ]]; then
+    if [[ $CHOIX =~ "Fail2map" ]]; then
         echo -e "${bleuclair}\nInstallation de Fail2map (nécessite Fail2ban) ${neutre}"
 
         echo -e "${vertclair}\nTéléchargement de Fail2map ${neutre}"
