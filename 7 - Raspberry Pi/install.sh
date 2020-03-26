@@ -222,7 +222,7 @@ if [[ $exitstatus = 0 ]]; then
 	        echo -e "${vertclair}\nCréation du répertoire de mot de passe sécurisé /var/wwww/passwd ${neutre}"
 	        cd /var/www/
 	        mkdir passwd
-	        echo -e -n "${vertclair}\nSaisir le nom de l'utilisateur principal pour Apache2 : ${neutre}"
+	        echo -e -n "${jauneclair}\nSaisir le nom de l'utilisateur principal pour Apache2 : ${neutre}"
 	        read username
 	        htpasswd -c /var/www/passwd/passwords "$username"
 		erreur=$?
@@ -300,20 +300,25 @@ if [[ $exitstatus = 0 ]]; then
 		rm /etc/fail2ban/jail.d/custom.conf
 	fi
 	wget -P /etc/fail2ban/jail.d/ https://raw.githubusercontent.com/KELLERStephane/KELLER-Stephane-Tests2maths/master/7%20-%20Raspberry%20Pi/custom.conf
-	boucle=true
 
-	while "$boucle";do
-	        echo -e "${jauneclair}\nSaisir l'adresse mail pour les messages de Fail2ban : ${neutre}"
-	        read repmaila
-	        echo -e "${jauneclair}\nResaisir l'adresse mail : ${neutre}"
-	        read repmailb
-	        if [ "$repmaila" = "$repmailb" ]; then
-	                echo -e "${rougelclair}Adresse mail correcte ${neutre}"
-	                boucle=false
-	        else
-	                echo -e "${rougeclair}Adresse mail différente. Recommencer"
-        	fi
-	done
+
+        boucle=true
+        while "$boucle";do
+		mail1=$(whiptail --title "Mail" --inputbox "Saisir l'adresse mail pour les messages de Fail2ban : ?" 10 60 3>&1 1>&2 2>&3)
+ 		exitstatus=$?
+		if [ $exitstatus = 0 ]; then
+		    	mail2=$(whiptail --title "Mail" --inputbox "Resaisir l'adresse mail pour les messages de Fail2ban : ?" 10 60 3>&1 1>&2 2>&3)
+			exitstatus=$?
+			if [ "$mail1" = "$mail2" ]; then
+				echo -e "${rougelclair}Adresse mail correcte ${neutre}"
+				boucle=false
+			else
+				whiptail --title "Erreur" --msgbox "Adresses mail différente. Recommencer" 8 78
+			fi
+		else
+			echo -e "${rougeclair}Erreur ${neutre}"
+		fi
+        done
 
         echo -e "${vertclair}Sauvegarde du fichier de configuration personnalisable de Fail2ban ${neutre}"
         echo -e "${vertclair}/etc/fail2ban/jail.d/custom.conf -> /etc/fail2ban/jail.d/custom.copy ${neutre}"
