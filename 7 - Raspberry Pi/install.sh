@@ -3,7 +3,7 @@
 ### ===============================================================
 ### Script d'installation du Raspberry et des logiciels tiers
 ### Stéphane KELLER – Lycée Agricole Louis Pasteur
-###José De Castro - Insitu
+###José De Castro
 ### ===============================================================
 
 ### ===============================================================
@@ -36,209 +36,116 @@ neutre='\e[0;m'
 
 echo -e "${jauneclair}\nScript d'installation automatique de Webmin, Motioneye, Apache2, fail2ban et Fail2map pour le Raspberry"
 echo -e "Script réalisé par KELLER Stéphane - Lycée Agricole Louis Pasteur"
-echo -e "et José De Castro - Insitu"
+echo -e "et José De Castro "
 echo -e "https://github.com/KELLERStephane/KELLER-Stephane-Tests2maths ${neutre}"
+
+### ===============================================================
+### Test si l'utilisateur courant a les droits administrateur
+### ===============================================================
+
+utilisateur=$(whoami)
+if [[ $utilisateur != "root" ]]; then
+    echo -e -n "${jauneclair} Cher $utilisateur, vous n etes pas 'root'; merci de relancer cette commande precedee de 'SUDO'. \n ${neutre}"
+    exit
+else
+    clear
+fi
 
 ### ===============================================================
 ### Choix des options d'installation
 ### ===============================================================
 
-boucle=true
-while "$boucle";do
-        echo -e -n "${bleuclair}\nInstallation de Webmin (o/n) : ${neutre}"
-        read repwebmin
-        if [ "$repwebmin" = "o" ] || [ "$repwebmin" = "O" ]
-        then
-                echo -e "${jaune}Webmin sera installé ${neutre}"
-                boucle=false
-        fi
-        if [ "$repwebmin" = "n" ] || [ "$repwebmin" = "N" ]
-        then
-                echo -e "${jaune}Webmin ne sera pas installé ${neutre}"
-                boucle=false
-        fi
-done
+CHOIX=$(whiptail --title "Menu d'installation du Raspberry" --checklist \
+"\nScript réalisé par :\n- KELLER Stéphane (Lycée Agricole Louis Pasteur)\n- José De Castro\n\n	Que soutaitez-vous installer ?" 19 72 9 \
+"MAJ" "Mise a jour du systeme " OFF \
+"Paquets" "Paquets utiles pour une première installation " OFF \
+"Webmin" "Administration du système en mode WEB " OFF \
+"Motioneye" "Logiciel de vidéosurveillance " OFF \
+"Apache2" "Serveur web Apache2 " OFF \
+"Domoticz" "Logiciel de domotique Domoticz " OFF \
+"Fail2ban" "Protection du systeme via auto-bannissement " OFF \
+"Fail2map" "Affichage des ip sur une carte " OFF \
+"GPIO" "Wiringpi pour l'utilisation des GPIO " OFF 3>&1 1>&2 2>&3)
 
-boucle=true
-while "$boucle";do
-        echo -e -n "${bleuclair}\nInstallation de Motioneye (o/n) : ${neutre}"
-        read repmotioneye
-        if [ "$repmotioneye" = "o" ] || [ "$repmotioneye" = "O" ]
-        then
-                echo -e "${jaune}Motioneye sera installé ${neutre}"
-                boucle=false
-        fi
-        if [ "$repmotioneye" = "n" ] || [ "$repmotioneye" = "N" ]
-        then
-                echo -e "${jaune}Motioneye ne sera pas installé ${neutre}"
-                boucle=false
-        fi
-done
+exitstatus=$?
 
-boucle=true
-while "$boucle";do
-        echo -e -n "${bleuclair}\nInstallation d'Apache2 (o/n) : ${neutre}"
-        read repapache
-        if [ "$repapache" = "o" ] || [ "$repapache" = "O" ]
-        then
-                echo -e "${jaune}Apache2 sera installé ${neutre}"
-                boucle=false
-        fi
-        if [ "$repapache" = "n" ] || [ "$repapache" = "N" ]
-        then
-                echo -e "${jaune}Apache2 ne sera pas installé ${neutre}"
-                boucle=false
-        fi
-done
+read
 
-boucle=true
-while "$boucle";do
-        echo -e -n "${bleuclair}\nInstallation de Domoticz (o/n) : ${neutre}"
-        read repdomoticz
-        if [ "$repdomoticz" = "o" ] || [ "$repdomoticz" = "O" ]
-        then
-                echo -e "${jaune}Domoticz sera installé ${neutre}"
-                boucle=false
-        fi
-        if [ "$repdomoticz" = "n" ] || [ "$repdomoticz" = "N" ]
-        then
-                echo -e "${jaune}Domoticz ne sera pas installé ${neutre}"
-                boucle=false
-        fi
-done
-
-boucle=true
-while "$boucle";do
-        echo -e -n "${bleuclair}\nInstallation de Fail2ban (o/n) : ${neutre}"
-        read repfail2ban
-        if [ "$repfail2ban" = "o" ] || [ "$repfail2ban" = "O" ]
-        then
-                echo -e "${jaune}Fail2ban sera installé ${neutre}"
-                boucle=false
-        fi
-        if [ "$repfail2ban" = "n" ] || [ "$repfail2ban" = "N" ]
-        then
-                echo -e "${jaune}Fail2ban ne sera pas installé ${neutre}"
-                boucle=false
-        fi
-done
-
-boucle=true
-while "$boucle";do
-        echo -e -n "${bleuclair}\nInstallation de Fail2map (nécessite d'abord Fail2ban) (o/n) : ${neutre}"
-        read repfail2map
-        if [ "$repfail2map" = "o" ] || [ "$repfail2map" = "O" ]
-        then
-                echo -e "${jaune}Fail2map sera installé ${neutre}"
-                boucle=false
-        fi
-        if [ "$repfail2map" = "n" ] || [ "$repfail2map" = "N" ]
-        then
-                echo -e "${jaune}Fail2map ne sera pas installé ${neutre}"
-                boucle=false
-        fi
-done
-
-boucle=true
-while "$boucle";do
-        echo -e -n "${bleuclair}\nInstallation de wiringpi pour l'utilisation des GPIO (o/n) : ${neutre}"
-        read repgpio
-        if [ "$repgpio" = "o" ] || [ "$repgpio" = "O" ]
-        then
-                echo -e "${jaune}wiringpi sera installé ${neutre}"
-                boucle=false
-        fi
-        if [ "$repgpio" = "n" ] || [ "$repgpio" = "N" ]
-        then
-                echo -e "${jaune}wiringpi ne sera pas installé  pour l'utilisatio des GPIO${neutre}"
-                boucle=false
-        fi
-done
-
-### ===============================================================
-### Installation du gestionnaire de paquets "aptitude" si nécessaire
-### ===============================================================
-echo -e "${vertclair}\nInstallation d'Aptitude si nécessaire ${neutre} ${neutre}"
-apt -y install aptitude
+if [[ $exitstatus = 0 ]]; then
+    echo -e -n "${jauneclair}  ======================================= \n ${neutre}"
+    echo -e -n "${jauneclair} Les logiciels suivants seront installes \n ${neutre}"
+    echo -e -n "${jauneclair} $CHOIX \n ${neutre}"
+    echo -e -n "${jauneclair} ======================================= \n ${neutre}"
 
 ### ===============================================================
 ### Mise à jour du système
 ### ===============================================================
-echo -e "${vertclair}\nMise à jour des paquets si nécessaire ${neutre}"
-apt update && apt -y upgrade  && aptitude update
+
+    if [[ $CHOIX =~ "MAJ" ]]; then
+	echo -e "${bleuclair}\nMise à jour des paquets si nécessaire ${neutre}"
+	apt update && apt -y upgrade
+    fi
 
 ### ===============================================================
-### Installation de wget (si nécessaire)
+### Installation des paquets nécessaires pour une première installation
 ### ===============================================================
-echo -e "${vertclair}\nInstallation de wget si nécessaire ${neutre}"
-apt -y install wget
 
-### ===============================================================
-### Installation de git (si nécessaire)
-### ===============================================================
-echo -e "${vertclair}\nInstallation de git si nécessaire ${neutre}"
-apt -y install git
+    if [[ $CHOIX =~ "Paquets" ]]; then
+	echo -e "${bleuclair}\nInstallation d'Aptitude si nécessaire ${neutre} ${neutre}"
+	apt -y install aptitude
 
-### ===============================================================
-### Installation du gestionnaire et éditeur de fichiers  "mc" si nécessaire
-### ===============================================================
-echo -e "${vertclair}\nInstallation du gestionnaire et éditeur de fichier mcedit si nécessaire ${neutre}"
-apt -y install mc
+	echo -e "${bleuclair}\nInstallation de wget si nécessaire ${neutre}"
+	apt -y install wget
 
-### ===============================================================
-### Installation d'une commande de recherche de fichiers (« locate ») :
-### et mise à jour de l'index des fichiers
-### ===============================================================
-echo -e "${vertclair}\nInstallation de locate si nécessaire et indexation des fichiers ${neutre}"
-apt -y install locate && updatedb
+	echo -e "${bleuclair}\nInstallation de git si nécessaire ${neutre}"
+	apt -y install git
 
-### ===============================================================
-### Mise a jour automatique de l'heure
-### ===============================================================
-echo -e "${vertclair}\nInstallation du protocole de synchronisation de l'heure si nécessaire ${neutre}"
+	echo -e "${bleuclair}\nInstallation du gestionnaire et éditeur de fichier mcedit si nécessaire ${neutre}"
+	apt -y install mc
 
-aptitude install ntp -y
-/etc/init.d/ntp start
-if [ -e /etc/ntp.com ]
-then
-	echo -e "${cyanclair}\nLe fichier /etc/ntp.com existe déja ${neutre}"
-	echo -e "${cyanclair}Effacement du fichier puis création du nouveau fichier ${neutre}"
-	rm /etc/ntp.com
-fi
-echo -e "${vertclair}Création du fichier /etc/ntp.com ${neutre}"
-echo "server 0.fr.pool.ntp.org" | sudo tee -a /etc/ntp.com
+	echo -e "${bleuclair}\nInstallation de locate si nécessaire et indexation des fichiers ${neutre}"
+	apt -y install locate && updatedb
 
-### ===============================================================
-### Installation de python3
-### ===============================================================
-#echo -e "${vertclair}\nInstallation de python3 si nécessaire ${neutre$
-#apt install python3
+	echo -e "${bleuclair}\nInstallation du protocole de synchronisation de l'heure si nécessaire ${neutre}"
+	aptitude install ntp -y
+	/etc/init.d/ntp start
+	if [ -e /etc/ntp.com ]
+		then
+			echo -e "${cyanclair}\nLe fichier /etc/ntp.com existe déja ${neutre}"
+			echo -e "${cyanclair}Effacement du fichier puis création du nouveau fichier ${neutre}"
+			rm /etc/ntp.com
+		fi
+	echo -e "${vertclair}Création du fichier /etc/ntp.com ${neutre}"
+	echo "server 0.fr.pool.ntp.org" | sudo tee -a /etc/ntp.com
 
-### ===============================================================
-### Installation de pip pour python3
-### ===============================================================
-echo -e "${vertclair}\nInstallation de pip pour python3 si nécessaire ${neutre$ 
-apt install python3-pip
+	echo -e "${bleuclair}\nInstallation de python3 si nécessaire ${neutre$"
+	apt install python3
+
+	echo -e "${bleuclair}\nInstallation de pip pour python3 si nécessaire ${neutre$"
+	apt install python3-pip
+    fi
 
 ### ===============================================================
 ### Installation de Webmin
 ### ===============================================================
 
-if [ "$repwebmin" = "o" ] || [ "$repwebmin" = "O" ]
-then
-	echo -e "${vertclair}\nInstallation de Webmin ${neutre}"
+  if [[ $CHOIX =~ "Webmin" ]]; then
+        ### Installation de l interface WEB du gestionnaire systeme si necessaire
+	echo -e -n "${bleuclair}\nInstallation/MAJ de la derniere version de WEBMIN...\n ${neutre}"
+	### installer les dépendances
 	aptitude -y install libnet-ssleay-perl openssl libauthen-pam-perl libio-pty-perl apt-show-versions python
-	wget http://www.webmin.com/download/deb/webmin-current.deb --no-check-certificate
+	### telecharger la derniere version de Webmin
+	wget -q --show-progress http://www.webmin.com/download/deb/webmin-current.deb --no-check-certificate
+	### installer le paquet puis le supprimer
 	dpkg --install webmin-current.deb && rm -f webmin-current.deb
-fi
+    fi
 
 ### ===============================================================
 ### Installation de Motioneye
 ### ===============================================================
 
-if [ "$repmotioneye" = "o" ] || [ "$repmotioneye" = "O" ]
-then
-	echo -e "${vertclair}\nInstallation de Motioneye avec le module de caméra CSI OV5647 pour le Rapsberry Pi ${neutre}" 
+  if [[ $CHOIX =~ "Webmin" ]]; then
+	echo -e "${bleuclair}\nInstallation de Motioneye avec le module de caméra CSI OV5647 pour le Rapsberry Pi ${neutre}" 
 	echo -e "${rougeclair}\nNe pas oublier d'activer la caméra avec sudo raspi-config ${neutre}"
 
         if [ -d "/etc/motioneye" ]
@@ -270,7 +177,7 @@ then
         fi
 
 	echo -e "${vertclair}\nMise à jour des paquets dépendants si nécessaire ${neutre}"
-        apt -y install python-pip python-dev libssl-dev libcurl4-openssl-dev libjpeg-dev libz-dev
+        apt -y install python-dev libssl-dev libcurl4-openssl-dev libjpeg-dev libz-dev
         apt -y install ffmpeg libmariadb3 libpq5 libmicrohttpd12
 
         echo -e "${vertclair}\ntéléchargement de Motioneye ${neutre}"
@@ -282,7 +189,7 @@ then
 	fi
         wget https://github.com/Motion-Project/motion/releases/download/release-4.2.2/pi_buster_motion_4.2.2-1_armhf.deb
         echo -e "${vertclair}\nInstallation de Motioneye ${neutre}"
-        dpkg -i pi_buster_motion_4.2.2-1_armhf.deb
+        dpkg -i pi_buster_motion_4.2.2-1_armhf.deb && rm -f pi_buster_motion_4.2.2-1_armhf.deb
         pip install motioneye
 
         mkdir -p /etc/motioneye
@@ -293,15 +200,14 @@ then
         systemctl daemon-reload
         systemctl enable motioneye
         systemctl start motioneye
-fi
+    fi
 
 ### ===============================================================
 ### Installation d'Apache
 ### ===============================================================
 
-if [ "$repapache" = "o" ] || [ "$repapache" = "O" ]
-then
-        echo -e "${vertclair}\nInstallation d'Apache ${neutre}"
+   if [[ $CHOIX =~ "Apache2" ]]; then
+        echo -e "${bleuclair}\nInstallation d'Apache ${neutre}"
 
 #        if [ -d "/etc/apache2" ]
 #        then
@@ -365,24 +271,22 @@ then
 
 	echo -e "${vertclair}Redémarrage du service Apache2 ${neutre}"
 	/etc/init.d/apache2 restart
-fi
+    fi
 
 ### ===============================================================
 ### Installation de Domoticz
 ### ===============================================================
 
-if [ "$repdomoticz" = "o" ] || [ "$repdomoticz" = "O" ]
-then
+   if [[ $CHOIX =~ "Domoticz" ]]; then
         echo -e "${bleuclair}\nInstallation de Domoticz ${neutre}" 
 	curl -L install.domoticz.com | bash
-fi
+    fi
 
 ### ===============================================================
 ### Installation de Fail2ban
 ### ===============================================================
 
-if [ "$repfail2ban" = "o" ] || [ "$repfail2ban" = "O" ]
-then
+   if [[ $CHOIX =~ "Fail2ban" ]]; then
         echo -e "${bleuclair}\nInstallation de Fail2ban ${neutre}"
 
         if [ -d "/etc/fail2ban" ]
@@ -414,16 +318,16 @@ then
 	boucle=true
 
 	while "$boucle";do
-	        echo -e "${bleuclair}\nSaisir l'adresse mail pour les messages de Fail2ban : ${neutre}"
+	        echo -e "${jauneclair}\nSaisir l'adresse mail pour les messages de Fail2ban : ${neutre}"
 	        read repmaila
-	        echo -e "${bleuclair}\nResaisir l'adresse mail : ${neutre}"
+	        echo -e "${jauneclair}\nResaisir l'adresse mail : ${neutre}"
 	        read repmailb
 	        if [ "$repmaila" = "$repmailb" ]
 	        then
-	                echo -e "${jaune}Adresse mail correcte ${neutre}"
+	                echo -e "${rougelclair}Adresse mail correcte ${neutre}"
 	                boucle=false
 	        else
-	                echo -e "${jaune}Adresse mail différente. Recommencer"
+	                echo -e "${rougeclair}Adresse mail différente. Recommencer"
         	fi
 	done
 
@@ -463,10 +367,9 @@ then
 	then
 		cd /home/pi
 		rm jails.sh
-#		unlink /home/pi/script/jails.sh
 	fi
 	ln -s /home/pi/script/jails.sh /home/pi/
-	echo -e "${rougeclair}Pour la liste des prisons et le nombre de bannis : ${neutre}"
+	echo -e "${rougelair}Pour la liste des prisons et le nombre de bannis : ${neutre}"
 	echo -e "${rougeclair}cd /home/pi ${neutre}"
 	echo -e "${rougeclair}sudo ./jails.sh ${neutre}"
 
@@ -488,14 +391,13 @@ then
         echo -e "${rougeclair}cd /home/pi ${neutre}"
         echo -e "${rougeclair}sudo ./banip.sh ${neutre}"
 
-fi
+    fi
 
 ### ===============================================================
 ### Installation de Fail2map
 ### ===============================================================
 
-if [ "$repfail2map" = "o" ] || [ "$repfail2map" = "O" ]
-then
+   if [[ $CHOIX =~ "GLPI" ]]; then
         echo -e "${bleuclair}\nInstallation de Fail2map (nécessite Fail2ban) ${neutre}"
 
         echo -e "${vertclair}\nTéléchargement de Fail2map ${neutre}"
@@ -552,36 +454,38 @@ then
         L3="\n\tbaseLayer = L.tileLayer.provider('Esri.NatGeoWorldMap', {"
         sed '/'"$L1"'/ c\'"$L2"''"$L3"'' /var/www/html/fail2map/js/maps.js >/home/pi/maps.js
         mv /home/pi/maps.js /var/www/html/fail2map/js/maps.js
-fi
+    fi
 
 ### ===============================================================
 ### GPIO
 ### ===============================================================
 
-if [ "$repgpio" = "o" ] || [ "$repgpio" = "O" ]
-then
+   if [[ $CHOIX =~ "GPIO" ]]; then
         echo -e "${bleuclair}\nInstallation de wiringpi pour l'utilisation des GPIO (nécessite Fail2ban) ${neutre}"
         echo -e "${rougeclair}\nNe pas oublier d'activer les GPIO avec sudo raspi-config ${neutre}"
 	cd /tmp
 	wget https://project-downloads.drogon.net/wiringpi-latest.deb
 	sudo dpkg -i wiringpi-latest.deb
         echo -e "${bleuclair}\nExecuter la commande gpio readall pour voir la configuration des broches ${neutre}"
-fi
+    fi
 
 
 ### ===============================================================
 ### Copyright
 ### ===============================================================
 
-echo -e "${jauneclair}\nScript d'installation automatique de Webmin, Motioneye, Apache2, fail2ban et Fail2map pour le Raspberry"
-echo -e "Script réalisé par KELLER Stéphane - Lycée Agricole Louis Pasteur"
-echo -e "et José De Castro - Insitu"
-echo -e "https://github.com/KELLERStephane/KELLER-Stephane-Tests2maths ${neutre}"
+    echo -e "${jauneclair}\nScript d'installation automatique de Webmin, Motioneye, Apache2, fail2ban et Fail2map pour le Raspberry"
+    echo -e "Script réalisé par KELLER Stéphane - Lycée Agricole Louis Pasteur"
+    echo -e "et José De Castro"
+    echo -e "https://github.com/KELLERStephane/KELLER-Stephane-Tests2maths ${neutre}"
 
 ### ===============================================================
 ### Fin de l'installation
 ### ===============================================================
 
-echo -e "${blancclignotant}Appuyer une touche pour redémarrer le Raspberry ${neutre}"
-read
-reboot
+    echo -e "${blancclignotant}Appuyer une touche pour redémarrer le Raspberry ${neutre}"
+    read
+    reboot
+else
+    echo "Annulation des installations."
+fi
