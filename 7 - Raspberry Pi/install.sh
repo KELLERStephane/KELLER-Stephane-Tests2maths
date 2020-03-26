@@ -304,7 +304,7 @@ if [[ $exitstatus = 0 ]]; then
 
         boucle=true
         while "$boucle";do
-		mail1=$(whiptail --title "Mail" --inputbox "Saisir l'adresse mail pour les messages de Fail2ban : ?" 10 60 3>&1 1>&2 2>&3)
+		mail1=$(whiptail --title "Adresse mail" --inputbox "Saisir l'adresse mail pour les messages de Fail2ban : ?" 10 60 3>&1 1>&2 2>&3)
  		exitstatus=$?
 		if [ $exitstatus = 0 ]; then
 		    	mail2=$(whiptail --title "Mail" --inputbox "Resaisir l'adresse mail pour les messages de Fail2ban : ?" 10 60 3>&1 1>&2 2>&3)
@@ -327,7 +327,7 @@ if [[ $exitstatus = 0 ]]; then
         L1='destemail='
         L2='\n#destemail='
         L3='\ndestemail='
-	sed '/'"$L1"'/ c\'"$L2"''"$L3"''"$repmaila"'' /etc/fail2ban/jail.d/custom.conf >/home/pi/custom.conf
+	sed '/'"$L1"'/ c\'"$L2"''"$L3"''"$mail1"'' /etc/fail2ban/jail.d/custom.conf >/home/pi/custom.conf
 	mv /home/pi/custom.conf /etc/fail2ban/jail.d/custom.conf
 
 	echo -e "${vertclair}Démarrage du service Postfix ${neutre}"
