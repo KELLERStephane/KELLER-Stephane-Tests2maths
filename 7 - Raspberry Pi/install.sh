@@ -56,9 +56,8 @@ fi
 ### ===============================================================
 
 CHOIX=$(whiptail --title "Menu d'installation du Raspberry" --checklist \
-"\nScript réalisé par :\n- KELLER Stéphane (Lycée Agricole Louis Pasteur)\n- José De Castro\n\n	Que soutaitez-vous installer ?" 19 72 9 \
+"\nScript réalisé par :\n- KELLER Stéphane (Lycée Agricole Louis Pasteur)\n- José De Castro\n\n	Que soutaitez-vous installer ?" 18 72 8 \
 "MAJ" "Mise a jour du systeme " OFF \
-"Paquets" "Paquets utiles pour une première installation " OFF \
 "Webmin" "Administration du système en mode WEB " OFF \
 "Motioneye" "Logiciel de vidéosurveillance " OFF \
 "Apache2" "Serveur web Apache2 " OFF \
@@ -82,13 +81,7 @@ if [[ $exitstatus = 0 ]]; then
     if [[ $CHOIX =~ "MAJ" ]]; then
 	echo -e "${bleuclair}\nMise à jour des paquets si nécessaire ${neutre}"
 	apt update && apt -y upgrade
-    fi
 
-### ===============================================================
-### Installation des paquets nécessaires pour une première installation
-### ===============================================================
-
-    if [[ $CHOIX =~ "Paquets" ]]; then
         echo -e "${bleuclair}\nInstallation d'Aptitude si nécessaire ${neutre} ${neutre}"
         apt -y install aptitude
 
@@ -205,7 +198,7 @@ if [[ $exitstatus = 0 ]]; then
 #                echo -e "${cyanclair}Le répertoire d'installation d'Apache2 /etc/apache2 existe déja. Suppression du répertoire avant la nouvelle installation  ${neutre}"
 #                rm -r /etc/apache2
 #        fi
-        aptitude install apache2 -y
+        apt -y install apache2
 
 	echo -e "${vertclair}suppression si nécessaire de la page par défaut d'Apache2 ${neutre}"
 	if [ -f "/var/www/html/index.html" ]; then
@@ -277,37 +270,39 @@ if [[ $exitstatus = 0 ]]; then
         echo -e "${bleuclair}\nInstallation de Fail2ban ${neutre}"
 
         if [ -d "/etc/fail2ban" ]; then
-                echo -e "${cyanclair}Le répertoire d'installation de Fail2ban /etc/fail2ban existe déja. Suppression du répertoire avant la nouvelle installation  ${neutre}"
-	        echo -e "${vertclair}/etc/fail2ban/jail.copy -> /etc/fail2ban/jail.conf ${neutre}"
-        	echo -e "${vertclair}/etc/fail2ban/fail2ban.copy -> /etc/fail2ban/fail2ban.conf ${neutre}"
-     	   	cp /etc/fail2ban/jail.conf /etc/fail2ban/jail.copy
-        	cp /etc/fail2ban/fail2ban.conf /etc/fail2ban/fail2ban.copy
+                echo -e "${cyanclair}Le répertoire d'installation de Fail2ban /etc/fail2ban existe déja. ${neutre}"
+                echo -e "${cyanclair}Désinstallation du logiciel avant la nouvelle installation  ${neutre}"
+ 		apt -y --purge remove fail2ban
         fi
         apt -y install fail2ban
+
+
 	echo -e "${vertclair}Sauvegarde des fichiers de configuration des prisons de Fail2ban${neutre}"
 	echo -e "${vertclair}/etc/fail2ban/jail.conf -> /etc/fail2ban/jail.copy ${neutre}"
 	echo -e "${vertclair}/etc/fail2ban/fail2ban.conf -> /etc/fail2ban/fail2ban.copy ${neutre}"
  	cp /etc/fail2ban/jail.conf /etc/fail2ban/jail.copy
 	cp /etc/fail2ban/fail2ban.conf /etc/fail2ban/fail2ban.copy
 
+        #Téléchargement du fichier personnalisable de configuration des prisons
+        echo -e "${vertclair}\nTéléchargement du fichier de configuration des prisons (à personnaliser) ${neutre}"
+        if [ -e /etc/fail2ban/jail.d/custom.conf ]; then
+                echo -e "${cyanclair}\nLe fichier /etc/fail2ban/jail.d/custom.conf existe déja ${neutre}"
+                echo -e "${cyanclair}Effacement du fichier puis création du nouveau fichier ${neutre}"
+                rm /etc/fail2ban/jail.d/custom.conf
+        fi
+        wget -P /etc/fail2ban/jail.d/ https://raw.githubusercontent.com/KELLERStephane/KELLER-Stephane-Tests2maths/master/7%20-%20Raspberry%20Pi/custom.conf
+
+	#installation de Postfix pour envoi des mails d'alerte
 	echo -e "${vertclair}\nInstallation de Postfix si nécessaire pour l'envoi des mails d'alerte ${neutre} ${neutre}"
 	apt install postfix
 
-        echo -e "${vertclair}\nTéléchargement du fichier de configuration des prisons (à personnaliser) ${neutre}"
-	if [ -e /etc/fail2ban/jail.d/custom.conf ]; then
-		echo -e "${cyanclair}\nLe fichier /etc/fail2ban/jail.d/custom.conf existe déja ${neutre}"
-		echo -e "${cyanclair}Effacement du fichier puis création du nouveau fichier ${neutre}"
-		rm /etc/fail2ban/jail.d/custom.conf
-	fi
-	wget -P /etc/fail2ban/jail.d/ https://raw.githubusercontent.com/KELLERStephane/KELLER-Stephane-Tests2maths/master/7%20-%20Raspberry%20Pi/custom.conf
-
-
+	#Saisi adresse mail pour envoi des mails d'alerte
         boucle=true
         while "$boucle";do
 		mail1=$(whiptail --title "Adresse mail" --inputbox "Saisir l'adresse mail pour les messages de Fail2ban : ?" 10 60 3>&1 1>&2 2>&3)
  		exitstatus=$?
 		if [ $exitstatus = 0 ]; then
-		    	mail2=$(whiptail --title "Mail" --inputbox "Resaisir l'adresse mail pour les messages de Fail2ban : ?" 10 60 3>&1 1>&2 2>&3)
+		    	mail2=$(whiptail --title "Mail" --inputbox "Resaisir l'adresse mail : ?" 10 60 3>&1 1>&2 2>&3)
 			exitstatus=$?
 			if [ "$mail1" = "$mail2" ]; then
 				echo -e "${rougelclair}Adresse mail correcte ${neutre}"
@@ -330,13 +325,35 @@ if [[ $exitstatus = 0 ]]; then
 	sed '/'"$L1"'/ c\'"$L2"''"$L3"''"$mail1"'' /etc/fail2ban/jail.d/custom.conf >/home/pi/custom.conf
 	mv /home/pi/custom.conf /etc/fail2ban/jail.d/custom.conf
 
+	#Démarrage du service Postfix
 	echo -e "${vertclair}Démarrage du service Postfix ${neutre}"
 	service postfix reload
 
+	#Modification du fichier sendmail-common.local pour éviter le surplus d'information dans les mails
         echo -e "${vertclair}\nPour éviter le surplus d'information dans les mails ${neutre}"
         echo -e "${vertclair}Création du fichier /etc/fail2ban/action.d/sendmail-common.local ${neutre}"
         echo -e "[Definition]\naction start =\naction stop =" | sudo tee –a /etc/fail2ban/action.d/sendmail-common.local
 
+################################################################################################
+	#Modification du fichier iptables-multiport.conf pour créer un fichier d'IP banni
+        if [ -e /etc/fail2ban/action.d/iptables-multiport.copy ] ; then
+             echo -e "${cyanclair}\nLe fichier /etc/fail2ban/action.d/iptables-multiport.copy existe déja ${neutre}"
+             echo -e "${cyanclair}Effacement du fichier puis création du nouveau fichier ${neutre}"
+             rm /etc/fail2ban/action.d/iptables-multiport.copy
+        fi
+	cp /etc/fail2ban/action.d/iptables-multiport.conf /etc/fail2ban/action.d/iptables-multiport.copy
+        L1='actionban = '
+        L2='\nmadate=$(date)'
+        L3='\nactionban = <iptables> -I fail2ban-<name> 1 -s <ip> -j <blocktype>'
+        L4='\n            if ! grep -Fq <ip> /var/log/ipbannies.log; then echo "fail2ban-<name> <ip> %(madate)s" | sudo tee -a /var/log/ipbannies.log; fi '
+	sed '/'"$L1"'/ c\'"$L2"''"$L3"''"$L4"'' /etc/fail2ban/action.d/iptables-multiport.conf>/home/pi/iptables-multiport.conf
+	mv /home/pi/iptables-multiport.conf /etc/fail2ban/action.d/iptables-multiport.conf
+        echo -e "${rougeclair}Pour visualiser le fichier d'IP bannies : ${neutre}"
+        echo -e "${rougeclair}sudo nano  /var/log/ipbannies.log ${neutre}"
+
+####################################################################################################
+
+	#Démarrage automatique de Fail2ban
         echo -e "${vertclair}\nDémarrer Fail2ban automatiquement lors du démarrage du système ${neutre}"
 	sudo systemctl enable fail2ban
 
@@ -409,6 +426,7 @@ if [[ $exitstatus = 0 ]]; then
         sed -i -e "s/latitude/lat/g" /home/pi/fail2map.py
         mv /home/pi/fail2map.py /var/www/html/fail2map/fail2map.py
 
+	#Modification du fichier fail2map-action.conf pour placer IP sur la carte
         echo -e "${vertclair}Modification du fichier /var/www/html/fail2map/fail2map-action.conf ${neutre}"
         cp /var/www/html/fail2map/fail2map-action.conf /var/www/html/fail2map/fail2map-action.copy
         L1='fail2map = *'
@@ -425,14 +443,15 @@ if [[ $exitstatus = 0 ]]; then
 	fi
         cp /var/www/html/fail2map/fail2map-action.conf /etc/fail2ban/action.d/fail2map-action.conf
 
+	#Effacement du fichier exemple IP puis création fichier vierge d'IP
         echo -e "${vertclair}Suppression du fichier d'exemple de localisation /var/www/html/fail2map/places.geojson ${neutre}"
         rm /var/www/html/fail2map/places.geojson
-
         echo -e "${vertclair}Création d'un fichier vide localisation /var/www/html/fail2map/places.geojson ${neutre}"
         echo "" | sudo tee -a /var/www/html/fail2map/places.geojson
         echo -e "${vertclair}Modification des droits du fichier /var/www/html/fail2map/places.geojson en -rwxr-xr-x ${neutre}"
         chmod 755 /var/www/html/fail2map/places.geojson
 
+	#Modification de la carte par défaut pour Fail2map
         echo -e "${vertclair}Changement de la carte par défaut en modifiant le fichier /var/www/html/fail2map/js/map.js ${neutre}"
         sudo sed '/'"$L1"'/ c\'"$L2"''"$L3"'' /var/www/html/fail2map/js/maps.js >>/home/pi/maps.js
         L1="baseLayer = *"
@@ -452,7 +471,7 @@ if [[ $exitstatus = 0 ]]; then
 	cd /tmp
 	wget https://project-downloads.drogon.net/wiringpi-latest.deb
 	sudo dpkg -i wiringpi-latest.deb
-        echo -e "${bleuclair}\nExecuter la commande gpio readall pour voir la configuration des broches ${neutre}"
+        echo -e "${rougeclair}\nExecuter la commande gpio readall pour voir la configuration des broches ${neutre}"
     fi
 
 
