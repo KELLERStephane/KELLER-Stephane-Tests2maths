@@ -274,7 +274,7 @@ if [[ $exitstatus = 0 ]]; then
                 echo -e "${cyanclair}Désinstallation du logiciel avant la nouvelle installation  ${neutre}"
 		rm -r /etc/fail2ban
  		apt -y --purge remove fail2ban
-        fi
+         fi
         apt -y install fail2ban
 
 
