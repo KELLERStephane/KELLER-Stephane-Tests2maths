@@ -272,6 +272,7 @@ if [[ $exitstatus = 0 ]]; then
         if [ -d "/etc/fail2ban" ]; then
                 echo -e "${cyanclair}Le répertoire d'installation de Fail2ban /etc/fail2ban existe déja. ${neutre}"
                 echo -e "${cyanclair}Désinstallation du logiciel avant la nouvelle installation  ${neutre}"
+		rm -r /etc/fail2ban
  		apt -y --purge remove fail2ban
         fi
         apt -y install fail2ban
@@ -320,7 +321,7 @@ if [[ $exitstatus = 0 ]]; then
 	cp /etc/fail2ban/jail.d/custom.conf /etc/fail2ban/jail.d/custom.copy
         echo -e "${vertclair}Ajout de l'adresse dans le fichier de configuration personnalisable de Fail2ban ${neutre}"
         L1='destemail='
-        L2='\n#destemail='
+        L2='#destemail='
         L3='\ndestemail='
 	sed '/'"$L1"'/ c\'"$L2"''"$L3"''"$mail1"'' /etc/fail2ban/jail.d/custom.conf >/home/pi/custom.conf
 	mv /home/pi/custom.conf /etc/fail2ban/jail.d/custom.conf
