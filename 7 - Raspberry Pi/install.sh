@@ -3,7 +3,9 @@
 ### ===============================================================
 ### Script d'installation du Raspberry et des logiciels tiers
 ### Stéphane KELLER – Lycée Agricole Louis Pasteur
-###José De Castro
+### José De Castro
+### echo -e "et José De Castro "
+### https://github.com/KELLERStephane/KELLER-Stephane-Tests2maths
 ### ===============================================================
 
 ### ===============================================================
@@ -31,15 +33,6 @@ blancclignotant='\e[5;37m'
 neutre='\e[0;m'
 
 ### ===============================================================
-### Copyright
-### ===============================================================
-
-echo -e "${jauneclair}\nScript d'installation automatique de Webmin, Motioneye, Apache2, fail2ban et Fail2map pour le Raspberry"
-echo -e "Script réalisé par KELLER Stéphane - Lycée Agricole Louis Pasteur"
-echo -e "et José De Castro "
-echo -e "https://github.com/KELLERStephane/KELLER-Stephane-Tests2maths ${neutre}"
-
-### ===============================================================
 ### Test si l'utilisateur courant a les droits administrateur
 ### ===============================================================
 
@@ -56,7 +49,7 @@ fi
 ### ===============================================================
 
 CHOIX=$(whiptail --title "Menu d'installation du Raspberry" --checklist \
-"\nScript réalisé par :\n- KELLER Stéphane (Lycée Agricole Louis Pasteur)\n- José De Castro\n\n	Que soutaitez-vous installer ?" 18 72 8 \
+"\nScript réalisé par :\n- KELLER Stéphane (Lycée Agricole Louis Pasteur)\n- José De Castro\nhttps://github.com/KELLERStephane/KELLER-Stephane-Tests2maths\n\nQue soutaitez-vous installer ?" 22 72 8 \
 "MAJ" "Mise a jour du systeme " OFF \
 "Webmin" "Administration du système en mode WEB " OFF \
 "Motioneye" "Logiciel de vidéosurveillance " OFF \
