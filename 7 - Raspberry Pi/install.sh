@@ -103,6 +103,11 @@ if [[ $exitstatus = 0 ]]; then
 
         echo -e "${vertclair}\nInstallation de python3 si nécessaire ${neutre}"
         apt -y install python3
+	echo -e "$${vertclair}\nModification da la version par défaut de python en python3 si nécessaire ${neutre}"
+	update-alternatives --install /usr/bin/python python /usr/bin/python2.7 1
+	update-alternatives --install /usr/bin/python python /usr/bin/python2.7 1
+	echo -e "${vertclair}\nLA version dePython par défaut est : ${neutre}"
+	python --version
 
         echo -e "${vertclair}\nInstallation de pip pour python3 si nécessaire ${neutre}"
         apt -y install python3-pip
