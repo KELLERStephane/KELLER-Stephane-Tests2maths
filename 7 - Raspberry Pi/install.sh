@@ -419,14 +419,24 @@ if [[ $exitstatus = 0 ]]; then
         echo -e "${vertclair}/var/www/html/fail2map/fail2map.py -> /var/www/html/fail2map/fail2map.copy ${neutre}"
         cp /var/www/html/fail2map/fail2map.py /var/www/html/fail2map/fail2map.copy
 
-        echo -e "${vertclair}Modification du fichier /var/www/html/fail2map/fail2map.conf ${neutre}"
+        echo -e "${vertclair}Modification du fichier /var/www/html/fail2map/fail2map.py ${neutre}"
+        L1='import urllib2'
+        L2='#import urllib2'
+        L3='import urllib.request'
+        sed '/'"$L1"'/ c\'"$L2"''"$L3"'' /var/www/html/fail2map/fail2map.py>/home/pi/fail2map.py
         L1='GEOIP_API = "http:\/\/www.telize.com\/geoip\/%s"'
         L2='#GEOIP_API = "http:\/\/www.telize.com\/geoip\/%s"'
         L3='\nGEOIP_API = "http:\/\/ip-api.com\/json\/%s"'
         sed '/'"$L1"'/ c\'"$L2"''"$L3"'' /var/www/html/fail2map/fail2map.py>/home/pi/fail2map.py
+        L1='req = urllib2.urlopen(GEOIP_API % ipaddr)'
+        L2='#req = urllib2.urlopen(GEOIP_API % ipaddr)'
+        L3='req = urllib.request.urlopen(GEOIP_API % ipaddr)'
+        sed '/'"$L1"'/ c\'"$L2"''"$L3"'' /var/www/html/fail2map/fail2map.py>/home/pi/fail2map.py
+
         sed -i -e "s/longitude/lon/g" /home/pi/fail2map.py
         sed -i -e "s/latitude/lat/g" /home/pi/fail2map.py
         mv /home/pi/fail2map.py /var/www/html/fail2map/fail2map.py
+
 
 	#Modification du fichier fail2map-action.conf pour placer IP sur la carte
         echo -e "${vertclair}Modification du fichier /var/www/html/fail2map/fail2map-action.conf ${neutre}"
