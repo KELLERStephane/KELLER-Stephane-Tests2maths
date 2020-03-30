@@ -101,12 +101,12 @@ if [[ $exitstatus = 0 ]]; then
         echo -e "${vertclair}Création du fichier /etc/ntp.com ${neutre}"
         echo "server 0.fr.pool.ntp.org" | sudo tee -a /etc/ntp.com
 
-        echo -e "${vertclair}\nInstallation de python3 si nécessaire ${neutre}"
+        echo -e "${bleuclair}\nInstallation de python3 si nécessaire ${neutre}"
         apt -y install python3
-	echo -e "$${vertclair}\nModification da la version par défaut de python en python3 si nécessaire ${neutre}"
-	sudo update-alternatives --install /usr/bin/python python /usr/bin/python2.7 1
-	sudo update-alternatives --install /usr/bin/python python /usr/bin/python3.7 2
-	echo -e "${vertclair}\nLA version dePython par défaut est : ${neutre}"
+	echo -e "${vertclair}\nModification da la version par défaut de python en python3 si nécessaire ${neutre}"
+	update-alternatives --install /usr/bin/python python /usr/bin/python2.7 1
+	update-alternatives --install /usr/bin/python python /usr/bin/python3.7 2
+	echo -e "${vertclair}\nLa version de Python par défaut est : ${neutre}"
 	python --version
 
         echo -e "${vertclair}\nInstallation de pip pour python3 si nécessaire ${neutre}"
