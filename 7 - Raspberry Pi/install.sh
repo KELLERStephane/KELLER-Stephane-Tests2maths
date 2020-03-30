@@ -106,6 +106,9 @@ if [[ $exitstatus = 0 ]]; then
 	echo -e "${vertclair}\nModification da la version par défaut de python en python3 si nécessaire ${neutre}"
 	update-alternatives --install /usr/bin/python python /usr/bin/python2.7 1
 	update-alternatives --install /usr/bin/python python /usr/bin/python3.7 2
+	echo -e "${vertclair}\nChoix de la version de Python par défaut : ${neutre}"
+        echo -e "${vertclair}\nChoisir Python3 de préférence : ${neutre}"
+	update-alternatives --config python
 	echo -e "${vertclair}\nLa version de Python par défaut est : ${neutre}"
 	python --version
 
