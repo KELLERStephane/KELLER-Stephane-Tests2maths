@@ -108,7 +108,7 @@ if [[ $exitstatus = 0 ]]; then
 	update-alternatives --install /usr/bin/python python /usr/bin/python3.7 2
 	echo -e "${vertclair}\nChoix de la version de Python par défaut : ${neutre}"
         echo -e "${vertclair}\nChoisir Python3 de préférence : ${neutre}"
-	update-alternatives --config python
+	echo 0 | sudo update-alternatives --config python
 	echo -e "${vertclair}\nLa version de Python par défaut est : ${neutre}"
 	python --version
 
@@ -422,21 +422,21 @@ if [[ $exitstatus = 0 ]]; then
         echo -e "${vertclair}Modification du fichier /var/www/html/fail2map/fail2map.py ${neutre}"
         L1='import urllib2'
         L2='#import urllib2'
-        L3='import urllib.request'
-        sed '/'"$L1"'/ c\'"$L2"''"$L3"'' /var/www/html/fail2map/fail2map.py>/home/pi/fail2map.py
-        L1='GEOIP_API = "http:\/\/www.telize.com\/geoip\/%s"'
-        L2='#GEOIP_API = "http:\/\/www.telize.com\/geoip\/%s"'
-        L3='\nGEOIP_API = "http:\/\/ip-api.com\/json\/%s"'
-        sed '/'"$L1"'/ c\'"$L2"''"$L3"'' /var/www/html/fail2map/fail2map.py>/home/pi/fail2map.py
-        L1='req = urllib2.urlopen(GEOIP_API % ipaddr)'
-        L2='#req = urllib2.urlopen(GEOIP_API % ipaddr)'
-        L3='req = urllib.request.urlopen(GEOIP_API % ipaddr)'
-        sed '/'"$L1"'/ c\'"$L2"''"$L3"'' /var/www/html/fail2map/fail2map.py>/home/pi/fail2map.py
+        L3='\nimport urllib.request'
+        sed -i '/'"$L1"'/ c\'"$L2"''"$L3"'' /var/www/html/fail2map/fail2map.py
 
-        sed -i -e "s/longitude/lon/g" /home/pi/fail2map.py
-        sed -i -e "s/latitude/lat/g" /home/pi/fail2map.py
-        mv /home/pi/fail2map.py /var/www/html/fail2map/fail2map.py
+        L4='GEOIP_API = "http:\/\/www.telize.com\/geoip\/%s"'
+        L5='#GEOIP_API = "http:\/\/www.telize.com\/geoip\/%s"'
+        L6='\nGEOIP_API = "http:\/\/ip-api.com\/json\/%s"'
+        sed -i '/'"$L4"'/ c\'"$L5"''"$L6"'' /var/www/html/fail2map/fail2map.py
 
+        L7='    req ='
+        L8='\n    #req = urllib2.urlopen(GEOIP_API % ipaddr)'
+        L9='\n    req = urllib.request.urlopen(GEOIP_API % ipaddr)'
+        sed -i '/'"$L7"'/ c\'"$L8"''"$L9"'' /var/www/html/fail2map/fail2map.py
+
+        sed -i "s/longitude/lon/g" /var/www/html/fail2map/fail2map.py
+        sed -i "s/latitude/lat/g" /var/www/html/fail2map/fail2map.py
 
 	#Modification du fichier fail2map-action.conf pour placer IP sur la carte
         echo -e "${vertclair}Modification du fichier /var/www/html/fail2map/fail2map-action.conf ${neutre}"
