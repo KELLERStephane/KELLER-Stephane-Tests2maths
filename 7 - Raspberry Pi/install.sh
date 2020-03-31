@@ -108,7 +108,7 @@ if [[ $exitstatus = 0 ]]; then
 	update-alternatives --install /usr/bin/python python /usr/bin/python3.7 2
 	echo -e "${vertclair}\nChoix de la version de Python par défaut : ${neutre}"
         echo -e "${vertclair}\nChoisir Python3 de préférence : ${neutre}"
-	echo 0 | sudo update-alternatives --config python
+	echo 1 | sudo update-alternatives --config python
 	echo -e "${vertclair}\nLa version de Python par défaut est : ${neutre}"
 	python --version
 
@@ -246,8 +246,8 @@ if [[ $exitstatus = 0 ]]; then
                 L9='\n\t# tri horaire décroissant'
                 L10='\n\tIndexOrderDefault Descending Date'
                 L11='\n</Directory>'
-                sudo sed '/'"$L1"'/ a\'"$L2"''"$L3"''"$L4"''"$L5"''"$L6"''"$L7"''"$L8"''"$L9"''"$L10"''"$L11"'' /etc/apache2/apache2.conf>/home/pi/apache2.conf
-                cp /home/pi/apache2.conf /etc/apache2/apache2.conf
+                L12='\n#</Directory>'
+                sed -i '/'"$L1"'/ c\'"$L2"''"$L3"''"$L4"''"$L5"''"$L6"''"$L7"''"$L8"''"$L9"''"$L10"''"$L11"''"$L12"'' /etc/apache2/apache2.conf
         fi
 
 	echo -e "${vertclair}Redémarrage du service Apache2 ${neutre}"
@@ -324,8 +324,7 @@ if [[ $exitstatus = 0 ]]; then
         L1='destemail='
         L2='#destemail='
         L3='\ndestemail='
-	sed '/'"$L1"'/ c\'"$L2"''"$L3"''"$mail1"'' /etc/fail2ban/jail.d/custom.conf >/home/pi/custom.conf
-	mv /home/pi/custom.conf /etc/fail2ban/jail.d/custom.conf
+        sed -i '/'"$L1"'/ c\'"$L2"''"$L3"''"$repmaila"'' /etc/fail2ban/jail.d/custom.conf
 
 	#Démarrage du service Postfix
 	echo -e "${vertclair}Démarrage du service Postfix ${neutre}"
@@ -348,8 +347,7 @@ if [[ $exitstatus = 0 ]]; then
         L2='\nmadate=$(date)'
         L3='\nactionban = <iptables> -I fail2ban-<name> 1 -s <ip> -j <blocktype>'
         L4='\n            if ! grep -Fq <ip> /var/log/ipbannies.log; then echo "fail2ban-<name> <ip> %(madate)s" | sudo tee -a /var/log/ipbannies.log; fi '
-	sed '/'"$L1"'/ c\'"$L2"''"$L3"''"$L4"'' /etc/fail2ban/action.d/iptables-multiport.conf>/home/pi/iptables-multiport.conf
-	mv /home/pi/iptables-multiport.conf /etc/fail2ban/action.d/iptables-multiport.conf
+        sed -i '/'"$L1"'/ c\'"$L2"''"$L3"''"$L4"'' /etc/fail2ban/action.d/iptables-multiport.conf
         echo -e "${rougeclair}Pour visualiser le fichier d'IP bannies : ${neutre}"
         echo -e "${rougeclair}sudo nano  /var/log/ipbannies.log ${neutre}"
 
@@ -419,21 +417,33 @@ if [[ $exitstatus = 0 ]]; then
         echo -e "${vertclair}/var/www/html/fail2map/fail2map.py -> /var/www/html/fail2map/fail2map.copy ${neutre}"
         cp /var/www/html/fail2map/fail2map.py /var/www/html/fail2map/fail2map.copy
 
-        echo -e "${vertclair}Modification du fichier /var/www/html/fail2map/fail2map.py ${neutre}"
-        L1='import urllib2'
-        L2='#import urllib2'
-        L3='\nimport urllib.request'
-        sed -i '/'"$L1"'/ c\'"$L2"''"$L3"'' /var/www/html/fail2map/fail2map.py
+###################################################################################################
+### Modification valable uniquement si Python3 par défaut
+###################################################################################################
 
+#        echo -e "${vertclair}Modification du fichier /var/www/html/fail2map/fail2map.py ${neutre}"
+#        L1='import urllib2'
+#        L2='#import urllib2'
+#        L3='\nimport urllib.request'
+#        sed -i '/'"$L1"'/ c\'"$L2"''"$L3"'' /var/www/html/fail2map/fail2map.py
+
+###################################################################################################
+#
         L4='GEOIP_API = "http:\/\/www.telize.com\/geoip\/%s"'
         L5='#GEOIP_API = "http:\/\/www.telize.com\/geoip\/%s"'
         L6='\nGEOIP_API = "http:\/\/ip-api.com\/json\/%s"'
         sed -i '/'"$L4"'/ c\'"$L5"''"$L6"'' /var/www/html/fail2map/fail2map.py
 
-        L7='    req ='
-        L8='\n    #req = urllib2.urlopen(GEOIP_API % ipaddr)'
-        L9='\n    req = urllib.request.urlopen(GEOIP_API % ipaddr)'
-        sed -i '/'"$L7"'/ c\'"$L8"''"$L9"'' /var/www/html/fail2map/fail2map.py
+###################################################################################################
+### Modification valable uniquement si Python3 par défaut
+###################################################################################################
+
+#        L7='    req ='
+#        L8='\n    #req = urllib2.urlopen(GEOIP_API % ipaddr)'
+#        L9='\n    req = urllib.request.urlopen(GEOIP_API % ipaddr)'
+#        sed -i '/'"$L7"'/ c\'"$L8"''"$L9"'' /var/www/html/fail2map/fail2map.py
+
+###################################################################################################
 
         sed -i "s/longitude/lon/g" /var/www/html/fail2map/fail2map.py
         sed -i "s/latitude/lat/g" /var/www/html/fail2map/fail2map.py
