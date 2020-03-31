@@ -417,33 +417,28 @@ if [[ $exitstatus = 0 ]]; then
         echo -e "${vertclair}/var/www/html/fail2map/fail2map.py -> /var/www/html/fail2map/fail2map.copy ${neutre}"
         cp /var/www/html/fail2map/fail2map.py /var/www/html/fail2map/fail2map.copy
 
-###################################################################################################
-### Modification valable uniquement si Python3 par défaut
-###################################################################################################
+	version=$(python --version 2>&1 | cut -c1-8)
+	echo -e "${vertclair}\nVersion de Python par défaut : ${neutre}"
+	echo -e $version
+	if [[ $version =~ "Python 3" ]]; then
+	        echo -e "${vertclair}Modification du fichier /var/www/html/fail2map/fail2map.py ${neutre}"
+	        L1='import urllib2'
+	        L2='#import urllib2'
+	        L3='\nimport urllib.request'
+	        sed -i '/'"$L1"'/ c\'"$L2"''"$L3"'' /var/www/html/fail2map/fail2map.py
+	fi
 
-#        echo -e "${vertclair}Modification du fichier /var/www/html/fail2map/fail2map.py ${neutre}"
-#        L1='import urllib2'
-#        L2='#import urllib2'
-#        L3='\nimport urllib.request'
-#        sed -i '/'"$L1"'/ c\'"$L2"''"$L3"'' /var/www/html/fail2map/fail2map.py
-
-###################################################################################################
-#
         L4='GEOIP_API = "http:\/\/www.telize.com\/geoip\/%s"'
         L5='#GEOIP_API = "http:\/\/www.telize.com\/geoip\/%s"'
         L6='\nGEOIP_API = "http:\/\/ip-api.com\/json\/%s"'
         sed -i '/'"$L4"'/ c\'"$L5"''"$L6"'' /var/www/html/fail2map/fail2map.py
 
-###################################################################################################
-### Modification valable uniquement si Python3 par défaut
-###################################################################################################
-
-#        L7='    req ='
-#        L8='\n    #req = urllib2.urlopen(GEOIP_API % ipaddr)'
-#        L9='\n    req = urllib.request.urlopen(GEOIP_API % ipaddr)'
-#        sed -i '/'"$L7"'/ c\'"$L8"''"$L9"'' /var/www/html/fail2map/fail2map.py
-
-###################################################################################################
+        if [[ $version =~ "Python 3" ]]; then
+	        L7='    req ='
+	        L8='\n    #req = urllib2.urlopen(GEOIP_API % ipaddr)'
+	        L9='\n    req = urllib.request.urlopen(GEOIP_API % ipaddr)'
+	        sed -i '/'"$L7"'/ c\'"$L8"''"$L9"'' /var/www/html/fail2map/fail2map.py
+	fi
 
         sed -i "s/longitude/lon/g" /var/www/html/fail2map/fail2map.py
         sed -i "s/latitude/lat/g" /var/www/html/fail2map/fail2map.py
