@@ -148,10 +148,10 @@ draw.rectangle((0,0,width,height), outline=0, fill=0)
 # Shell scripts for system monitoring from here : https://unix.stackexchange.com/questions/119126/command$
 
 #Affichage des valeurs
-cmd = "date +%D"
-date = subprocess.check_output(cmd, shell = True )
-cmd = "date +%H:%M"
-horaire = subprocess.check_output(cmd, shell = True )
+#cmd = "date +%D"
+#date = subprocess.check_output(cmd, shell = True )
+#cmd = "date +%H:%M"
+#horaire = subprocess.check_output(cmd, shell = True )
 temp1 = int(temperature)
 temp2 = int(10 * (temperature%1))
 if temp2 != 0:
@@ -159,15 +159,10 @@ if temp2 != 0:
 else:
     temp = str(temp1)
 
-humid1 = int(humidity)
-humid2 = int(10 * (humidity%1))
-if humid2 != 0:
-    humid = str(humid1) + '.' + str(humid2)
-else:
-    humid = str(humid1)
+humid = str(int(humidity))
 
 #Affichage des textes.
-ligne1, ligne2, ligne3 = 0, 10, 20
+ligne1, ligne2 = 0, 8
 
 os.chdir("/home/pi/script")
 os.system("echo 'Le repertoire courant est : '")
@@ -180,11 +175,11 @@ font = ImageFont.truetype('Minecraftia-Regular.ttf', 6)
 draw.text((x, ligne1),         "TEMPERATURE",  font=font, fill=255)
 draw.text((x + 80, ligne1),    "HUMIDITE",  font=font, fill=255)
 
-font = ImageFont.truetype('Minecraftia-Regular.ttf', 8)
-draw.text((x, ligne2),       temp + '  ' + u'\xb0' + 'C',  font=font, fill=255)
-draw.text((x + 80 , ligne2), humid + '  % ',  font=font, fill=255)
-draw.text((x, ligne3),       str(date.decode("utf-8")),  font=font, fill=255)
-draw.text((x + 80 , ligne3), str(horaire.decode("utf-8")),  font=font, fill=255)
+font = ImageFont.truetype('Minecraftia-Regular.ttf', 18)
+draw.text((x, ligne2),       temp + ' ' + u'\xb0' + 'C',  font=font, fill=255)
+draw.text((x + 80 , ligne2), humid + ' % ',  font=font, fill=255)
+#draw.text((x, ligne3),       str(date.decode("utf-8")),  font=font, fill=255)
+#draw.text((x + 80 , ligne3), str(horaire.decode("utf-8")),  font=font, fill=255)
 
 # Display image.
 disp.image(image)
