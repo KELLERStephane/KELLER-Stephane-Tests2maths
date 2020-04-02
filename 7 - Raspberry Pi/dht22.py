@@ -98,11 +98,11 @@ font = ImageFont.load_default()
 # les parametres de Domoticz
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-domoticz_ip = '192.168.0.40'
+domoticz_ip =
 domoticz_port = '8080'
-user = 'kontua'
-password = 'toto'
-domoticz_idx = 11
+user =
+password =
+domoticz_idx =
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # les parametres du DHT
@@ -112,7 +112,7 @@ domoticz_idx = 11
 # pin est le numero de GPIO BCM que vous avez cablée
 
 sensor = 22
-pin = 26
+pin =
 
 ############# Fin des parametres #################################
 
