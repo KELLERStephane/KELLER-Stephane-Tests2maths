@@ -83,15 +83,6 @@ bottom = height-padding
 # Move left to right keeping track of the current x position for drawing shapes.
 x = 0
 
-
-# Load default font.
-font = ImageFont.load_default()
-
-# Alternatively load a TTF font.  Make sure the .ttf font file is in the same directory as the python script!
-# Some other nice fonts to try: http://www.dafont.com/bitmap.php
-# font = ImageFont.truetype('Minecraftia.ttf', 8)
-
-
 ############# Parametres #################################
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -174,7 +165,15 @@ print(temp)
 os.system("echo -n 'Humidité = '")
 print(humid)
 
+# Load default font.
+font = ImageFont.load_default()
 
+# Alternatively load a TTF font.  Make sure the .ttf font file is in the same directory as the python script!
+# Some other nice fonts to try: http://www.dafont.com/bitmap.php
+# font = ImageFont.truetype('Minecraftia.ttf', 8)
+
+test=PIL.ImageFont.load('Minecraftia-Regular.ttf')
+print('test = ',test)
 #font = ImageFont.truetype('Minecraftia-Regular.ttf', 6)
 draw.text((x, ligne1),         "TEMPERATURE",  font=font, fill=255)
 draw.text((x + 80, ligne1),    "HUMIDITE",  font=font, fill=255)

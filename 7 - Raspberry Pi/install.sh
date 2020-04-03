@@ -487,8 +487,14 @@ if [[ $exitstatus = 0 ]]; then
 
     echo -e "${vertclair}Téléchargement du fichier de configuration Fail2ban ${neutre}"
     echo -e "${vertclair}pour domoticz dans /etc/fail2ban/filter.d/domoticz.conf ${neutre}"
+    if [ -e /etc/fail2ban/filter.d/domoticz.conf ] ; then
+	echo -e "${cyanclair}\nLe fichier /etc/fail2ban/filter.d/domoticz.conf existe déja ${neutre}"
+        echo -e "${cyanclair}Effacement du fichier puis création du nouveau fichier ${neutre}"
+        rm /etc/fail2ban/filter.d/domoticz.conf
+    fi
     wget -P /etc/fail2ban/filter.d/ https://raw.githubusercontent.com/KELLERStephane/KELLER-Stephane-Tests2maths/master/7%20-%20Raspberry%20Pi/domoticz.conf
     chown pi:pi /etc/fail2ban/filter.d/domoticz.conf
+
     if [ -e !/etc/fail2ban/jail.d/custom.conf ] ; then
 	echo -e "${cyanclair}\nLe fichier /etc/fail2ban/jail.d/custom.conf n'existe pas ! ${neutre}"
 	echo -e "${vertclair}\nTéléchargement du fichier de configuration des prisons (à personnaliser) ${neutre}"
@@ -523,23 +529,27 @@ if [[ $exitstatus = 0 ]]; then
 ### ===============================================================
 
     if [[ $CHOIX =~ "DHT22" ]]; then
-        echo -e "${bleuclair}\nInstallation du capteur DHT22 (nécessite Domoticz) ${neutre}"
-        echo -e "${rougeclair}\nNe pas oublier d'activer les GPIO avec sudo raspi-config ${neutre}"
-        echo -e "${rougeclair}\Ne pas oublier d'activer I2C avec sudo raspi-config ${neutre}"
+		echo -e "${bleuclair}\nInstallation du capteur DHT22 ${neutre}"
+		echo -e "${rougeclair}\nDomoticz doit être installé et le capteur relié au raspberry ${neutre}"
+		echo -e "${rougeclair}Il faut connaître et renseigner : ${neutre}"
+		echo -e "${rougeclair}- l'IDX du capteur dht22 dans domoticz ; ${neutre}"
+		echo -e "${rougeclair}- le numéro GPIO BCM sur lequel est relié le capteur. ${neutre}"
+		echo -e "${rougeclair}\nNe pas oublier d'activer les GPIO avec sudo raspi-config ${neutre}" 
+		echo -e "${rougeclair}Ne pas oublier d'activer I2C avec sudo raspi-config ${neutre}"
 
         if [ -d "/home/pi/script/Adafruit_Python_DHT" ]; then
-                echo -e "${cyanclair}Le répertoire d'installation /home/pi/script/Adafruit_Python_DHT existe déja. Suppression du répertoire avant la nouvelle installation ${neutre}"
+                echo -e "${cyanclair}\nLe répertoire d'installation /home/pi/script/Adafruit_Python_DHT existe déja. Suppression du répertoire avant la nouvelle installation ${neutre}"
                 rm -r /home/pi/script/Adafruit_Python_DHT
         fi
         if [ -d "/home/pi/script/Adafruit_Python_SSD1306" ]; then
                 echo -e "${cyanclair}Le répertoire d'installation /home/pi/script/Adafruit_Python_SSD1306 existe déja. Suppression du répertoire avant la nouvelle installation  ${neutre}"
                 rm -r /home/pi/script/Adafruit_Python_SSD1306
         fi
-        if [ -e /home/pi/script/dht22.py ] ; then
-             echo -e "${cyanclair}\nLe fichier /home/pi/script/dht22.py existe déja ${neutre}"
-             echo -e "${cyanclair}Effacement du fichier puis création du nouveau fichier ${neutre}"
-             rm /home/pi/script/dht22.py
-        fi
+#        if [ -e /home/pi/script/dht22.py ] ; then
+#             echo -e "${cyanclair}\nLe fichier /home/pi/script/dht22.py existe déja ${neutre}"
+#             echo -e "${cyanclair}Effacement du fichier puis création du nouveau fichier ${neutre}"
+#             rm /home/pi/script/dht22.py
+#        fi
         if [ -e /home/pi/script/Minecraftia-Regular.ttf ] ; then
              echo -e "${cyanclair}\nLe fichier /home/pi/script/Minecraftia-Regular.ttf existe déja ${neutre}"
              echo -e "${cyanclair}Effacement du fichier puis création du nouveau fichier ${neutre}"
@@ -550,16 +560,16 @@ if [[ $exitstatus = 0 ]]; then
 
 	version=$(python --version 2>&1 | cut -c1-8)
 	echo -e "${vertclair}\nVersion de Python par défaut : ${neutre}"
-	echo -e $version
+	echo -e -n $version
 	if [[ $version =~ "Python 3" ]]; then
 		#installation si Python3
-		sudo apt install -y python3-dev
-		sudo apt install -y python-imaging python-smbus i2c-tools
-		sudo apt install -y python-smbus i2c-tools
-		sudo apt install -y python3-pil
-		sudo apt install -y python3-pip
-		sudo apt install -y python3-setuptools
-		sudo apt install -y python3-rpi.gpio
+		apt install -y python3-dev
+		apt install -y python-imaging python-smbus i2c-tools
+		apt install -y python-smbus i2c-tools
+		apt install -y python3-pil
+		apt install -y python3-pip
+		apt install -y python3-setuptools
+		apt install -y python3-rpi.gpio
 		python3 -m pip install --upgrade pip setuptools wheel
 		pip3 install Adafruit_DHT
 		cd /home/pi/script/Adafruit_Python_DHT
@@ -570,89 +580,119 @@ if [[ $exitstatus = 0 ]]; then
 		#installation si Python2
 		apt install python-pip
 		python -m pip install --upgrade pip setuptools wheel
-		sudo pip install Adafruit_DHT
+		pip install Adafruit_DHT
 		cd /home/pi/script/Adafruit_Python_DHT
 		python setup.py install
                 cd /home/pi/script/Adafruit_Python_SSD1306
-                sudo python setup.py install
+                python setup.py install
 	fi
 
 	#Téléchargement des bibliothèques et des fichiers
-#	echo -e "${bleuclair}\nInstallation des bilbiothèques AdaFruit pour le capteur DHT22 (nécessite Domoticz) ${neutre}"
-#        git clone https://github.com/adafruit/Adafruit_Python_DHT.git
-#        git clone https://github.com/adafruit/Adafruit_Python_SSD1306.git
+	echo -e "${bleuclair}\nInstallation des bilbiothèques AdaFruit pour le capteur DHT22 (nécessite Domoticz) ${neutre}"
+        git clone https://github.com/adafruit/Adafruit_Python_DHT.git
+        git clone https://github.com/adafruit/Adafruit_Python_SSD1306.git
+	sudo chown pi:pi jails.sh Adafruit_Python_DHT/
+	sudo chown pi:pi jails.sh Adafruit_Python_SSD1306/
 #	echo -e "${vertclair}\nTéléchargement du fichier dht22.py et de la police de caractère ${neutre}"
 #	wget https://raw.githubusercontent.com/KELLERStephane/KELLER-Stephane-Tests2maths/master/7%20-%20Raspberry%20Pi/dht22.py
 #	chown pi:pi dht22.py
-#	wget https://github.com/KELLERStephane/KELLER-Stephane-Tests2maths/blob/master/7%20-%20Raspberry%20Pi/Minecraftia-Regular.ttf
-#	chown pi:pi Minecraftia-Regular.ttf
-#	chmod +x /home/pi/script/dht22.py
+	wget https://github.com/KELLERStephane/KELLER-Stephane-Tests2maths/blob/master/7%20-%20Raspberry%20Pi/Minecraftia-Regular.ttf
+	chown pi:pi Minecraftia-Regular.ttf
+	chmod +x /home/pi/script/dht22.py
 
 	#Saisie des paramètres pour le fichier dht22.py
-#	adresse=$(hostname -I | cut -d' ' -f1)
-#	echo -e "${vertclair}\nAdresse IP = ${neutre}"
-#	echo -e $adresse
-#	echo -e "${vertclair}Ajout de l'adresse IP dans le fichier dht22.py ${neutre}"
-#        L1='domoticz_ip ='
-#	L2='domoticz_ip = '
-#	L3=$adresse
-#	sed -i '/'"$L1"'/ c\'"$L2"''"$L3"'' /home/pi/script/dht22.py
+	adresse=$(hostname -I | cut -d' ' -f1)
+	echo -e -n "${vertclair}Adresse IP = ${neutre}"
+	echo -e $adresse
+	echo -e "${vertclair}Ajout de l'adresse IP dans le fichier dht22.py ${neutre}"
+        L1="domoticz_ip ="
+	L2="domoticz_ip = '"
+	L3=$adresse
+	L4="'"
+	sed -i '/'"$L1"'/ c\'"$L2"''"$L3"''"$L4"'' /home/pi/script/dht22.py
 
-#	user=$(who 2>&1 | cut -c1-2)
-#        echo -e "${vertclair}\nUser = ${neutre}"
-#        echo -e $user
-#        echo -e "${vertclair}Ajout user dans le fichier dht22.py ${neutre}"
-#        L4='user ='
-#        L5='user = '
-#        L6=$user
-#        sed -i '/'"$L4"'/ c\'"$L5"''"$L6"'' /home/pi/script/dht22.py
+        boucle=true
+        while $boucle;do
+                USER=$(whiptail --title "Paramètres pour dht22.py" --inputbox "\nSaisir l'identifiant domoticz : " 10 60 3>&1 1>&2 2>&3)
+                exitstatus=$?
+                if [ $exitstatus = 0 ]; then
+                        L1="user ="
+                        L2="user = '"
+                        L3=$USER
+                        L4="'"
+                        sed -i '/'"$L1"'/ c\'"$L2"''"$L3"''"$L4"'' /home/pi/script/dht22.py
+                        boucle=false
+                else
+                        echo "Tu as annulé... Recommence :-("
+                fi
+        done
+        echo -e "${vertclair}Ajout de l'identifiant dans le fichier dht22.py ${neutre}"
 
-#	boucle=true
-#	while $boucle;do
-#
-#		MDP=$(whiptail --title "Paramètres pour dht22.py" --inputbox "Saisir mot de passe pi : " 10 60 3>&1 1>&2 2>&3)
-#	 	exitstatus=$?
-#		if [ $exitstatus = 0 ]; then
-#		        L1='password ='
-#	        	L2='password ='
-#	        	L3=$MDP
-#		       	sed -i '/'"$L1"'/ c\'"$L2"''"$L3"'' /home/pi/script/dht22.py
-#			boucle=false
-#		else
-#		    	echo "Tu as annulé... Recommence :-("
-#		fi
-#	done
+        boucle=true
+        while $boucle;do
+		MDP=$(whiptail --title "Paramètres pour dht22.py" --passwordbox "\nSaisir votre mot de passe pour domoticz" 10 60 3>&1 1>&2 2>&3)
+		exitstatus=$?
+		if [ $exitstatus = 0 ]; then
+	                L1="password ="
+			L2="password = '"
+			L3=$MDP
+			L4="'"
+			sed -i '/'"$L1"'/ c\'"$L2"''"$L3"''"$L4"'' /home/pi/script/dht22.py
+			boucle=false
+		else
+		    echo "Vous avez annulez"
+		fi
+	done
+        echo -e "${vertclair}Ajout du mot de passe dans le fichier dht22.py ${neutre}"
+
+       	boucle=true
+       	while $boucle;do
+               IDX=$(whiptail --title "Paramètres pour dht22.py" --inputbox "\nSaisir l'IDX du dispositif dht22 : " 10 60 3>&1 1>&2 2>&3)
+               exitstatus=$?
+               if [ $exitstatus = 0 ]; then
+                       	L1="domoticz_idx ="
+                       	L2="domoticz_idx = "
+                       	L3=$IDX
+                       	sed -i '/'"$L1"'/ c\'"$L2"''"$L3"'' /home/pi/script/dht22.py
+                       	boucle=false
+               else
+                       	echo "Tu as annulé... Recommence :-("
+               fi
+       	done
+	echo -e "${vertclair}Ajout de l'IDX dans le fichier dht22.py ${neutre}"
+
+       	boucle=true
+	while $boucle;do
+               PIN=$(whiptail --title "Paramètres pour dht22.py" --inputbox "\nSaisir le numéro de GPIO (BCM) sur lequel est relié le dht22 sur le rapsberry : " 10 60 3>&1 1>&2 2>&3)
+               exitstatus=$?
+               if [ $exitstatus = 0 ]; then
+                       	L1="pin ="
+                       	L2="pin = "
+                       	L3=$PIN
+                       	sed -i '/'"$L1"'/ c\'"$L2"''"$L3"'' /home/pi/script/dht22.py
+                       	boucle=false
+               else
+                       echo "Tu as annulé... Recommence :-("
+               fi
+       	done
+	echo -e "${vertclair}Ajout du numéro de GPIO (BCM) dans le fichier dht22.py ${neutre}"
 
 	crontab -u root -l > /tmp/toto.txt # export de la crontab
-	grep "dht22.py" /tmp/toto.txt
-#	test=$?
-#	echo $test
-	if [[ $? = 0 ]];then
-		echo "OK"
-	else
-		echo "NOK"
+	grep "dht22.py" /tmp/toto.txt >/dev/null
+	if [[ $? != 0 ]];then
+               echo -e "${vertclair}\nModification de la crontab : affichage de temp+hum toutes les 10 mn chaque jour: ${neutre}"
+               echo -e "\n#affichage de la temp+hum toutes les 10 mn chaque jour" >> /tmp/toto.txt # ajout de la ligne dans le fichier temporaire
+               echo -e "*/10 * * * * sudo /home/pi/script/dht22.py" >> /tmp/toto.txt # ajout de la ligne dans le fichier temporaire
+               crontab /tmp/toto.txt # import de la crontab
+               rm /tmp/toto.txt # le fichier temporaire ne sert plus à rien
 	fi
 
-
-#        grep 'dht22.py' toto.txt retval=$? if [ "$retval" = 0 ] then echo "OK" else echo "NOK" fi
-	echo $retval
-
-
-#	if [[ "$var"=0 ]]; then
-#		echo -e "${vertclair}\nModification de la crontab : ${neutre}"
-#		echo "#affichage de la temp+hum toutes les 10 mn chaque jour" >> /tmp/toto.txt # ajout de la ligne dans le fichier temporaire
-#	        echo "*/10 * * * * sudo /home/pi/script/dht22.py" >> /tmp/toto.txt # ajout de la ligne dans le fichier temporaire
-#		crontab /tmp/toto.txt # import de la crontab
-#		rm /tmp/toto.txt # le fichier temporaire ne sert plus à rien
-#	fi
-
-#	echo -e "${vertclair}\nTest module i2c : ${neutre}"
-#	lsmod | grep i2c_
-#	echo -e "${vertclair}\nVérification de l'adresse du périphérique i2c : ${neutre}"
-#	i2cdetect -y 1
-#	echo -e "${vertclair}\nTest du capteur de température : ${neutre}"
-#	cd /home/pi/script/
-#	sudo ./AdafruitDHT.py 22 17
+	echo -e "${vertclair}\nTest module i2c : ${neutre}"
+	lsmod | grep i2c_
+	echo -e "${vertclair}\nVérification de l'adresse du périphérique i2c : ${neutre}"
+	i2cdetect -y 1
+	echo -e "${vertclair}\nTest du capteur de température : ${neutre}"
+	sudo /home/pi/script/Adafruit_Python_DHT/examples/AdafruitDHT.py 22 26
 fi
 
 
