@@ -38,7 +38,7 @@ neutre='\e[0;m'
 
 utilisateur=$(whoami)
 if [[ $utilisateur != "root" ]]; then
-    echo -e -n "${jauneclair} Cher $utilisateur, vous n etes pas 'root'; merci de relancer cette commande precedee de 'SUDO'. \n ${neutre}"
+    echo -e -n "${jauneclair} Cher $utilisateur, vous n'êtes pas 'root'; merci de relancer cette commande précédée de 'SUDO'. \n ${neutre}"
     exit
 else
     clear
@@ -49,15 +49,16 @@ fi
 ### ===============================================================
 
 CHOIX=$(whiptail --title "Menu d'installation du Raspberry" --checklist \
-"\nScript réalisé par :\n- KELLER Stéphane (Lycée Agricole Louis Pasteur)\n- José De Castro\nhttps://github.com/KELLERStephane/KELLER-Stephane-Tests2maths\n\nQue soutaitez-vous installer ?" 22 72 8 \
+"\nScript réalisé par :\n- KELLER Stéphane (Lycée Agricole Louis Pasteur)\n- José De Castro\nhttps://github.com/KELLERStephane/KELLER-Stephane-Tests2maths\n\nQue soutaitez-vous installer ?" 23 72 8 \
 "MAJ" "Mise a jour du systeme " OFF \
 "Webmin" "Administration du système en mode WEB " OFF \
 "Motioneye" "Logiciel de vidéosurveillance " OFF \
 "Apache2" "Serveur web Apache2 " OFF \
-"Domoticz" "Logiciel de domotique Domoticz " OFF \
 "Fail2ban" "Protection du systeme via auto-bannissement " OFF \
 "Fail2map" "Affichage des ip sur une carte " OFF \
-"GPIO" "Wiringpi pour l'utilisation des GPIO " OFF 3>&1 1>&2 2>&3)
+"Domoticz" "Logiciel de domotique Domoticz " OFF \
+"GPIO" "Wiringpi pour l'utilisation des GPIO " OFF \
+"DHT22" "Capteur de température DHT22 " OFF 3>&1 1>&2 2>&3)
 
 exitstatus=$?
 
@@ -207,7 +208,7 @@ if [[ $exitstatus = 0 ]]; then
 	fi
 
 	boucle=true
-	while "$boucle";do
+	while $boucle;do
         	echo -e "${vertclair}\nSécuristion d'Apache2. ${neutre}"
 	        if [ -d "/var/www/passwd" ]; then
         	        echo -e "${cyanclair}Le répertoire de mots de passe /var/www/passwd existe déja. Suppression du répertoire avant la nouvelle installation  ${neutre}"
@@ -255,15 +256,6 @@ if [[ $exitstatus = 0 ]]; then
     fi
 
 ### ===============================================================
-### Installation de Domoticz
-### ===============================================================
-
-    if [[ $CHOIX =~ "Domoticz" ]]; then
-        echo -e "${bleuclair}\nInstallation de Domoticz ${neutre}" 
-	curl -L install.domoticz.com | bash
-    fi
-
-### ===============================================================
 ### Installation de Fail2ban
 ### ===============================================================
 
@@ -293,14 +285,14 @@ if [[ $exitstatus = 0 ]]; then
                 rm /etc/fail2ban/jail.d/custom.conf
         fi
         wget -P /etc/fail2ban/jail.d/ https://raw.githubusercontent.com/KELLERStephane/KELLER-Stephane-Tests2maths/master/7%20-%20Raspberry%20Pi/custom.conf
-
+	chown pi:pi /etc/fail2ban/jail.d/custom.conf
 	#installation de Postfix pour envoi des mails d'alerte
 	echo -e "${vertclair}\nInstallation de Postfix si nécessaire pour l'envoi des mails d'alerte ${neutre} ${neutre}"
 	apt install postfix
 
 	#Saisi adresse mail pour envoi des mails d'alerte
         boucle=true
-        while "$boucle";do
+        while $boucle;do
 		mail1=$(whiptail --title "Adresse mail" --inputbox "Saisir l'adresse mail pour les messages de Fail2ban : ?" 10 60 3>&1 1>&2 2>&3)
  		exitstatus=$?
 		if [ $exitstatus = 0 ]; then
@@ -335,7 +327,6 @@ if [[ $exitstatus = 0 ]]; then
         echo -e "${vertclair}Création du fichier /etc/fail2ban/action.d/sendmail-common.local ${neutre}"
         echo -e "[Definition]\naction start =\naction stop =" | sudo tee –a /etc/fail2ban/action.d/sendmail-common.local
 
-################################################################################################
 	#Modification du fichier iptables-multiport.conf pour créer un fichier d'IP banni
         if [ -e /etc/fail2ban/action.d/iptables-multiport.copy ] ; then
              echo -e "${cyanclair}\nLe fichier /etc/fail2ban/action.d/iptables-multiport.copy existe déja ${neutre}"
@@ -350,8 +341,6 @@ if [[ $exitstatus = 0 ]]; then
         sed -i '/'"$L1"'/ c\'"$L2"''"$L3"''"$L4"'' /etc/fail2ban/action.d/iptables-multiport.conf
         echo -e "${rougeclair}Pour visualiser le fichier d'IP bannies : ${neutre}"
         echo -e "${rougeclair}sudo nano  /var/log/ipbannies.log ${neutre}"
-
-####################################################################################################
 
 	#Démarrage automatique de Fail2ban
         echo -e "${vertclair}\nDémarrer Fail2ban automatiquement lors du démarrage du système ${neutre}"
@@ -368,6 +357,7 @@ if [[ $exitstatus = 0 ]]; then
 
 	mkdir /home/pi/script
 	wget -P /home/pi/script/ https://raw.githubusercontent.com/KELLERStephane/KELLER-Stephane-Tests2maths/master/7%20-%20Raspberry%20Pi/jails.sh
+	chown pi:pi  /home/pi/script/jails.sh
 	chmod +x /home/pi/script/jails.sh
 	echo -e "${vertclair}\nCréation d'un raccourci vers le bureau ${neutre}"
 	if [ -h "/home/pi/jails.sh" ]; 	then
@@ -384,6 +374,7 @@ if [[ $exitstatus = 0 ]]; then
         echo -e "${vertclair}pour bannir ou débannir une adresse IP : ${neutre}"
         echo -e "${vertclair}/home/pi/script/jails.sh ${neutre}"
   	wget -P /home/pi/script/ https://raw.githubusercontent.com/KELLERStephane/KELLER-Stephane-Tests2maths/master/7%20-%20Raspberry%20Pi/banip.sh
+	chown pi:pi  /home/pi/script/banip.sh
 	chmod +x /home/pi/script/banip.sh
         if [ -h "/home/pi/banip.sh" ]; then
 		cd /home/pi
@@ -479,6 +470,42 @@ if [[ $exitstatus = 0 ]]; then
     fi
 
 ### ===============================================================
+### Installation de Domoticz
+### ===============================================================
+
+    if [[ $CHOIX =~ "Domoticz" ]]; then
+        echo -e "${bleuclair}\nInstallation de Domoticz ${neutre}"
+        curl -L install.domoticz.com | bash
+    fi
+
+    echo -e "${vertclair}Création du fichier log /var/log/domoticz.log ${neutre}"
+    cp /etc/init.d/domoticz.sh /etc/init.d/domoticz.copy
+    L1='#DAEMON_ARGS="$DAEMON_ARGS -log \/tmp\/domoticz.txt'
+    L2='#DAEMON_ARGS="$DAEMON_ARGS -log \/tmp\/domoticz.txt'
+    L3='\nDAEMON_ARGS="$DAEMON_ARGS -log /var/log/domoticz.log"'
+    sed -i '/'"$L1"'/ c\'"$L2"''"$L3"'' /etc/init.d/domoticz.sh
+
+    echo -e "${vertclair}Téléchargement du fichier de configuration Fail2ban ${neutre}"
+    echo -e "${vertclair}pour domoticz dans /etc/fail2ban/filter.d/domoticz.conf ${neutre}"
+    wget -P /etc/fail2ban/filter.d/ https://raw.githubusercontent.com/KELLERStephane/KELLER-Stephane-Tests2maths/master/7%20-%20Raspberry%20Pi/domoticz.conf
+    chown pi:pi /etc/fail2ban/filter.d/domoticz.conf
+    if [ -e !/etc/fail2ban/jail.d/custom.conf ] ; then
+	echo -e "${cyanclair}\nLe fichier /etc/fail2ban/jail.d/custom.conf n'existe pas ! ${neutre}"
+	echo -e "${vertclair}\nTéléchargement du fichier de configuration des prisons (à personnaliser) ${neutre}"
+	wget -P /etc/fail2ban/jail.d/ https://raw.githubusercontent.com/KELLERStephane/KELLER-Stephane-Tests2maths/master/7%20-%20Raspberry%20Pi/custom.conf
+	chown pi:pi /etc/fail2ban/jail.d/custom.conf
+    echo -e "${cyanclair}\nCr&ation de la prison domoticz dans le fichier /etc/fail2ban/jail.d/custom.conf ${neutre}"
+    L1='[domoticz]'
+    L2='\nenabled  = true'
+    L3='\nport = 8080,443'
+    L4='\nfilter  = domoticz'
+    L5='\nlogpath = /var/log/domoticz.log'
+    echo -e $L1 $L2 $L3 $L4 $L5 >>/etc/fail2ban/jail.d/custom.conf
+    fi
+
+
+
+### ===============================================================
 ### GPIO
 ### ===============================================================
 
@@ -487,9 +514,146 @@ if [[ $exitstatus = 0 ]]; then
         echo -e "${rougeclair}\nNe pas oublier d'activer les GPIO avec sudo raspi-config ${neutre}"
 	cd /tmp
 	wget https://project-downloads.drogon.net/wiringpi-latest.deb
-	sudo dpkg -i wiringpi-latest.deb
+	sudo dpkg -i wiringpi-latest.deb && rm wiringpi-latest.deb
         echo -e "${rougeclair}\nExecuter la commande gpio readall pour voir la configuration des broches ${neutre}"
     fi
+
+### ===============================================================
+### DHT22
+### ===============================================================
+
+    if [[ $CHOIX =~ "DHT22" ]]; then
+        echo -e "${bleuclair}\nInstallation du capteur DHT22 (nécessite Domoticz) ${neutre}"
+        echo -e "${rougeclair}\nNe pas oublier d'activer les GPIO avec sudo raspi-config ${neutre}"
+        echo -e "${rougeclair}\Ne pas oublier d'activer I2C avec sudo raspi-config ${neutre}"
+
+        if [ -d "/home/pi/script/Adafruit_Python_DHT" ]; then
+                echo -e "${cyanclair}Le répertoire d'installation /home/pi/script/Adafruit_Python_DHT existe déja. Suppression du répertoire avant la nouvelle installation ${neutre}"
+                rm -r /home/pi/script/Adafruit_Python_DHT
+        fi
+        if [ -d "/home/pi/script/Adafruit_Python_SSD1306" ]; then
+                echo -e "${cyanclair}Le répertoire d'installation /home/pi/script/Adafruit_Python_SSD1306 existe déja. Suppression du répertoire avant la nouvelle installation  ${neutre}"
+                rm -r /home/pi/script/Adafruit_Python_SSD1306
+        fi
+        if [ -e /home/pi/script/dht22.py ] ; then
+             echo -e "${cyanclair}\nLe fichier /home/pi/script/dht22.py existe déja ${neutre}"
+             echo -e "${cyanclair}Effacement du fichier puis création du nouveau fichier ${neutre}"
+             rm /home/pi/script/dht22.py
+        fi
+        if [ -e /home/pi/script/Minecraftia-Regular.ttf ] ; then
+             echo -e "${cyanclair}\nLe fichier /home/pi/script/Minecraftia-Regular.ttf existe déja ${neutre}"
+             echo -e "${cyanclair}Effacement du fichier puis création du nouveau fichier ${neutre}"
+             rm /home/pi/script/Minecraftia-Regular.ttf
+        fi
+
+        cd /home/pi/script
+
+	version=$(python --version 2>&1 | cut -c1-8)
+	echo -e "${vertclair}\nVersion de Python par défaut : ${neutre}"
+	echo -e $version
+	if [[ $version =~ "Python 3" ]]; then
+		#installation si Python3
+		sudo apt install -y python3-dev
+		sudo apt install -y python-imaging python-smbus i2c-tools
+		sudo apt install -y python-smbus i2c-tools
+		sudo apt install -y python3-pil
+		sudo apt install -y python3-pip
+		sudo apt install -y python3-setuptools
+		sudo apt install -y python3-rpi.gpio
+		python3 -m pip install --upgrade pip setuptools wheel
+		pip3 install Adafruit_DHT
+		cd /home/pi/script/Adafruit_Python_DHT
+		python3 setup.py install
+		cd /home/pi/script/Adafruit_Python_SSD1306
+		sudo python3 setup.py install
+	else:
+		#installation si Python2
+		apt install python-pip
+		python -m pip install --upgrade pip setuptools wheel
+		sudo pip install Adafruit_DHT
+		cd /home/pi/script/Adafruit_Python_DHT
+		python setup.py install
+                cd /home/pi/script/Adafruit_Python_SSD1306
+                sudo python setup.py install
+	fi
+
+	#Téléchargement des bibliothèques et des fichiers
+#	echo -e "${bleuclair}\nInstallation des bilbiothèques AdaFruit pour le capteur DHT22 (nécessite Domoticz) ${neutre}"
+#        git clone https://github.com/adafruit/Adafruit_Python_DHT.git
+#        git clone https://github.com/adafruit/Adafruit_Python_SSD1306.git
+#	echo -e "${vertclair}\nTéléchargement du fichier dht22.py et de la police de caractère ${neutre}"
+#	wget https://raw.githubusercontent.com/KELLERStephane/KELLER-Stephane-Tests2maths/master/7%20-%20Raspberry%20Pi/dht22.py
+#	chown pi:pi dht22.py
+#	wget https://github.com/KELLERStephane/KELLER-Stephane-Tests2maths/blob/master/7%20-%20Raspberry%20Pi/Minecraftia-Regular.ttf
+#	chown pi:pi Minecraftia-Regular.ttf
+#	chmod +x /home/pi/script/dht22.py
+
+	#Saisie des paramètres pour le fichier dht22.py
+#	adresse=$(hostname -I | cut -d' ' -f1)
+#	echo -e "${vertclair}\nAdresse IP = ${neutre}"
+#	echo -e $adresse
+#	echo -e "${vertclair}Ajout de l'adresse IP dans le fichier dht22.py ${neutre}"
+#        L1='domoticz_ip ='
+#	L2='domoticz_ip = '
+#	L3=$adresse
+#	sed -i '/'"$L1"'/ c\'"$L2"''"$L3"'' /home/pi/script/dht22.py
+
+#	user=$(who 2>&1 | cut -c1-2)
+#        echo -e "${vertclair}\nUser = ${neutre}"
+#        echo -e $user
+#        echo -e "${vertclair}Ajout user dans le fichier dht22.py ${neutre}"
+#        L4='user ='
+#        L5='user = '
+#        L6=$user
+#        sed -i '/'"$L4"'/ c\'"$L5"''"$L6"'' /home/pi/script/dht22.py
+
+#	boucle=true
+#	while $boucle;do
+#
+#		MDP=$(whiptail --title "Paramètres pour dht22.py" --inputbox "Saisir mot de passe pi : " 10 60 3>&1 1>&2 2>&3)
+#	 	exitstatus=$?
+#		if [ $exitstatus = 0 ]; then
+#		        L1='password ='
+#	        	L2='password ='
+#	        	L3=$MDP
+#		       	sed -i '/'"$L1"'/ c\'"$L2"''"$L3"'' /home/pi/script/dht22.py
+#			boucle=false
+#		else
+#		    	echo "Tu as annulé... Recommence :-("
+#		fi
+#	done
+
+	crontab -u root -l > /tmp/toto.txt # export de la crontab
+	grep "dht22.py" /tmp/toto.txt
+#	test=$?
+#	echo $test
+	if [[ $? = 0 ]];then
+		echo "OK"
+	else
+		echo "NOK"
+	fi
+
+
+#        grep 'dht22.py' toto.txt retval=$? if [ "$retval" = 0 ] then echo "OK" else echo "NOK" fi
+	echo $retval
+
+
+#	if [[ "$var"=0 ]]; then
+#		echo -e "${vertclair}\nModification de la crontab : ${neutre}"
+#		echo "#affichage de la temp+hum toutes les 10 mn chaque jour" >> /tmp/toto.txt # ajout de la ligne dans le fichier temporaire
+#	        echo "*/10 * * * * sudo /home/pi/script/dht22.py" >> /tmp/toto.txt # ajout de la ligne dans le fichier temporaire
+#		crontab /tmp/toto.txt # import de la crontab
+#		rm /tmp/toto.txt # le fichier temporaire ne sert plus à rien
+#	fi
+
+#	echo -e "${vertclair}\nTest module i2c : ${neutre}"
+#	lsmod | grep i2c_
+#	echo -e "${vertclair}\nVérification de l'adresse du périphérique i2c : ${neutre}"
+#	i2cdetect -y 1
+#	echo -e "${vertclair}\nTest du capteur de température : ${neutre}"
+#	cd /home/pi/script/
+#	sudo ./AdafruitDHT.py 22 17
+fi
 
 
 ### ===============================================================

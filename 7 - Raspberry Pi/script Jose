@@ -1,0 +1,118 @@
+#!/bin/bash
+### ===============================================================
+### Définition des couleurs
+### ===============================================================
+
+noir='\e[0;30m'
+gris='\e[1;30m'
+rougefonce='\e[0;31m'
+rougeclair='\e[1;31m'
+rose='\e[1;31m'
+vertfonce='\e[0;32m'
+vertclair='\e[1;32m'
+jaunefonce='\e[0;33m'
+jauneclair='\e[1;33m'
+bleufonce='\e[0;34m'
+bleuclair='\e[1;34m'
+violetfonce='\e[0;35m'
+violetclair='\e[1;35m'
+cyanfonce='\e[0;36m'
+cyanclair='\e[1;36m'
+grisclair='\e[0;37m'
+blanc='\e[1;37m'
+blancclignotant='\e[5;37m'
+neutre='\e[0;m'
+
+### Utilisateur courant
+utilisateur=$(whoami)
+if [[ $utilisateur != "root" ]]; then
+    echo -e -n "${jauneclair} Cher $utilisateur, vous n etes pas 'root'; merci de relancer cette commande precedee de 'SUDO'. \n ${neutre}"
+    exit
+else
+    clear
+fi
+CHOIX=$(whiptail --title "Menu INSITU" --checklist \
+"Que soutaitez-vous installer ?" 15 72 8 \
+"MAJ" "Mise a jour du systeme. " ON \
+"Webmin" "Administration du système en mode WEB. " ON \
+"GLPI" "Gestion du parc et des tickets. " ON \
+"MariaDB" "Base de données pour GLPi. " ON \
+"ZABBIX" "Surveillance des services locaux et reseau. " OFF \
+"Fail2Ban" "Protection du systeme via auto-bannissement. " OFF \
+"Menu" "Installer le 'menu WEB'. " OFF 3>&1 1>&2 2>&3)
+
+exitstatus=$?
+
+if [[ $exitstatus = 0 ]]; then
+    echo -e -n "${jauneclair}  ======================================= \n ${neutre}"
+    echo -e -n "${jauneclair} Les logiciels suivants seront installes \n ${neutre}"
+    echo -e -n "${jauneclair} $CHOIX \n ${neutre}"
+    echo -e -n "${jauneclair} ======================================= \n ${neutre}"
+
+    if [[ $CHOIX =~ "MAJ" ]]; then
+	### mises à jour
+	echo -e -n "${bleuclair}\nMise a jour de la liste des paquets & Mises a jour du systeme...\n ${neutre}"
+	apt update && apt -y upgrade
+	# installer wget (telechargement via url) (pour debian 10)
+	echo -e -n "${bleuclair}\nInstallation de WGET si necessaire...\n ${neutre}"
+	apt -y install wget
+	### installer "mc" (gestionnaire de fichiers + editeur mcedit)
+	echo -e -n "${bleuclair}\nInstallation de Midnight Commander si necessaire...\n ${neutre}"
+	apt -y install mc
+	### installer le gestionnaire de droits étendus
+	echo -e -n "${bleuclair}\nInstallation des ACLs si necessaire...\n ${neutre}"
+	apt -y install acl
+	### installer aptitude
+	echo -e -n "${bleuclair}\nInstallation de APTITUDE si necessaire...\n ${neutre}"
+	apt -y install aptitude
+	### Installation d'une commande de recherche de fichiers (« locate ») :
+	###...et tant qu'on y est, on déclenche de suite l'indexation des fichiers pour préparer une future recherche:
+	echo -e -n "${bleuclair}\nInstallation de LOCATE si necessaire & Indexation immediate du systeme... \n ${neutre}"
+	apt -y install locate && updatedb
+    fi
+
+    if [[ $CHOIX =~ "Webmin" ]]; then
+        ### Installation de l interface WEB du gestionnaire systeme si necessaire
+	echo -e -n "${bleuclair}\nInstallation/MAJ de la derniere version de WEBMIN...\n ${neutre}"
+	### installer les dépendances
+	aptitude -y install libnet-ssleay-perl openssl libauthen-pam-perl libio-pty-perl apt-show-versions python
+	### telecharger la derniere version de Webmin
+	wget -q --show-progress http://www.webmin.com/download/deb/webmin-current.deb --no-check-certificate
+	### installer le paquet puis le supprimer
+	dpkg --install webmin-current.deb && rm -f webmin-current.deb
+    fi
+
+    if [[ $CHOIX =~ "GLPI" ]]; then
+        ### Installation de GLPI
+	echo -e -n "${bleuclair}\nInstallation/MAJ de GLPI...\n ${neutre}"
+	### installation de PHP et de ses dépendances liées à GLPi (SGBD présumé : mysql/mariadb)
+	apt -y install php php-curl php-zip php-gd php-intl php-pear php-imagick php-imap php-memcache php-pspell php-recode php-tidy php-xmlrpc php-xsl php-mbstring php-gettext php-ldap php-cas php-apcu libapache2-mod-php php-mysql
+	### telecharger la version 9.4.5 de GLPi
+	wget -c https://github.com/glpi-project/glpi/releases/download/9.4.5/glpi-9.4.5.tgz -O glpi.tgz
+	### décompacter l'archive && supprimer les fichiers temporaires
+	tar -xvf glpi.tgz && rm -R glpi.tgz
+	###copier le dossier GLPi dans l'emplacement habituel
+	cp -f -R glpi /var/www/html/
+	### fixer les droits sur l'emplacement habituel
+	chmod 755 -R /var/www/html/ && chown www-data:www-data -R /var/www/html/
+    fi
+
+    if [[ $CHOIX =~ "MariaDB" ]]; then
+        ### Installation de de la base de données pour GLPi (ici: MariaDB)
+	echo -e -n "${bleuclair}\nInstallation de la base de donnees MariaDB si necessaire...\n ${neutre}"
+	apt-get -y install mariadb-server
+    fi
+
+    if [[ $CHOIX =~ "Menu" ]]; then
+        ### Installation de la page de menu (index.html)
+		echo -e -n "${bleuclair}\nCopie (sans ecrasement) du fichier Index.html (Menu) vers le dossier /var/www/html/...\n ${neutre}"
+		mkdir /var/www > /dev/null 2>&1
+		mkdir /var/www/html > /dev/null 2>&1
+		cp -n /index.html /var/www/html/ 
+    fi
+
+else
+    echo "Annulation des installations."
+fi
+
+#wget --progress=bar:force http://download.xnview.com/XnViewMP-linux-x64.tgz
