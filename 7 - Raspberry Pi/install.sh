@@ -14,6 +14,7 @@
 
 lien_github="https://github.com/KELLERStephane/KELLER-Stephane-Tests2maths/blob/master/7%20-%20Raspberry%20Pi"
 lien_github_raw="https://raw.githubusercontent.com/KELLERStephane/KELLER-Stephane-Tests2maths/master/7%20-%20Raspberry%20Pi"
+lien_github_zip="https://github.com/KELLERStephane/KELLER-Stephane-Tests2maths/raw/master/7%20-%20Raspberry%20Pi"
 
 ### ===============================================================
 ### Définition des couleurs
@@ -118,7 +119,7 @@ if [[ $exitstatus = 0 ]]; then
 	echo -e "${vertclair}\nChoix de la version de Python par défaut : ${neutre}"
         echo -e "${vertclair}\nChoisir Python3 de préférence : ${neutre}"
 	echo 1 | sudo update-alternatives --config python
-	echo -e "${vertclair}\nLa version de Python par défaut est : ${neutre}"
+	echo -e -n "${vertclair}\nLa version de Python par défaut est : ${neutre}"
 	python --version
 
         echo -e "${vertclair}\nInstallation de pip pour python3 si nécessaire ${neutre}"
@@ -443,7 +444,7 @@ if [[ $exitstatus = 0 ]]; then
         cp /var/www/html/fail2map/fail2map.py /var/www/html/fail2map/fail2map.copy
 
 	version=$(python --version 2>&1 | cut -c1-8)
-	echo -e "${vertclair}\nVersion de Python par défaut : ${neutre}"
+	echo -e -n "${vertclair}\nVersion de Python par défaut : ${neutre}"
 	echo -e $version
 	if [[ $version =~ "Python 3" ]]; then
 	        echo -e "${vertclair}Modification du fichier /var/www/html/fail2map/fail2map.py ${neutre}"
@@ -588,8 +589,8 @@ if [[ $exitstatus = 0 ]]; then
         sudo chown pi:pi /home/pi/script/Adafruit_Python_DHT
 
 	version=$(python --version 2>&1 | cut -c1-8)
-	echo -e "${vertclair}\nVersion de Python par défaut : ${neutre}"
-	echo -e -n $version
+	echo -e -n"${vertclair}\nVersion de Python par défaut : ${neutre}"
+	echo -e $version
 	if [[ $version =~ "Python 3" ]]; then
 		#installation si Python3
 		cd /home/pi/script/Adafruit_Python_DHT
@@ -719,17 +720,20 @@ if [[ $exitstatus = 0 ]]; then
                 rm -r /home/pi/script/Adafruit_Python_SSD1306
         fi
         if [ -e /home/pi/script/kuman.py ] ; then
-             	echo -e "${cyanclair}\nLe fichier /home/pi/script/kuman.py existe déja ${neutre}"
+             	echo -e "${cyanclair}\nLe fichier /home/pi/script/Kuman.py existe déja ${neutre}"
              	echo -e "${cyanclair}Effacement du fichier puis création du nouveau fichier ${neutre}"
-             	rm /home/pi/script/kuman.py
+             	rm /home/pi/script/Kuman.py
         fi
         if [ -e /usr/share/fonts/truetype/Minecraftia/Minecraftia-Regular.ttf ] ; then
-             	echo -e "${cyanclair}\nLe fichier /usr/share/fonts/truetype/Minecraftia/Minecraftia-Regular.ttf existe déja ${neutre}"
-        else
-             	echo -e "${cyanclair}\nTéléchargment du fichier /usr/share/fonts/truetype/Minecraftia/Minecraftia-Regular.ttf ${neutre}"
-		mkdir /usr/share/fonts/truetype/Minecraftia >/dev/null
-             	wget -P /usr/share/fonts/truetype/Minecraftia/ wget $lien_github/Minecraftia-Regular.ttf
+             	echo -e "${cyanclair}\nLe répertoire /usr/share/fonts/truetype/Minecraftia existe déja. Suppression du répertoire avant la nouvelle installation ${neutre}"
+		rm -r /usr/share/fonts/truetype/Minecraftia
         fi
+	echo -e "${cyanclair}\nTéléchargement du fichier /usr/share/fonts/truetype/Minecraftia/Minecraftia-Regular.ttf ${neutre}"
+	mkdir /usr/share/fonts/truetype/Minecraftia >/dev/null
+	wget -P /usr/share/fonts/truetype/Minecraftia/ $lien_github_zip/minecraftia.zip
+	cd /usr/share/fonts/truetype/Minecraftia/
+	unzip -u minecraftia.zip
+	rm /usr/share/fonts/truetype/Minecraftia/minecraftia.zip
 
         cd /home/pi/script
         #Téléchargement des bibliothèques et des fichiers
@@ -738,22 +742,24 @@ if [[ $exitstatus = 0 ]]; then
         chown pi:pi /home/pi/script/Adafruit_Python_SSD1306
 
         echo -e "${vertclair}\nTéléchargement du fichier kuman.py ${neutre}"
-        wget -P /home/pi/script $lien_github_raw/kuman.py
-        chown pi:pi /home/pi/script/kuman.py
-        chmod +x /home/pi/script/kuman.py
+        wget -P /home/pi/script $lien_github_raw/Kuman.py
+        chown pi:pi /home/pi/script/Kuman.py
+        chmod +x /home/pi/script/Kuman.py
 
-#####################################################################################################
-	#Ajout du lancement de kuman.py dans dht22.py
+	#Concaténation de dht22.py et de Kuman.py dans dht22.py
 	echo -e "${vertclair}\nModification du fichier /home/pi/script/dht22.py ${neutre}"
-	grep "kuman.py" "/home/pi/script/dht22.py" >/dev/null
+	grep "Kuman" "/home/pi/script/dht22.py" >/dev/null
 	if [ $? = 0 ];then
                 echo -e "${cyanclair}Le fichier /home/pi/script/dht22.py a déjà été modifié ${neutre}"
 		echo -e "${cyanclair}Poursuite de l'installation ${neutre}"
 	else
-		echo -e "\nkuman.py" >>/home/pi/script/dht22.py
+		echo -e 'Concaténation des fichiers dht22.py et Kuman.py'
+		cat dht22.py Kuman.py >>/home/pi/toto.py
+		mv /home/pi/toto.py /home/pi/script/dht22.py
+		chmod +x /home/pi/script/dht22.py
+		chown pi:pi /home/pi/script/dht22.py
+		rm /home/pi/script/Kuman.py
         fi
-
-#########################################################################################################
 
         echo -e "${vertclair}\nTest module i2c : ${neutre}"
         lsmod | grep i2c_
