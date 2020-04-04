@@ -118,6 +118,23 @@ if [[ $exitstatus = 0 ]]; then
         apt -y install python3-pip
     fi
 
+    if [[ $version =~ "Python 3" ]]; then
+	#installation si Python3
+        apt install -y python3-dev
+        apt install -y python-imaging python-smbus i2c-tools
+        apt install -y python-smbus i2c-tools
+        apt install -y python3-pil
+        apt install -y python3-pip
+        apt install -y python3-setuptools
+        apt install -y python3-rpi.gpio
+        python3 -m pip install --upgrade pip setuptools wheel
+    else
+        #installation si Python2
+        apt install python-pip
+        python -m pip install --upgrade pip setuptools wheel
+        pip install Adafruit_DHT
+    fi
+
 ### ===============================================================
 ### Installation de Webmin
 ### ===============================================================
@@ -551,51 +568,35 @@ if [[ $exitstatus = 0 ]]; then
                 echo -e "${cyanclair}\nLe répertoire d'installation /home/pi/script/Adafruit_Python_DHT existe déja. Suppression du répertoire avant la nouvelle installation ${neutre}"
                 rm -r /home/pi/script/Adafruit_Python_DHT
         fi
-#        if [ -e /home/pi/script/dht22.py ] ; then
-#             echo -e "${cyanclair}\nLe fichier /home/pi/script/dht22.py existe déja ${neutre}"
-#             echo -e "${cyanclair}Effacement du fichier puis création du nouveau fichier ${neutre}"
-#             rm /home/pi/script/dht22.py
-#        fi
+        if [ -e /home/pi/script/dht22.py ] ; then
+             echo -e "${cyanclair}\nLe fichier /home/pi/script/dht22.py existe déja ${neutre}"
+             echo -e "${cyanclair}Effacement du fichier puis création du nouveau fichier ${neutre}"
+             rm /home/pi/script/dht22.py
+        fi
 
         cd /home/pi/script
         #Téléchargement des bibliothèques et des fichiers
         echo -e "${bleuclair}\nInstallation des bilbiothèques AdaFruit pour le capteur DHT22 (nécessite Domoticz) ${neutre}"
         git clone https://github.com/adafruit/Adafruit_Python_DHT.git
-        sudo chown pi:pi jails.sh Adafruit_Python_DHT/
+        sudo chown pi:pi /home/pi/script/Adafruit_Python_DHT
 
 	version=$(python --version 2>&1 | cut -c1-8)
 	echo -e "${vertclair}\nVersion de Python par défaut : ${neutre}"
 	echo -e -n $version
 	if [[ $version =~ "Python 3" ]]; then
 		#installation si Python3
-		apt install -y python3-dev
-		apt install -y python-imaging python-smbus i2c-tools
-		apt install -y python-smbus i2c-tools
-		apt install -y python3-pil
-		apt install -y python3-pip
-		apt install -y python3-setuptools
-		apt install -y python3-rpi.gpio
-		python3 -m pip install --upgrade pip setuptools wheel
-		pip3 install Adafruit_DHT
 		cd /home/pi/script/Adafruit_Python_DHT
 		python3 setup.py install
-		cd /home/pi/script/Adafruit_Python_SSD1306
-		sudo python3 setup.py install
 	else
 		#installation si Python2
-		apt install python-pip
-		python -m pip install --upgrade pip setuptools wheel
-		pip install Adafruit_DHT
 		cd /home/pi/script/Adafruit_Python_DHT
 		python setup.py install
-                cd /home/pi/script/Adafruit_Python_SSD1306
-                python setup.py install
 	fi
 
-#	echo -e "${vertclair}\nTéléchargement du fichier dht22.py ${neutre}"
-#	wget https://raw.githubusercontent.com/KELLERStephane/KELLER-Stephane-Tests2maths/master/7%20-%20Raspberry%20Pi/dht22.py
-#	chown pi:pi dht22.py
-#	chmod +x /home/pi/script/dht22.py
+	echo -e "${vertclair}\nTéléchargement du fichier dht22.py ${neutre}"
+	wget -P /home/pi/script https://raw.githubusercontent.com/KELLERStephane/KELLER-Stephane-Tests2maths/master/7%20-%20Raspberry%20Pi/dht22.py
+	chown pi:pi /home/pi/script/dht22.py
+	chmod +x /home/pi/script/dht22.py
 
 	#Saisie des paramètres pour le fichier dht22.py
 	adresse=$(hostname -I | cut -d' ' -f1)
@@ -697,6 +698,16 @@ if [[ $exitstatus = 0 ]]; then
 	echo -e "${rougeclair}\nDomoticz doit être installé. ${neutre}"
 	echo -e "${rougeclair}Le capteur DHT22 et l'écran Kuman, doivent être reliés au Raspberry : ${neutre}"
 
+        if [[ $version =~ "Python 3" ]]; then
+                #installation si Python3
+                cd /home/pi/script/Adafruit_Python_SSD1306
+                sudo python3 setup.py install
+        else
+                #installation si Python2
+                cd /home/pi/script/Adafruit_Python_SSD1306
+                python setup.py install
+        fi
+
         if [ -d "/home/pi/script/Adafruit_Python_SSD1306" ]; then
                 echo -e "${cyanclair}Le répertoire d'installation /home/pi/script/Adafruit_Python_SSD1306 existe déja. Suppression du répertoire avant la nouvelle installation ${neutre}"
                 rm -r /home/pi/script/Adafruit_Python_SSD1306
@@ -712,7 +723,7 @@ if [[ $exitstatus = 0 ]]; then
         #Téléchargement des bibliothèques et des fichiers
         echo -e "${bleuclair}\nInstallation des bilbiothèques AdaFruit pour l'écran Kuman (nécessite Domoticz) ${neutre}"
         git clone https://github.com/adafruit/Adafruit_Python_SSD1306.git
-        sudo chown pi:pi jails.sh Adafruit_Python_SSD1306/
+        sudo chown pi:pi /home/pi/script/Adafruit_Python_SSD1306
 
         echo -e "${vertclair}\nTest module i2c : ${neutre}"
         lsmod | grep i2c_
