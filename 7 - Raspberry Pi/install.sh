@@ -49,7 +49,7 @@ fi
 ### ===============================================================
 
 CHOIX=$(whiptail --title "Menu d'installation du Raspberry" --checklist \
-"\nScript réalisé par :\n- KELLER Stéphane (Lycée Agricole Louis Pasteur)\n- José De Castro\nhttps://github.com/KELLERStephane/KELLER-Stephane-Tests2maths\n\nQue soutaitez-vous installer ?" 23 72 8 \
+"\nScript réalisé par :\n- KELLER Stéphane (Lycée Agricole Louis Pasteur)\n- José De Castro\nhttps://github.com/KELLERStephane/KELLER-Stephane-Tests2maths\n\nQue soutaitez-vous installer ?" 24 72 10 \
 "MAJ" "Mise a jour du systeme " OFF \
 "Webmin" "Administration du système en mode WEB " OFF \
 "Motioneye" "Logiciel de vidéosurveillance " OFF \
@@ -58,7 +58,8 @@ CHOIX=$(whiptail --title "Menu d'installation du Raspberry" --checklist \
 "Fail2map" "Affichage des ip sur une carte " OFF \
 "Domoticz" "Logiciel de domotique Domoticz " OFF \
 "GPIO" "Wiringpi pour l'utilisation des GPIO " OFF \
-"DHT22" "Capteur de température DHT22 " OFF 3>&1 1>&2 2>&3)
+"DHT22" "Capteur de température DHT22 " OFF \
+"Kuman" "Affichage données DHT22 sur écran Kuman " OFF 3>&1 1>&2 2>&3)
 
 exitstatus=$?
 
@@ -196,10 +197,10 @@ if [[ $exitstatus = 0 ]]; then
     if [[ $CHOIX =~ "Apache2" ]]; then
         echo -e "${bleuclair}\nInstallation d'Apache ${neutre}"
 
-#        if [ -d "/etc/apache2" ]; then
-#                echo -e "${cyanclair}Le répertoire d'installation d'Apache2 /etc/apache2 existe déja. Suppression du répertoire avant la nouvelle installation  ${neutre}"
-#                rm -r /etc/apache2
-#        fi
+        if [ -d "/etc/apache2" ]; then
+                echo -e "${cyanclair}Le répertoire d'installation d'Apache2 /etc/apache2 existe déja. Suppression du répertoire avant la nouvelle installation  ${neutre}"
+                rm -r /etc/apache2
+        fi
         apt -y install apache2
 
 	echo -e "${vertclair}suppression si nécessaire de la page par défaut d'Apache2 ${neutre}"
@@ -207,8 +208,8 @@ if [[ $exitstatus = 0 ]]; then
 		rm /var/www/html/index.html
 	fi
 
-	boucle=true
-	while $boucle;do
+	boucle1=true
+	while $boucle1;do
         	echo -e "${vertclair}\nSécuristion d'Apache2. ${neutre}"
 	        if [ -d "/var/www/passwd" ]; then
         	        echo -e "${cyanclair}Le répertoire de mots de passe /var/www/passwd existe déja. Suppression du répertoire avant la nouvelle installation  ${neutre}"
@@ -217,13 +218,22 @@ if [[ $exitstatus = 0 ]]; then
 	        echo -e "${vertclair}\nCréation du répertoire de mot de passe sécurisé /var/wwww/passwd ${neutre}"
 	        cd /var/www/
 	        mkdir passwd
-	        echo -e -n "${jauneclair}\nSaisir le nom de l'utilisateur principal pour Apache2 : ${neutre}"
-	        read username
+		boucle2=true
+	      	while $boucl2e;do
+        		usernameIDX=$(whiptail --title "Paramètres pour Apache2" --inputbox "\nSaisir le nom d'utilisateur principal pour Apache 2 : " 10 60 3>&1 1>&2 2>&3)
+               		exitstatus=$?
+               		if [ $exitstatus = 0 ]; then
+                       		boucle2=false
+               		else
+                       		echo "Tu as annulé... Recommence :-("
+               		fi
+       		done
+		echo -e "${vertclair}Ajout de l'IDX dans le fichier dht22.py ${neutre}"
 	        htpasswd -c /var/www/passwd/passwords "$username"
 		erreur=$?
 #		echo -e "L'erreur est $erreur"
 		if [ "$erreur" = 0 ]; then
-			boucle=false
+			boucle1=false
 		else
 			echo -e "${rougeclair}Erreur. Recommencer ${neutre}"
 		fi
@@ -529,34 +539,29 @@ if [[ $exitstatus = 0 ]]; then
 ### ===============================================================
 
     if [[ $CHOIX =~ "DHT22" ]]; then
-		echo -e "${bleuclair}\nInstallation du capteur DHT22 ${neutre}"
-		echo -e "${rougeclair}\nDomoticz doit être installé et le capteur relié au raspberry ${neutre}"
-		echo -e "${rougeclair}Il faut connaître et renseigner : ${neutre}"
-		echo -e "${rougeclair}- l'IDX du capteur dht22 dans domoticz ; ${neutre}"
-		echo -e "${rougeclair}- le numéro GPIO BCM sur lequel est relié le capteur. ${neutre}"
-		echo -e "${rougeclair}\nNe pas oublier d'activer les GPIO avec sudo raspi-config ${neutre}" 
-		echo -e "${rougeclair}Ne pas oublier d'activer I2C avec sudo raspi-config ${neutre}"
+	echo -e "${bleuclair}\nInstallation du capteur DHT22 ${neutre}"
+	echo -e "${rougeclair}\nDomoticz doit être installé et le capteur relié au Raspberry ${neutre}"
+	echo -e "${rougeclair}Il faut connaître et renseigner : ${neutre}"
+	echo -e "${rougeclair}- l'IDX du capteur dht22 dans domoticz ; ${neutre}"
+	echo -e "${rougeclair}- le numéro GPIO BCM sur lequel est relié le capteur. ${neutre}"
+	echo -e "${rougeclair}\nNe pas oublier d'activer les GPIO avec sudo raspi-config ${neutre}" 
+	echo -e "${rougeclair}Ne pas oublier d'activer I2C avec sudo raspi-config ${neutre}"
 
         if [ -d "/home/pi/script/Adafruit_Python_DHT" ]; then
                 echo -e "${cyanclair}\nLe répertoire d'installation /home/pi/script/Adafruit_Python_DHT existe déja. Suppression du répertoire avant la nouvelle installation ${neutre}"
                 rm -r /home/pi/script/Adafruit_Python_DHT
-        fi
-        if [ -d "/home/pi/script/Adafruit_Python_SSD1306" ]; then
-                echo -e "${cyanclair}Le répertoire d'installation /home/pi/script/Adafruit_Python_SSD1306 existe déja. Suppression du répertoire avant la nouvelle installation  ${neutre}"
-                rm -r /home/pi/script/Adafruit_Python_SSD1306
         fi
 #        if [ -e /home/pi/script/dht22.py ] ; then
 #             echo -e "${cyanclair}\nLe fichier /home/pi/script/dht22.py existe déja ${neutre}"
 #             echo -e "${cyanclair}Effacement du fichier puis création du nouveau fichier ${neutre}"
 #             rm /home/pi/script/dht22.py
 #        fi
-        if [ -e /home/pi/script/Minecraftia-Regular.ttf ] ; then
-             echo -e "${cyanclair}\nLe fichier /home/pi/script/Minecraftia-Regular.ttf existe déja ${neutre}"
-             echo -e "${cyanclair}Effacement du fichier puis création du nouveau fichier ${neutre}"
-             rm /home/pi/script/Minecraftia-Regular.ttf
-        fi
 
         cd /home/pi/script
+        #Téléchargement des bibliothèques et des fichiers
+        echo -e "${bleuclair}\nInstallation des bilbiothèques AdaFruit pour le capteur DHT22 (nécessite Domoticz) ${neutre}"
+        git clone https://github.com/adafruit/Adafruit_Python_DHT.git
+        sudo chown pi:pi jails.sh Adafruit_Python_DHT/
 
 	version=$(python --version 2>&1 | cut -c1-8)
 	echo -e "${vertclair}\nVersion de Python par défaut : ${neutre}"
@@ -576,7 +581,7 @@ if [[ $exitstatus = 0 ]]; then
 		python3 setup.py install
 		cd /home/pi/script/Adafruit_Python_SSD1306
 		sudo python3 setup.py install
-	else:
+	else
 		#installation si Python2
 		apt install python-pip
 		python -m pip install --upgrade pip setuptools wheel
@@ -587,18 +592,10 @@ if [[ $exitstatus = 0 ]]; then
                 python setup.py install
 	fi
 
-	#Téléchargement des bibliothèques et des fichiers
-	echo -e "${bleuclair}\nInstallation des bilbiothèques AdaFruit pour le capteur DHT22 (nécessite Domoticz) ${neutre}"
-        git clone https://github.com/adafruit/Adafruit_Python_DHT.git
-        git clone https://github.com/adafruit/Adafruit_Python_SSD1306.git
-	sudo chown pi:pi jails.sh Adafruit_Python_DHT/
-	sudo chown pi:pi jails.sh Adafruit_Python_SSD1306/
-#	echo -e "${vertclair}\nTéléchargement du fichier dht22.py et de la police de caractère ${neutre}"
+#	echo -e "${vertclair}\nTéléchargement du fichier dht22.py ${neutre}"
 #	wget https://raw.githubusercontent.com/KELLERStephane/KELLER-Stephane-Tests2maths/master/7%20-%20Raspberry%20Pi/dht22.py
 #	chown pi:pi dht22.py
-	wget https://github.com/KELLERStephane/KELLER-Stephane-Tests2maths/blob/master/7%20-%20Raspberry%20Pi/Minecraftia-Regular.ttf
-	chown pi:pi Minecraftia-Regular.ttf
-	chmod +x /home/pi/script/dht22.py
+#	chmod +x /home/pi/script/dht22.py
 
 	#Saisie des paramètres pour le fichier dht22.py
 	adresse=$(hostname -I | cut -d' ' -f1)
@@ -687,14 +684,41 @@ if [[ $exitstatus = 0 ]]; then
                rm /tmp/toto.txt # le fichier temporaire ne sert plus à rien
 	fi
 
-	echo -e "${vertclair}\nTest module i2c : ${neutre}"
-	lsmod | grep i2c_
-	echo -e "${vertclair}\nVérification de l'adresse du périphérique i2c : ${neutre}"
-	i2cdetect -y 1
 	echo -e "${vertclair}\nTest du capteur de température : ${neutre}"
 	sudo /home/pi/script/Adafruit_Python_DHT/examples/AdafruitDHT.py 22 26
-fi
+    fi
 
+### ===============================================================
+### Ecran Kuman pour affichage données DHT22
+### ===============================================================
+
+    if [[ $CHOIX =~ "Kuman" ]]; then
+	echo -e "${bleuclair}\nInstallation de l'écarn Kuman ${neutre}"
+	echo -e "${rougeclair}\nDomoticz doit être installé. ${neutre}"
+	echo -e "${rougeclair}Le capteur DHT22 et l'écran Kuman, doivent être reliés au Raspberry : ${neutre}"
+
+        if [ -d "/home/pi/script/Adafruit_Python_SSD1306" ]; then
+                echo -e "${cyanclair}Le répertoire d'installation /home/pi/script/Adafruit_Python_SSD1306 existe déja. Suppression du répertoire avant la nouvelle installation ${neutre}"
+                rm -r /home/pi/script/Adafruit_Python_SSD1306
+        fi
+        if [ -e /usr/share/fonts/truetype/Minecraftia/Minecraftia-Regular.ttf ] ; then
+             echo -e "${cyanclair}\nLe fichier /usr/share/fonts/truetype/Minecraftia/Minecraftia-Regular.ttf existe déja ${neutre}"
+        else
+             echo -e "${cyanclair}\nTéléchargment du fichier /usr/share/fonts/truetype/Minecraftia/Minecraftia-Regular.ttf ${neutre}"
+             wget -P /usr/share/fonts/truetype/Minecraftia/ https://github.com/KELLERStephane/KELLER-Stephane-Tests2maths/blob/master/7%20-%20Raspberry%20Pi/Minecraftia-Regular
+        fi
+
+        cd /home/pi/script
+        #Téléchargement des bibliothèques et des fichiers
+        echo -e "${bleuclair}\nInstallation des bilbiothèques AdaFruit pour l'écran Kuman (nécessite Domoticz) ${neutre}"
+        git clone https://github.com/adafruit/Adafruit_Python_SSD1306.git
+        sudo chown pi:pi jails.sh Adafruit_Python_SSD1306/
+
+        echo -e "${vertclair}\nTest module i2c : ${neutre}"
+        lsmod | grep i2c_
+        echo -e "${vertclair}\nVérification de l'adresse du périphérique i2c : ${neutre}"
+        i2cdetect -y 1
+    fi
 
 ### ===============================================================
 ### Copyright
