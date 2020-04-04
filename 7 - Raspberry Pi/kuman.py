@@ -1,17 +1,8 @@
-#!/usr/bin/python
-# coding: utf-8
 
 ###################################################################
 ###             Paramètres pour l'écran Kuman                   ###
 ###################################################################
 
-# basé sur le script Adafruit et adapté pour Domoticz
-import os
-import sys
-import Adafruit_DHT
-from requests.auth import HTTPBasicAuth
-import requests
-import time
 import Adafruit_GPIO.SPI as SPI
 import Adafruit_SSD1306
 
@@ -30,6 +21,7 @@ SPI_DEVICE = 0
 
 # Beaglebone Black pin configuration:
 # RST = 'P9_12'
+
 # Note the following are only used with SPI:
 # DC = 'P9_15'
 # SPI_PORT = 1
