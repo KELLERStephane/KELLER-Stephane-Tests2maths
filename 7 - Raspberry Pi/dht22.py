@@ -80,3 +80,5 @@ humid = str(int(humidity))
 #print(temp)
 #os.system("echo -n 'Humidité = '")
 #print(humid)
+
+kuman.py

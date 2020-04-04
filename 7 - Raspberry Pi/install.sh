@@ -9,6 +9,13 @@
 ### ===============================================================
 
 ### ===============================================================
+### Github lien d'origine
+### ===============================================================
+
+lien_github="https://github.com/KELLERStephane/KELLER-Stephane-Tests2maths/blob/master/7%20-%20Raspberry%20Pi"
+lien_github_raw="https://raw.githubusercontent.com/KELLERStephane/KELLER-Stephane-Tests2maths/master/7%20-%20Raspberry%20Pi"
+
+### ===============================================================
 ### Définition des couleurs
 ### ===============================================================
 
@@ -169,14 +176,14 @@ if [[ $exitstatus = 0 ]]; then
         fi
 
 	echo -e "${vertclair}\nInstallation du module bcm2835-v4l2 pour la caméra CSI OV5647 ${neutre}"
-	if [ grep -q "bcm2835-v4l2" "/etc/modules" ]; then
+	if [ grep "bcm2835-v4l2" "/etc/modules" >/dev/null ]; then
                 echo -e "${cyanclair}Le module bcm2835-v4l2 est déja déclaré dans /etc/modules ${neutre}"
 	else
  		echo "Déclaration du module bcm2835-v4l2 dans /etc/modules" | sudo tee -a /etc/modules
 	fi
 
         echo -e "${vertclair}\nDésactivation de la led de la caméra CSI OV5647 pour le Rapsberry Pi ${neutre}"
-	if [ grep -q "disable_camera_led=1" "/boot/config.txt" ]; then
+	if [ grep "disable_camera_led=1" "/boot/config.txt" >/dev/null ]; then
                 echo -e "${cyanclair}La désactivation de la led de la caméra est déja active dans /boot/config.txt ${neutre}"
         else
         	echo "disable_camera_led=1" | sudo tee -a /boot/config.txt
@@ -257,8 +264,8 @@ if [[ $exitstatus = 0 ]]; then
 	done
 
         echo -e "${vertclair}\nModification du fichier /etc/apache2/apache2.conf pour sécuriser l'accès à Apache2 ${neutre}"
-        if [ grep -q "AuthName \"ACCES PROTEGE\"" "/etc/modules"]; then
-                echo -e "${cyanclair}Le fichier /etc/apache2/apache2.conf a déjà été modifiéa ${neutre}"
+        if [ grep "AuthName \"ACCES PROTEGE\"" "/etc/modules" >/dev/null ]; then
+                echo -e "${cyanclair}Le fichier /etc/apache2/apache2.conf a déjà été modifié ${neutre}"
 		echo -e "${cyanclair}Poursuite de l'installation ${neutre}"
         else
                 echo -e "${vertclair}Sauvegarde du fichier /etc/apache2/apache2.conf dans /etc/apache2/apach2.copy ${neutre}"
@@ -311,7 +318,7 @@ if [[ $exitstatus = 0 ]]; then
                 echo -e "${cyanclair}Effacement du fichier puis création du nouveau fichier ${neutre}"
                 rm /etc/fail2ban/jail.d/custom.conf
         fi
-        wget -P /etc/fail2ban/jail.d/ https://raw.githubusercontent.com/KELLERStephane/KELLER-Stephane-Tests2maths/master/7%20-%20Raspberry%20Pi/custom.conf
+        wget -P /etc/fail2ban/jail.d/ $lien_github_raw/custom.conf
 	chown pi:pi /etc/fail2ban/jail.d/custom.conf
 	#installation de Postfix pour envoi des mails d'alerte
 	echo -e "${vertclair}\nInstallation de Postfix si nécessaire pour l'envoi des mails d'alerte ${neutre} ${neutre}"
@@ -383,7 +390,7 @@ if [[ $exitstatus = 0 ]]; then
         fi
 
 	mkdir /home/pi/script
-	wget -P /home/pi/script/ https://raw.githubusercontent.com/KELLERStephane/KELLER-Stephane-Tests2maths/master/7%20-%20Raspberry%20Pi/jails.sh
+	wget -P /home/pi/script/ $lien_github_raw/jails.sh
 	chown pi:pi  /home/pi/script/jails.sh
 	chmod +x /home/pi/script/jails.sh
 	echo -e "${vertclair}\nCréation d'un raccourci vers le bureau ${neutre}"
@@ -400,7 +407,7 @@ if [[ $exitstatus = 0 ]]; then
         echo -e "${vertclair}\nTéléchargement si nécessaire du script banip.sh ${neutre}"
         echo -e "${vertclair}pour bannir ou débannir une adresse IP : ${neutre}"
         echo -e "${vertclair}/home/pi/script/jails.sh ${neutre}"
-  	wget -P /home/pi/script/ https://raw.githubusercontent.com/KELLERStephane/KELLER-Stephane-Tests2maths/master/7%20-%20Raspberry%20Pi/banip.sh
+  	wget -P /home/pi/script/ $lien_github_raw/banip.sh
 	chown pi:pi  /home/pi/script/banip.sh
 	chmod +x /home/pi/script/banip.sh
         if [ -h "/home/pi/banip.sh" ]; then
@@ -519,13 +526,13 @@ if [[ $exitstatus = 0 ]]; then
         echo -e "${cyanclair}Effacement du fichier puis création du nouveau fichier ${neutre}"
         rm /etc/fail2ban/filter.d/domoticz.conf
     fi
-    wget -P /etc/fail2ban/filter.d/ https://raw.githubusercontent.com/KELLERStephane/KELLER-Stephane-Tests2maths/master/7%20-%20Raspberry%20Pi/domoticz.conf
+    wget -P /etc/fail2ban/filter.d/ $lien_github_raw/domoticz.conf
     chown pi:pi /etc/fail2ban/filter.d/domoticz.conf
 
     if [ -e !/etc/fail2ban/jail.d/custom.conf ] ; then
 	echo -e "${cyanclair}\nLe fichier /etc/fail2ban/jail.d/custom.conf n'existe pas ! ${neutre}"
 	echo -e "${vertclair}\nTéléchargement du fichier de configuration des prisons (à personnaliser) ${neutre}"
-	wget -P /etc/fail2ban/jail.d/ https://raw.githubusercontent.com/KELLERStephane/KELLER-Stephane-Tests2maths/master/7%20-%20Raspberry%20Pi/custom.conf
+	wget -P /etc/fail2ban/jail.d/ $lien_github_raw/custom.conf
 	chown pi:pi /etc/fail2ban/jail.d/custom.conf
     echo -e "${cyanclair}\nCr&ation de la prison domoticz dans le fichier /etc/fail2ban/jail.d/custom.conf ${neutre}"
     L1='[domoticz]'
@@ -594,7 +601,7 @@ if [[ $exitstatus = 0 ]]; then
 	fi
 
 	echo -e "${vertclair}\nTéléchargement du fichier dht22.py ${neutre}"
-	wget -P /home/pi/script https://raw.githubusercontent.com/KELLERStephane/KELLER-Stephane-Tests2maths/master/7%20-%20Raspberry%20Pi/dht22.py
+	wget -P /home/pi/script $lien_github_raw/dht22.py
 	chown pi:pi /home/pi/script/dht22.py
 	chmod +x /home/pi/script/dht22.py
 
@@ -676,8 +683,8 @@ if [[ $exitstatus = 0 ]]; then
 	echo -e "${vertclair}Ajout du numéro de GPIO (BCM) dans le fichier dht22.py ${neutre}"
 
 	crontab -u root -l > /tmp/toto.txt # export de la crontab
-	grep "dht22.py" /tmp/toto.txt >/dev/null
-	if [[ $? != 0 ]];then
+	grep "dht22.py" "/tmp/toto.txt" >/dev/null
+	if [ $? != 0 ];then
                echo -e "${vertclair}\nModification de la crontab : affichage de temp+hum toutes les 10 mn chaque jour: ${neutre}"
                echo -e "\n#affichage de la temp+hum toutes les 10 mn chaque jour" >> /tmp/toto.txt # ajout de la ligne dans le fichier temporaire
                echo -e "*/10 * * * * sudo /home/pi/script/dht22.py" >> /tmp/toto.txt # ajout de la ligne dans le fichier temporaire
@@ -694,7 +701,7 @@ if [[ $exitstatus = 0 ]]; then
 ### ===============================================================
 
     if [[ $CHOIX =~ "Kuman" ]]; then
-	echo -e "${bleuclair}\nInstallation de l'écarn Kuman ${neutre}"
+	echo -e "${bleuclair}\nInstallation de l'écran Kuman ${neutre}"
 	echo -e "${rougeclair}\nDomoticz doit être installé. ${neutre}"
 	echo -e "${rougeclair}Le capteur DHT22 et l'écran Kuman, doivent être reliés au Raspberry : ${neutre}"
 
@@ -707,28 +714,54 @@ if [[ $exitstatus = 0 ]]; then
                 cd /home/pi/script/Adafruit_Python_SSD1306
                 python setup.py install
         fi
-
         if [ -d "/home/pi/script/Adafruit_Python_SSD1306" ]; then
                 echo -e "${cyanclair}Le répertoire d'installation /home/pi/script/Adafruit_Python_SSD1306 existe déja. Suppression du répertoire avant la nouvelle installation ${neutre}"
                 rm -r /home/pi/script/Adafruit_Python_SSD1306
         fi
+        if [ -e /home/pi/script/kuman.py ] ; then
+             	echo -e "${cyanclair}\nLe fichier /home/pi/script/kuman.py existe déja ${neutre}"
+             	echo -e "${cyanclair}Effacement du fichier puis création du nouveau fichier ${neutre}"
+             	rm /home/pi/script/kuman.py
+        fi
         if [ -e /usr/share/fonts/truetype/Minecraftia/Minecraftia-Regular.ttf ] ; then
-             echo -e "${cyanclair}\nLe fichier /usr/share/fonts/truetype/Minecraftia/Minecraftia-Regular.ttf existe déja ${neutre}"
+             	echo -e "${cyanclair}\nLe fichier /usr/share/fonts/truetype/Minecraftia/Minecraftia-Regular.ttf existe déja ${neutre}"
         else
-             echo -e "${cyanclair}\nTéléchargment du fichier /usr/share/fonts/truetype/Minecraftia/Minecraftia-Regular.ttf ${neutre}"
-             wget -P /usr/share/fonts/truetype/Minecraftia/ https://github.com/KELLERStephane/KELLER-Stephane-Tests2maths/blob/master/7%20-%20Raspberry%20Pi/Minecraftia-Regular
+             	echo -e "${cyanclair}\nTéléchargment du fichier /usr/share/fonts/truetype/Minecraftia/Minecraftia-Regular.ttf ${neutre}"
+		mkdir /usr/share/fonts/truetype/Minecraftia >/dev/null
+             	wget -P /usr/share/fonts/truetype/Minecraftia/ wget $lien_github/Minecraftia-Regular.ttf
         fi
 
         cd /home/pi/script
         #Téléchargement des bibliothèques et des fichiers
         echo -e "${bleuclair}\nInstallation des bilbiothèques AdaFruit pour l'écran Kuman (nécessite Domoticz) ${neutre}"
         git clone https://github.com/adafruit/Adafruit_Python_SSD1306.git
-        sudo chown pi:pi /home/pi/script/Adafruit_Python_SSD1306
+        chown pi:pi /home/pi/script/Adafruit_Python_SSD1306
+
+        echo -e "${vertclair}\nTéléchargement du fichier kuman.py ${neutre}"
+        wget -P /home/pi/script $lien_github_raw/kuman.py
+        chown pi:pi /home/pi/script/kuman.py
+        chmod +x /home/pi/script/kuman.py
+
+#####################################################################################################
+	#Ajout du lancement de kuman.py dans dht22.py
+	echo -e "${vertclair}\nModification du fichier /home/pi/script/dht22.py ${neutre}"
+	grep "kuman.py" "/home/pi/script/dht22.py" >/dev/null
+	if [ $? = 0 ];then
+                echo -e "${cyanclair}Le fichier /home/pi/script/dht22.py a déjà été modifié ${neutre}"
+		echo -e "${cyanclair}Poursuite de l'installation ${neutre}"
+	else
+		echo -e "\nkuman.py" >>/home/pi/script/dht22.py
+        fi
+
+#########################################################################################################
 
         echo -e "${vertclair}\nTest module i2c : ${neutre}"
         lsmod | grep i2c_
         echo -e "${vertclair}\nVérification de l'adresse du périphérique i2c : ${neutre}"
         i2cdetect -y 1
+
+        echo -e "${vertclair}\nTest du capteur de température : ${neutre}"
+        /home/pi/script/Adafruit_Python_DHT/examples/AdafruitDHT.py 22 26
     fi
 
 ### ===============================================================
