@@ -105,14 +105,14 @@ if [[ $exitstatus = 0 ]]; then
         aptitude install ntp -y
         /etc/init.d/ntp start
         if [ -e /etc/ntp.com ] ; then
-             echo -e "${cyanclair}\nLe fichier /etc/ntp.com existe déja ${neutre}"
+             echo -e "${cyanclair}\nLe fichier /etc/ntp.com existe déjà ${neutre}"
              echo -e "${cyanclair}Effacement du fichier puis création du nouveau fichier ${neutre}"
              rm /etc/ntp.com
         fi
         echo -e "${vertclair}Création du fichier /etc/ntp.com ${neutre}"
         echo "server 0.fr.pool.ntp.org" | sudo tee -a /etc/ntp.com
 
-        echo -e "${bleuclair}\nInstallation de python3 si nécessaire ${neutre}"
+        echo -e "${bleuclair}\nInstallation de python et de ses modules si nécessaire ${neutre}"
         apt -y install python3
 	echo -e "${vertclair}\nModification da la version par défaut de python en python3 si nécessaire ${neutre}"
 	update-alternatives --install /usr/bin/python python /usr/bin/python2.7 1
@@ -122,28 +122,31 @@ if [[ $exitstatus = 0 ]]; then
 	echo -e -n "${vertclair}\nLa version de Python par défaut est : ${neutre}"
 	python --version
 
-    if [[ $version =~ "Python 3" ]]; then
-	#installation si Python3
-	echo -e "${vertclair}\nInstallation de pip pour python3 si nécessaire ${neutre}"
-	apt -y install python3-pip
-        apt install -y python3-dev
-        apt install -y python-imaging python-smbus i2c-tools
-        apt install -y python-smbus i2c-tools
-        apt install -y python3-pil
-        apt install -y python3-pip
-        apt install -y python3-setuptools
-        apt install -y python3-rpi.gpio
-        python3 -m pip install --upgrade pip setuptools wheel
-    else
-    	#installation si Python2
-        echo -e "${vertclair}\nInstallation de pip pour python2 si nécessaire ${neutre}"
-        apt -y install python-pip
-        python -m pip install --upgrade pip setuptools wheel
-        pip install Adafruit_DHT
-    fi
+    	if [[ $version =~ "Python 3" ]]; then
+		#installation si Python3
+		echo -e "${vertclair}\nInstallation de pip pour python3 si nécessaire ${neutre}"
+		apt -y install python3-pip
+	        apt install -y python3-dev
+	        apt install -y python3-pil
+	        apt install -y python3-pip
+	        apt install -y python3-setuptools
+	        apt install -y python3-rpi.gpio
+	        python3 -m pip install --upgrade pip setuptools wheel
+    	else
+    		#installation si Python2
+	        echo -e "${vertclair}\nInstallation de pip pour python2 si nécessaire ${neutre}"
+	        apt -y install python-pip
+	        apt install -y python-dev
+		apt install -y python-pil
+		apt install -y python-pip
+		apt install -y python-setuptools
+		apt install -y python-rpi.gpio
+	        python -m pip install --upgrade pip setuptools wheel
+	fi
+
 	if [[ $CHOIX =~ "Debug" ]]; then
-	    	echo -e "${violetclair}\nFin des mises à jour. Appuyer sur Entrée pour poursuivre l'Installation ${neutre}"
-    		read
+    		echo -e "${violetclair}\nFin des mises à jour. Appuyer sur Entrée pour poursuivre l'Installation ${neutre}"
+		read
 	fi
     fi
 
@@ -152,10 +155,14 @@ if [[ $exitstatus = 0 ]]; then
 ### ===============================================================
 
     if [[ $CHOIX =~ "Webmin" ]]; then
-        ### Installation de l interface WEB du gestionnaire systeme si necessaire
+        if [ -d "/etc/webmin2" ]; then
+                echo -e "${cyanclair}Webmin est déja installé. Désinstallation de Webmin avant la nouvelle installation ${neutre}"
+		apt -y purge webmin
+	fi
+        ### Installation de l interface WEB du gestionnaire systeme si nécessaire
 	echo -e -n "${bleuclair}\nInstallation/MAJ de la derniere version de WEBMIN...\n ${neutre}"
 	### installer les dépendances
-	aptitude -y install libnet-ssleay-perl openssl libauthen-pam-perl libio-pty-perl apt-show-versions python
+	aptitude -y install libnet-ssleay-perl openssl libauthen-pam-perl libio-pty-perl apt-show-versions
 	### telecharger la derniere version de Webmin
 	wget -q --show-progress http://www.webmin.com/download/deb/webmin-current.deb --no-check-certificate
 	### installer le paquet puis le supprimer
@@ -176,27 +183,31 @@ if [[ $exitstatus = 0 ]]; then
 	echo -e "${rougeclair}\nNe pas oublier d'activer la caméra avec sudo raspi-config ${neutre}"
 
         if [ -d "/etc/motioneye" ]; then
-                echo -e "${cyanclair}Le répertoire d'installation /etc/motioneye existe déja. Suppression du répertoire avant la nouvelle installation  ${neutre}"
+                echo -e "${cyanclair}Le répertoire d'installation /etc/motioneye existe déjà. Suppression du répertoire avant la nouvelle installation  ${neutre}"
                 rm -r /etc/motioneye
         fi
 
         if [ -d "/var/lib/motioneye" ]; then
-                echo -e "${cyanclair}Le répertoire média /var/lib/motioneye existe déja. Suppression du répertoire avant la nouvelle installation  ${neutre}"
+                echo -e "${cyanclair}Le répertoire média /var/lib/motioneye existe déjà. Suppression du répertoire avant la nouvelle installation  ${neutre}"
                 rm -r /var/lib/motioneye
         fi
 
 	echo -e "${vertclair}\nInstallation du module bcm2835-v4l2 pour la caméra CSI OV5647 ${neutre}"
-	if [ grep "bcm2835-v4l2" "/etc/modules" >/dev/null ]; then
-                echo -e "${cyanclair}Le module bcm2835-v4l2 est déja déclaré dans /etc/modules ${neutre}"
+	grep "bcm2835-v4l2" "/etc/modules" >/dev/null
+	if [ $? = 0 ]; then
+                echo -e "${cyanclair}Le module bcm2835-v4l2 est déjà déclaré dans /etc/modules ${neutre}"
 	else
- 		echo "Déclaration du module bcm2835-v4l2 dans /etc/modules" | sudo tee -a /etc/modules
+ 		echo -e "${cyanclair}Déclaration du module bcm2835-v4l2 dans /etc/modules ${neutre}"
+		echo -e "\nbcm2835-v4l2" >>/etc/modules
 	fi
 
         echo -e "${vertclair}\nDésactivation de la led de la caméra CSI OV5647 pour le Rapsberry Pi ${neutre}"
-	if [ grep "disable_camera_led=1" "/boot/config.txt" >/dev/null ]; then
-                echo -e "${cyanclair}La désactivation de la led de la caméra est déja active dans /boot/config.txt ${neutre}"
+	grep "disable_camera_led=1" "/boot/config.txt" >/dev/null
+	if [ $? = 0 ]; then
+                echo -e "${cyanclair}La désactivation de la led de la caméra est déjà active dans /boot/config.txt ${neutre}"
         else
-        	echo "disable_camera_led=1" | sudo tee -a /boot/config.txt
+		echo -e "${cyanclair}Désactivation de la led de la caméra CSI OV5647 /boot/config.txt ${neutre}"
+		echo -e "\ndisable_camera_led=1" >>/boot/config.txt
         fi
 
 	echo -e "${vertclair}\nMise à jour des paquets dépendants si nécessaire ${neutre}"
@@ -205,7 +216,7 @@ if [[ $exitstatus = 0 ]]; then
 
         echo -e "${vertclair}\ntéléchargement de Motioneye ${neutre}"
 	if [ -e /home/pi/pi_buster* ]; 	then
-		echo -e "${cyanclair}\nLe fichier de téléchargement pour Motioneye existe déja ${neutre}"
+		echo -e "${cyanclair}\nLe fichier de téléchargement pour Motioneye existe déjà ${neutre}"
 		echo -e "${cyanclair}Effacement du fichier puis téléchargement du nouveau fichier ${neutre}"
 		rm /home/pi/pi_buster*
 	fi
@@ -237,10 +248,10 @@ if [[ $exitstatus = 0 ]]; then
         echo -e "${bleuclair}\nInstallation d'Apache ${neutre}"
 
         if [ -d "/etc/apache2" ]; then
-                echo -e "${cyanclair}Apach2 est déja installé. Désinstallation d'Apache2 avant la nouvelle installation ${neutre}"
+                echo -e "${cyanclair}Apache2 est déjà installé. Désinstallation d'Apache2 avant la nouvelle installation ${neutre}"
 		apt -y purge apache2
 	        if [ -d "/var/www/passwd" ]; then
-        	        echo -e "${cyanclair}Le répertoire de mots de passe /var/www/passwd existe déja. Suppression du répertoire avant la nouvelle installation  ${neutre}"
+        	        echo -e "${cyanclair}Le répertoire de mots de passe /var/www/passwd existe déjà. Suppression du répertoire avant la nouvelle installation  ${neutre}"
                 	rm -r /var/www/passwd
 	        fi
         fi
@@ -301,10 +312,10 @@ if [[ $exitstatus = 0 ]]; then
                 sed -i '/'"$L1"'/ c\'"$L2"''"$L3"''"$L4"''"$L5"''"$L6"''"$L7"''"$L8"''"$L9"''"$L10"''"$L11"''"$L12"'' /etc/apache2/apache2.conf
         fi
 
-        if [[ $CHOIX =~ "Debug" ]]; then
-		echo -e "${violetclair}\nFin de l'installation de Apache2. Appuyer sur Entrée pour poursuivre l'Installation ${neutre}"
-		read
-	fi
+    	if [[ $CHOIX =~ "Debug" ]]; then
+	        echo -e "${violetclair}\nFin de l'installation d'Apache2. Appuyer sur Entrée pour poursuivre l'Installation ${neutre}"
+        	read
+    	fi
     fi
 
 ### ===============================================================
@@ -315,7 +326,7 @@ if [[ $exitstatus = 0 ]]; then
         echo -e "${bleuclair}\nInstallation de Fail2ban ${neutre}"
 
         if [ -d "/etc/fail2ban" ]; then
-                echo -e "${cyanclair}Le répertoire d'installation de Fail2ban /etc/fail2ban existe déja. ${neutre}"
+                echo -e "${cyanclair}Le répertoire d'installation de Fail2ban /etc/fail2ban existe déjà. ${neutre}"
                 echo -e "${cyanclair}Désinstallation du logiciel avant la nouvelle installation  ${neutre}"
 		rm -r /etc/fail2ban
  		apt -y --purge remove fail2ban
@@ -332,7 +343,7 @@ if [[ $exitstatus = 0 ]]; then
         #Téléchargement du fichier personnalisable de configuration des prisons
         echo -e "${vertclair}\nTéléchargement du fichier de configuration des prisons (à personnaliser) ${neutre}"
         if [ -e /etc/fail2ban/jail.d/custom.conf ]; then
-                echo -e "${cyanclair}\nLe fichier /etc/fail2ban/jail.d/custom.conf existe déja ${neutre}"
+                echo -e "${cyanclair}\nLe fichier /etc/fail2ban/jail.d/custom.conf existe déjà ${neutre}"
                 echo -e "${cyanclair}Effacement du fichier puis création du nouveau fichier ${neutre}"
                 rm /etc/fail2ban/jail.d/custom.conf
         fi
@@ -342,7 +353,7 @@ if [[ $exitstatus = 0 ]]; then
 	echo -e "${vertclair}\nInstallation de Postfix si nécessaire pour l'envoi des mails d'alerte ${neutre} ${neutre}"
 	apt install postfix
 
-	#Saisi adresse mail pour envoi des mails d'alerte
+	#Saisis adresse mail pour envoi des mails d'alerte
         boucle=true
         while $boucle;do
 		mail1=$(whiptail --title "Adresse mail" --inputbox "Saisir l'adresse mail pour les messages de Fail2ban : ?" 10 60 3>&1 1>&2 2>&3)
@@ -384,7 +395,7 @@ if [[ $exitstatus = 0 ]]; then
 
 	#Modification du fichier iptables-multiport.conf pour créer un fichier d'IP banni
         if [ -e /etc/fail2ban/action.d/iptables-multiport.copy ] ; then
-             echo -e "${cyanclair}\nLe fichier /etc/fail2ban/action.d/iptables-multiport.copy existe déja ${neutre}"
+             echo -e "${cyanclair}\nLe fichier /etc/fail2ban/action.d/iptables-multiport.copy existe déjà ${neutre}"
              echo -e "${cyanclair}Effacement du fichier puis création du nouveau fichier ${neutre}"
              rm /etc/fail2ban/action.d/iptables-multiport.copy
         fi
@@ -406,7 +417,7 @@ if [[ $exitstatus = 0 ]]; then
         echo -e "${vertclair}des prisons et du nombre de bannis dans : ${neutre}"
 
         if [ -d "/home/pi/script" ]; then
-                echo -e "${cyanclair}Le répertoire /home/pi/script existe déja. Suppression du répertoire avant la nouvelle installation  ${neutre}"
+                echo -e "${cyanclair}Le répertoire /home/pi/script existe déjà. Suppression du répertoire avant la nouvelle installation  ${neutre}"
                 rm -r /home/pi/script
         fi
 
@@ -442,9 +453,9 @@ if [[ $exitstatus = 0 ]]; then
         echo -e "${rougeclair}cd /home/pi ${neutre}"
         echo -e "${rougeclair}sudo ./banip.sh ${neutre}"
 
-        if [[ $CHOIX =~ "Debug" ]]; then
-		echo -e "${violetclair}\nFin de l'installation de Fail2ban. Appuyer sur Entrée pour poursuivre l'Installation ${neutre}"
-		read
+    	if [[ $CHOIX =~ "Debug" ]]; then
+        	echo -e "${violetclair}\nFin de l'installation de Fail2ban. Appuyer sur Entrée pour poursuivre l'Installation ${neutre}"
+        	read
 	fi
     fi
 
@@ -457,7 +468,7 @@ if [[ $exitstatus = 0 ]]; then
 
         echo -e "${vertclair}\nTéléchargement de Fail2map ${neutre}"
 	if [ -d "/var/www/html/fail2map" ]; then
-		echo -e "${cyanclair}Le répertoire /var/www/html/fail2map existe déja. Suppression du répertoire avant la nouvelle installation  ${neutre}"
+		echo -e "${cyanclair}Le répertoire /var/www/html/fail2map existe déjà. Suppression du répertoire avant la nouvelle installation  ${neutre}"
 		rm -r /var/www/html/fail2map
  	fi
         git clone https://github.com/mvonthron/fail2map /var/www/html/fail2map
@@ -504,7 +515,7 @@ if [[ $exitstatus = 0 ]]; then
 
         echo -e "${vertclair}Copie du fichier /var/www/html/fail2map/fail2map-action.conf -> /etc/fail2ban/action.d/fail2map-action.conf ${neutre}"
 	if [ -e /etc/fail2ban/actions.d/fail2map-action.conf ]; then
-		echo -e "${cyanclair}\nLe fichier /etc/fail2ban/action.d/fail2map-action.conf existe déja ${neutre}"
+		echo -e "${cyanclair}\nLe fichier /etc/fail2ban/action.d/fail2map-action.conf existe déjà ${neutre}"
 		echo -e "${cyanclair}Effacement du fichier puis création du nouveau fichier ${neutre}"
 		rm /etc/fail2ban/action.d/fail2map-action.conf
 	fi
@@ -527,10 +538,10 @@ if [[ $exitstatus = 0 ]]; then
         sed '/'"$L1"'/ c\'"$L2"''"$L3"'' /var/www/html/fail2map/js/maps.js >/home/pi/maps.js
         mv /home/pi/maps.js /var/www/html/fail2map/js/maps.js
 
-        if [[ $CHOIX =~ "Debug" ]]; then
-		echo -e "${violetclair}\nFin de l'installation de Fail2map. Appuyer sur Entrée pour poursuivre l'Installation ${neutre}"
-		read
-	fi
+    	if [[ $CHOIX =~ "Debug" ]]; then
+       		echo -e "${violetclair}\nFin de l'installation de Fail2map. Appuyer sur Entrée pour poursuivre l'Installation ${neutre}"
+        	read
+    	fi
     fi
 
 ### ===============================================================
@@ -551,7 +562,7 @@ if [[ $exitstatus = 0 ]]; then
     	echo -e "${vertclair}Téléchargement du fichier de configuration Fail2ban ${neutre}"
     	echo -e "${vertclair}pour domoticz dans /etc/fail2ban/filter.d/domoticz.conf ${neutre}"
     	if [ -e /etc/fail2ban/filter.d/domoticz.conf ] ; then
-		echo -e "${cyanclair}\nLe fichier /etc/fail2ban/filter.d/domoticz.conf existe déja ${neutre}"
+		echo -e "${cyanclair}\nLe fichier /etc/fail2ban/filter.d/domoticz.conf existe déjà ${neutre}"
         	echo -e "${cyanclair}Effacement du fichier puis création du nouveau fichier ${neutre}"
         	rm /etc/fail2ban/filter.d/domoticz.conf
     	fi
@@ -564,18 +575,25 @@ if [[ $exitstatus = 0 ]]; then
 		wget -P /etc/fail2ban/jail.d/ $lien_github_raw/custom.conf
 		chown pi:pi /etc/fail2ban/jail.d/custom.conf
     	fi
-	echo -e "${cyanclair}\nCr&ation de la prison domoticz dans le fichier /etc/fail2ban/jail.d/custom.conf ${neutre}"
-    	L1='[domoticz]'
-    	L2='\nenabled  = true'
-    	L3='\nport = 8080,443'
-    	L4='\nfilter  = domoticz'
-    	L5='\nlogpath = /var/log/domoticz.log'
-    	echo -e $L1 $L2 $L3 $L4 $L5 >>/etc/fail2ban/jail.d/custom.conf
 
-        if [[ $CHOIX =~ "Debug" ]]; then
-		echo -e "${violetclair}\nFin de l'installation de Domoticz. Appuyer sur Entrée pour poursuivre l'Installation ${neutre}"
-		read
+	grep "domoticz" "/etc/fail2ban/jail.d/custom.conf" >/dev/null
+        if [ $? = 0  ]; then
+                echo -e "${cyanclair}Le fichier /etc/fail2ban/jail.d/custom.conf a déjà été modifié ${neutre}"
+		echo -e "${cyanclair}Poursuite de l'installation ${neutre}"
+        else
+		echo -e "${cyanclair}\nCréation de la prison domoticz dans le fichier /etc/fail2ban/jail.d/custom.conf ${neutre}"
+    		L1='[domoticz]'
+	    	L2='\nenabled  = true'
+	    	L3='\nport = 8080,443'
+	    	L4='\nfilter  = domoticz'
+	    	L5='\nlogpath = /var/log/domoticz.log'
+	    	echo -e $L1 $L2 $L3 $L4 $L5 >>/etc/fail2ban/jail.d/custom.conf
 	fi
+
+    	if [[ $CHOIX =~ "Debug" ]]; then
+        	echo -e "${violetclair}\nFin de l'installation de Domoticz. Appuyer sur Entrée pour poursuivre l'Installation ${neutre}"
+        	read
+    	fi
     fi
 
 ### ===============================================================
@@ -590,10 +608,10 @@ if [[ $exitstatus = 0 ]]; then
 	sudo dpkg -i wiringpi-latest.deb && rm wiringpi-latest.deb
         echo -e "${rougeclair}\nExecuter la commande gpio readall pour voir la configuration des broches ${neutre}"
 
-        if [[ $CHOIX =~ "Debug" ]]; then
-		echo -e "${violetclair}\nFin de l'installation de GPIO. Appuyer sur Entrée pour poursuivre l'Installation ${neutre}"
-		read
-	fi
+    	if [[ $CHOIX =~ "Debug" ]]; then
+        	echo -e "${violetclair}\nFin de l'installation de GPIO. Appuyer sur Entrée pour poursuivre l'Installation ${neutre}"
+        	read
+    	fi
     fi
 
 ### ===============================================================
@@ -610,11 +628,11 @@ if [[ $exitstatus = 0 ]]; then
 	echo -e "${rougeclair}Ne pas oublier d'activer I2C avec sudo raspi-config ${neutre}"
 
         if [ -d "/home/pi/script/Adafruit_Python_DHT" ]; then
-                echo -e "${cyanclair}\nLe répertoire d'installation /home/pi/script/Adafruit_Python_DHT existe déja. Suppression du répertoire avant la nouvelle installation ${neutre}"
+                echo -e "${cyanclair}\nLe répertoire d'installation /home/pi/script/Adafruit_Python_DHT existe déjà. Suppression du répertoire avant la nouvelle installation ${neutre}"
                 rm -r /home/pi/script/Adafruit_Python_DHT
         fi
         if [ -e /home/pi/script/dht22.py ] ; then
-             echo -e "${cyanclair}\nLe fichier /home/pi/script/dht22.py existe déja ${neutre}"
+             echo -e "${cyanclair}\nLe fichier /home/pi/script/dht22.py existe déjà ${neutre}"
              echo -e "${cyanclair}Effacement du fichier puis création du nouveau fichier ${neutre}"
              rm /home/pi/script/dht22.py
         fi
@@ -733,10 +751,10 @@ if [[ $exitstatus = 0 ]]; then
 	echo -e "${vertclair}\nTest du capteur de température : ${neutre}"
 	sudo /home/pi/script/Adafruit_Python_DHT/examples/AdafruitDHT.py 22 26
 
-        if [[ $CHOIX =~ "Debug" ]]; then
-		echo -e "${violetclair}\nFin de l'installation de DHT22. Appuyer sur Entrée pour poursuivre l'Installation ${neutre}"
-		read
-	fi
+    	if [[ $CHOIX =~ "Debug" ]]; then
+        	echo -e "${violetclair}\nFin de l'installation de DHT22. Appuyer sur Entrée pour poursuivre l'Installation ${neutre}"
+        	read
+    	fi
     fi
 
 ### ===============================================================
@@ -749,18 +767,20 @@ if [[ $exitstatus = 0 ]]; then
 	echo -e "${rougeclair}Le capteur DHT22 et l'écran Kuman, doivent être reliés au Raspberry : ${neutre}"
 
         if [ -d "/home/pi/script/Adafruit_Python_SSD1306" ]; then
-                echo -e "${cyanclair}Le répertoire d'installation /home/pi/script/Adafruit_Python_SSD1306 existe déja. Suppression du répertoire avant la nouvelle installation ${neutre}"
+                echo -e "${cyanclair}Le répertoire d'installation /home/pi/script/Adafruit_Python_SSD1306 existe déjà. Suppression du répertoire avant la nouvelle installation ${neutre}"
                 rm -r /home/pi/script/Adafruit_Python_SSD1306
         fi
         if [ -e /home/pi/script/kuman.py ] ; then
-             	echo -e "${cyanclair}\nLe fichier /home/pi/script/Kuman.py existe déja ${neutre}"
+             	echo -e "${cyanclair}\nLe fichier /home/pi/script/Kuman.py existe déjà ${neutre}"
              	echo -e "${cyanclair}Effacement du fichier puis création du nouveau fichier ${neutre}"
              	rm /home/pi/script/Kuman.py
         fi
         if [ -e /usr/share/fonts/truetype/Minecraftia/Minecraftia-Regular.ttf ] ; then
-             	echo -e "${cyanclair}\nLe répertoire /usr/share/fonts/truetype/Minecraftia existe déja. Suppression du répertoire avant la nouvelle installation ${neutre}"
+             	echo -e "${cyanclair}\nLe répertoire /usr/share/fonts/truetype/Minecraftia existe déjà. Suppression du répertoire avant la nouvelle installation ${neutre}"
 		rm -r /usr/share/fonts/truetype/Minecraftia
         fi
+
+	apt install -y python-smbus i2c-tools
 	echo -e "${cyanclair}\nTéléchargement du fichier /usr/share/fonts/truetype/Minecraftia/Minecraftia-Regular.ttf ${neutre}"
 	mkdir /usr/share/fonts/truetype/Minecraftia >/dev/null
 	wget -P /usr/share/fonts/truetype/Minecraftia/ $lien_github_zip/minecraftia.zip
@@ -817,10 +837,10 @@ if [[ $exitstatus = 0 ]]; then
         echo -e "${vertclair}\nTest du capteur de température : ${neutre}"
         /home/pi/script/Adafruit_Python_DHT/examples/AdafruitDHT.py 22 26
 
-        if [[ $CHOIX =~ "Debug" ]]; then
-		echo -e "${violetclair}\nFin de l'installation de Kuman. Appuyer sur Entrée pour poursuivre l'Installation ${neutre}"
-		read
-	fi
+    	if [[ $CHOIX =~ "Debug" ]]; then
+        	echo -e "${violetclair}\nFin de l'installation de Kuman. Appuyer sur Entrée pour poursuivre l'Installation ${neutre}"
+        	read
+    	fi
     fi
 
 ### ===============================================================
