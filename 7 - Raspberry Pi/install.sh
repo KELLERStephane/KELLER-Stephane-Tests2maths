@@ -117,17 +117,14 @@ if [[ $exitstatus = 0 ]]; then
 	update-alternatives --install /usr/bin/python python /usr/bin/python2.7 1
 	update-alternatives --install /usr/bin/python python /usr/bin/python3.7 2
 	echo -e "${vertclair}\nChoix de la version de Python par défaut : ${neutre}"
-        echo -e "${vertclair}\nChoisir Python3 de préférence : ${neutre}"
 	echo 1 | sudo update-alternatives --config python
 	echo -e -n "${vertclair}\nLa version de Python par défaut est : ${neutre}"
 	python --version
 
-        echo -e "${vertclair}\nInstallation de pip pour python3 si nécessaire ${neutre}"
-        apt -y install python3-pip
-    fi
-
     if [[ $version =~ "Python 3" ]]; then
 	#installation si Python3
+	echo -e "${vertclair}\nInstallation de pip pour python3 si nécessaire ${neutre}"
+	apt -y install python3-pip
         apt install -y python3-dev
         apt install -y python-imaging python-smbus i2c-tools
         apt install -y python-smbus i2c-tools
@@ -137,10 +134,15 @@ if [[ $exitstatus = 0 ]]; then
         apt install -y python3-rpi.gpio
         python3 -m pip install --upgrade pip setuptools wheel
     else
-        #installation si Python2
-        apt install python-pip
+    	#installation si Python2
+        echo -e "${vertclair}\nInstallation de pip pour python2 si nécessaire ${neutre}"
+        apt -y install python-pip
         python -m pip install --upgrade pip setuptools wheel
         pip install Adafruit_DHT
+    fi
+
+    	echo -e "${violetclair}\nFin des mises à jour. Appuyer sur Entrée pour poursuivre l'Installation ${neutre}"
+    	read
     fi
 
 ### ===============================================================
@@ -156,6 +158,8 @@ if [[ $exitstatus = 0 ]]; then
 	wget -q --show-progress http://www.webmin.com/download/deb/webmin-current.deb --no-check-certificate
 	### installer le paquet puis le supprimer
 	dpkg --install webmin-current.deb && rm -f webmin-current.deb
+	echo -e "${violetclair}\nFin de l'installation de Webmin. Appuyer sur Entrée pour poursuivre l'Installation ${neutre}"
+	read
     fi
 
 ### ===============================================================
@@ -213,6 +217,9 @@ if [[ $exitstatus = 0 ]]; then
         systemctl daemon-reload
         systemctl enable motioneye
         systemctl start motioneye
+
+	echo -e "${violetclair}\nFin de l'installation de Motioneye. Appuyer sur Entrée pour poursuivre l'Installation ${neutre}"
+	read
     fi
 
 ### ===============================================================
@@ -223,8 +230,12 @@ if [[ $exitstatus = 0 ]]; then
         echo -e "${bleuclair}\nInstallation d'Apache ${neutre}"
 
         if [ -d "/etc/apache2" ]; then
-                echo -e "${cyanclair}Le répertoire d'installation d'Apache2 /etc/apache2 existe déja. Suppression du répertoire avant la nouvelle installation  ${neutre}"
-                rm -r /etc/apache2
+                echo -e "${cyanclair}Apach2 est déja installé. Désinstallation d'Apache2 avant la nouvelle installation ${neutre}"
+		apt -y purge apache2
+	        if [ -d "/var/www/passwd" ]; then
+        	        echo -e "${cyanclair}Le répertoire de mots de passe /var/www/passwd existe déja. Suppression du répertoire avant la nouvelle installation  ${neutre}"
+                	rm -r /var/www/passwd
+	        fi
         fi
         apt -y install apache2
 
@@ -236,22 +247,18 @@ if [[ $exitstatus = 0 ]]; then
 	boucle1=true
 	while $boucle1;do
         	echo -e "${vertclair}\nSécuristion d'Apache2. ${neutre}"
-	        if [ -d "/var/www/passwd" ]; then
-        	        echo -e "${cyanclair}Le répertoire de mots de passe /var/www/passwd existe déja. Suppression du répertoire avant la nouvelle installation  ${neutre}"
-                	rm -r /var/www/passwd
-	        fi
 	        echo -e "${vertclair}\nCréation du répertoire de mot de passe sécurisé /var/wwww/passwd ${neutre}"
 	        cd /var/www/
 	        mkdir passwd
 		boucle2=true
-	      	while $boucl2e;do
-        		usernameIDX=$(whiptail --title "Paramètres pour Apache2" --inputbox "\nSaisir le nom d'utilisateur principal pour Apache 2 : " 10 60 3>&1 1>&2 2>&3)
-               		exitstatus=$?
+	      	while $boucle2;do
+        		username=$(whiptail --title "Paramètres pour Apache2" --inputbox "\nSaisir le nom d'utilisateur principal pour Apache 2 : " 10 60 3>&1 1>&2 2>&3)
+			exitstatus=$?
                		if [ $exitstatus = 0 ]; then
-                       		boucle2=false
-               		else
-                       		echo "Tu as annulé... Recommence :-("
-               		fi
+				boucle2=false
+			else
+				echo "Tu as annulé... Recommence :-("
+			fi
        		done
 		echo -e "${vertclair}Ajout de l'IDX dans le fichier dht22.py ${neutre}"
 	        htpasswd -c /var/www/passwd/passwords "$username"
@@ -265,11 +272,12 @@ if [[ $exitstatus = 0 ]]; then
 	done
 
         echo -e "${vertclair}\nModification du fichier /etc/apache2/apache2.conf pour sécuriser l'accès à Apache2 ${neutre}"
-        if [ grep "AuthName \"ACCES PROTEGE\"" "/etc/modules" >/dev/null ]; then
+	grep "AuthType Basic" "/etc/modules" >/dev/null
+        if [ $? = 0  ]; then
                 echo -e "${cyanclair}Le fichier /etc/apache2/apache2.conf a déjà été modifié ${neutre}"
 		echo -e "${cyanclair}Poursuite de l'installation ${neutre}"
         else
-                echo -e "${vertclair}Sauvegarde du fichier /etc/apache2/apache2.conf dans /etc/apache2/apach2.copy ${neutre}"
+                echo -e "${vertclair}Sauvegarde du fichier /etc/apache2/apache2.conf dans /etc/apache2/apache2.copy ${neutre}"
                 cp /etc/apache2/apache2.conf /etc/apache2/apache2.copy
                 L1='#<\/Directory>'
                 L2='\n\<Directory /var/www/html>'
@@ -286,8 +294,8 @@ if [[ $exitstatus = 0 ]]; then
                 sed -i '/'"$L1"'/ c\'"$L2"''"$L3"''"$L4"''"$L5"''"$L6"''"$L7"''"$L8"''"$L9"''"$L10"''"$L11"''"$L12"'' /etc/apache2/apache2.conf
         fi
 
-	echo -e "${vertclair}Redémarrage du service Apache2 ${neutre}"
-	/etc/init.d/apache2 restart
+	echo -e "${violetclair}\nFin de l'installation de Apache2. Appuyer sur Entrée pour poursuivre l'Installation ${neutre}"
+	read
     fi
 
 ### ===============================================================
@@ -357,10 +365,13 @@ if [[ $exitstatus = 0 ]]; then
 	echo -e "${vertclair}Démarrage du service Postfix ${neutre}"
 	service postfix reload
 
-	#Modification du fichier sendmail-common.local pour éviter le surplus d'information dans les mails
+	#Création du fichier sendmail-common.local pour éviter le surplus d'information dans les mails
         echo -e "${vertclair}\nPour éviter le surplus d'information dans les mails ${neutre}"
         echo -e "${vertclair}Création du fichier /etc/fail2ban/action.d/sendmail-common.local ${neutre}"
-        echo -e "[Definition]\naction start =\naction stop =" | sudo tee –a /etc/fail2ban/action.d/sendmail-common.local
+	L1='[Definition]'
+	L2='\naction start ='
+	L3='\naction stop ='
+	echo -e $L1 $L2 $L3 >>/etc/fail2ban/action.d/sendmail-common.local
 
 	#Modification du fichier iptables-multiport.conf pour créer un fichier d'IP banni
         if [ -e /etc/fail2ban/action.d/iptables-multiport.copy ] ; then
@@ -422,6 +433,8 @@ if [[ $exitstatus = 0 ]]; then
         echo -e "${rougeclair}cd /home/pi ${neutre}"
         echo -e "${rougeclair}sudo ./banip.sh ${neutre}"
 
+	echo -e "${violetclair}\nFin de l'installation de Fail2ban. Appuyer sur Entrée pour poursuivre l'Installation ${neutre}"
+	read
     fi
 
 ### ===============================================================
@@ -502,6 +515,9 @@ if [[ $exitstatus = 0 ]]; then
         L3="\n\tbaseLayer = L.tileLayer.provider('Esri.NatGeoWorldMap', {"
         sed '/'"$L1"'/ c\'"$L2"''"$L3"'' /var/www/html/fail2map/js/maps.js >/home/pi/maps.js
         mv /home/pi/maps.js /var/www/html/fail2map/js/maps.js
+
+	echo -e "${violetclair}\nFin de l'installation de Fail2map. Appuyer sur Entrée pour poursuivre l'Installation ${neutre}"
+	read
     fi
 
 ### ===============================================================
@@ -511,40 +527,41 @@ if [[ $exitstatus = 0 ]]; then
     if [[ $CHOIX =~ "Domoticz" ]]; then
         echo -e "${bleuclair}\nInstallation de Domoticz ${neutre}"
         curl -L install.domoticz.com | bash
+
+    	echo -e "${vertclair}Création du fichier log /var/log/domoticz.log ${neutre}"
+	cp /etc/init.d/domoticz.sh /etc/init.d/domoticz.copy
+    	L1='#DAEMON_ARGS="$DAEMON_ARGS -log \/tmp\/domoticz.txt'
+    	L2='#DAEMON_ARGS="$DAEMON_ARGS -log \/tmp\/domoticz.txt'
+    	L3='\nDAEMON_ARGS="$DAEMON_ARGS -log /var/log/domoticz.log"'
+    	sed -i '/'"$L1"'/ c\'"$L2"''"$L3"'' /etc/init.d/domoticz.sh
+
+    	echo -e "${vertclair}Téléchargement du fichier de configuration Fail2ban ${neutre}"
+    	echo -e "${vertclair}pour domoticz dans /etc/fail2ban/filter.d/domoticz.conf ${neutre}"
+    	if [ -e /etc/fail2ban/filter.d/domoticz.conf ] ; then
+		echo -e "${cyanclair}\nLe fichier /etc/fail2ban/filter.d/domoticz.conf existe déja ${neutre}"
+        	echo -e "${cyanclair}Effacement du fichier puis création du nouveau fichier ${neutre}"
+        	rm /etc/fail2ban/filter.d/domoticz.conf
+    	fi
+    	wget -P /etc/fail2ban/filter.d/ $lien_github_raw/domoticz.conf
+    	chown pi:pi /etc/fail2ban/filter.d/domoticz.conf
+
+    	if [ -e !/etc/fail2ban/jail.d/custom.conf ] ; then
+		echo -e "${cyanclair}\nLe fichier /etc/fail2ban/jail.d/custom.conf n'existe pas ! ${neutre}"
+		echo -e "${vertclair}\nTéléchargement du fichier de configuration des prisons (à personnaliser) ${neutre}"
+		wget -P /etc/fail2ban/jail.d/ $lien_github_raw/custom.conf
+		chown pi:pi /etc/fail2ban/jail.d/custom.conf
+    	fi
+	echo -e "${cyanclair}\nCr&ation de la prison domoticz dans le fichier /etc/fail2ban/jail.d/custom.conf ${neutre}"
+    	L1='[domoticz]'
+    	L2='\nenabled  = true'
+    	L3='\nport = 8080,443'
+    	L4='\nfilter  = domoticz'
+    	L5='\nlogpath = /var/log/domoticz.log'
+    	echo -e $L1 $L2 $L3 $L4 $L5 >>/etc/fail2ban/jail.d/custom.conf
+
+	echo -e "${violetclair}\nFin de l'installation de Domoticz. Appuyer sur Entrée pour poursuivre l'Installation ${neutre}"
+	read
     fi
-
-    echo -e "${vertclair}Création du fichier log /var/log/domoticz.log ${neutre}"
-    cp /etc/init.d/domoticz.sh /etc/init.d/domoticz.copy
-    L1='#DAEMON_ARGS="$DAEMON_ARGS -log \/tmp\/domoticz.txt'
-    L2='#DAEMON_ARGS="$DAEMON_ARGS -log \/tmp\/domoticz.txt'
-    L3='\nDAEMON_ARGS="$DAEMON_ARGS -log /var/log/domoticz.log"'
-    sed -i '/'"$L1"'/ c\'"$L2"''"$L3"'' /etc/init.d/domoticz.sh
-
-    echo -e "${vertclair}Téléchargement du fichier de configuration Fail2ban ${neutre}"
-    echo -e "${vertclair}pour domoticz dans /etc/fail2ban/filter.d/domoticz.conf ${neutre}"
-    if [ -e /etc/fail2ban/filter.d/domoticz.conf ] ; then
-	echo -e "${cyanclair}\nLe fichier /etc/fail2ban/filter.d/domoticz.conf existe déja ${neutre}"
-        echo -e "${cyanclair}Effacement du fichier puis création du nouveau fichier ${neutre}"
-        rm /etc/fail2ban/filter.d/domoticz.conf
-    fi
-    wget -P /etc/fail2ban/filter.d/ $lien_github_raw/domoticz.conf
-    chown pi:pi /etc/fail2ban/filter.d/domoticz.conf
-
-    if [ -e !/etc/fail2ban/jail.d/custom.conf ] ; then
-	echo -e "${cyanclair}\nLe fichier /etc/fail2ban/jail.d/custom.conf n'existe pas ! ${neutre}"
-	echo -e "${vertclair}\nTéléchargement du fichier de configuration des prisons (à personnaliser) ${neutre}"
-	wget -P /etc/fail2ban/jail.d/ $lien_github_raw/custom.conf
-	chown pi:pi /etc/fail2ban/jail.d/custom.conf
-    echo -e "${cyanclair}\nCr&ation de la prison domoticz dans le fichier /etc/fail2ban/jail.d/custom.conf ${neutre}"
-    L1='[domoticz]'
-    L2='\nenabled  = true'
-    L3='\nport = 8080,443'
-    L4='\nfilter  = domoticz'
-    L5='\nlogpath = /var/log/domoticz.log'
-    echo -e $L1 $L2 $L3 $L4 $L5 >>/etc/fail2ban/jail.d/custom.conf
-    fi
-
-
 
 ### ===============================================================
 ### GPIO
@@ -557,6 +574,9 @@ if [[ $exitstatus = 0 ]]; then
 	wget https://project-downloads.drogon.net/wiringpi-latest.deb
 	sudo dpkg -i wiringpi-latest.deb && rm wiringpi-latest.deb
         echo -e "${rougeclair}\nExecuter la commande gpio readall pour voir la configuration des broches ${neutre}"
+
+	echo -e "${violetclair}\nFin de l'installation de GPIO. Appuyer sur Entrée pour poursuivre l'Installation ${neutre}"
+	read
     fi
 
 ### ===============================================================
@@ -695,6 +715,9 @@ if [[ $exitstatus = 0 ]]; then
 
 	echo -e "${vertclair}\nTest du capteur de température : ${neutre}"
 	sudo /home/pi/script/Adafruit_Python_DHT/examples/AdafruitDHT.py 22 26
+
+	echo -e "${violetclair}\nFin de l'installation de DHT22. Appuyer sur Entrée pour poursuivre l'Installation ${neutre}"
+	read
     fi
 
 ### ===============================================================
@@ -706,15 +729,6 @@ if [[ $exitstatus = 0 ]]; then
 	echo -e "${rougeclair}\nDomoticz doit être installé. ${neutre}"
 	echo -e "${rougeclair}Le capteur DHT22 et l'écran Kuman, doivent être reliés au Raspberry : ${neutre}"
 
-        if [[ $version =~ "Python 3" ]]; then
-                #installation si Python3
-                cd /home/pi/script/Adafruit_Python_SSD1306
-                sudo python3 setup.py install
-        else
-                #installation si Python2
-                cd /home/pi/script/Adafruit_Python_SSD1306
-                python setup.py install
-        fi
         if [ -d "/home/pi/script/Adafruit_Python_SSD1306" ]; then
                 echo -e "${cyanclair}Le répertoire d'installation /home/pi/script/Adafruit_Python_SSD1306 existe déja. Suppression du répertoire avant la nouvelle installation ${neutre}"
                 rm -r /home/pi/script/Adafruit_Python_SSD1306
@@ -737,9 +751,24 @@ if [[ $exitstatus = 0 ]]; then
 
         cd /home/pi/script
         #Téléchargement des bibliothèques et des fichiers
-        echo -e "${bleuclair}\nInstallation des bilbiothèques AdaFruit pour l'écran Kuman (nécessite Domoticz) ${neutre}"
+        echo -e "${bleuclair}\nInstallation des bilbiothèques AdaFruit pour l'écran Kuman (nécessite Domoticz et DHT22) ${neutre}"
         git clone https://github.com/adafruit/Adafruit_Python_SSD1306.git
         chown pi:pi /home/pi/script/Adafruit_Python_SSD1306
+
+        version=$(python --version 2>&1 | cut -c1-8)
+        echo -e -n"${vertclair}\nVersion de Python par défaut : ${neutre}"
+        echo -e $version
+        if [[ $version =~ "Python 3" ]]; then
+                #installation si Python3
+		pip3 install requests
+                cd /home/pi/script/Adafruit_Python_SSD1306
+                sudo python3 setup.py install
+        else
+                #installation si Python2
+		pip install requests
+                cd /home/pi/script/Adafruit_Python_SSD1306
+                python setup.py install
+        fi
 
         echo -e "${vertclair}\nTéléchargement du fichier kuman.py ${neutre}"
         wget -P /home/pi/script $lien_github_raw/Kuman.py
@@ -768,6 +797,9 @@ if [[ $exitstatus = 0 ]]; then
 
         echo -e "${vertclair}\nTest du capteur de température : ${neutre}"
         /home/pi/script/Adafruit_Python_DHT/examples/AdafruitDHT.py 22 26
+
+	echo -e "${violetclair}\nFin de l'installation de Kuman. Appuyer sur Entrée pour poursuivre l'Installation ${neutre}"
+	read
     fi
 
 ### ===============================================================
@@ -783,6 +815,9 @@ if [[ $exitstatus = 0 ]]; then
 ### Fin de l'installation
 ### ===============================================================
 
+    echo -e "${vertclair}Redémarrage du service Apache2 ${neutre}"
+    /etc/init.d/apache2 restart
+ 
     echo -e "${blancclignotant}Appuyer une touche pour redémarrer le Raspberry ${neutre}"
     read
     reboot

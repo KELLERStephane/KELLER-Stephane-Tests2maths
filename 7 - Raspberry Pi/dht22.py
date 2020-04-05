@@ -21,7 +21,7 @@ domoticz_ip = '192.168.0.40'
 domoticz_port = '8080'
 user = 'kontua'
 password = 'toto'
-domoticz_idx = 11
+domoticz_idx = 9
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # les paramètres du DHT
