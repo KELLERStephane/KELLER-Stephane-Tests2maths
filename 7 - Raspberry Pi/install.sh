@@ -57,7 +57,7 @@ fi
 ### ===============================================================
 
 CHOIX=$(whiptail --title "Menu d'installation du Raspberry" --checklist \
-"\nScript réalisé par :\n- KELLER Stéphane (Lycée Agricole Louis Pasteur)\n- José De Castro\nhttps://github.com/KELLERStephane/KELLER-Stephane-Tests2maths\n\nQue soutaitez-vous installer ?" 24 72 10 \
+"\nScript réalisé par :\n- KELLER Stéphane (Lycée Agricole Louis Pasteur)\n- José De Castro\nhttps://github.com/KELLERStephane/KELLER-Stephane-Tests2maths\n\nQue soutaitez-vous installer ?" 24 72 11 \
 "MAJ" "Mise a jour du systeme " OFF \
 "Webmin" "Administration du système en mode WEB " OFF \
 "Motioneye" "Logiciel de vidéosurveillance " OFF \
@@ -67,7 +67,8 @@ CHOIX=$(whiptail --title "Menu d'installation du Raspberry" --checklist \
 "Domoticz" "Logiciel de domotique Domoticz " OFF \
 "GPIO" "Wiringpi pour l'utilisation des GPIO " OFF \
 "DHT22" "Capteur de température DHT22 " OFF \
-"Kuman" "Affichage données DHT22 sur écran Kuman " OFF 3>&1 1>&2 2>&3)
+"Kuman" "Affichage données DHT22 sur écran Kuman " OFF \
+"Debug" "Interruption à la fin de chaque installation " OFF 3>&1 1>&2 2>&3)
 
 exitstatus=$?
 
@@ -140,9 +141,10 @@ if [[ $exitstatus = 0 ]]; then
         python -m pip install --upgrade pip setuptools wheel
         pip install Adafruit_DHT
     fi
-
-    	echo -e "${violetclair}\nFin des mises à jour. Appuyer sur Entrée pour poursuivre l'Installation ${neutre}"
-    	read
+	if [[ $CHOIX =~ "Debug" ]]; then
+	    	echo -e "${violetclair}\nFin des mises à jour. Appuyer sur Entrée pour poursuivre l'Installation ${neutre}"
+    		read
+	fi
     fi
 
 ### ===============================================================
@@ -158,8 +160,11 @@ if [[ $exitstatus = 0 ]]; then
 	wget -q --show-progress http://www.webmin.com/download/deb/webmin-current.deb --no-check-certificate
 	### installer le paquet puis le supprimer
 	dpkg --install webmin-current.deb && rm -f webmin-current.deb
-	echo -e "${violetclair}\nFin de l'installation de Webmin. Appuyer sur Entrée pour poursuivre l'Installation ${neutre}"
-	read
+
+	if [[ $CHOIX =~ "Debug" ]]; then
+		echo -e "${violetclair}\nFin de l'installation de Webmin. Appuyer sur Entrée pour poursuivre l'Installation ${neutre}"
+		read
+	fi
     fi
 
 ### ===============================================================
@@ -218,8 +223,10 @@ if [[ $exitstatus = 0 ]]; then
         systemctl enable motioneye
         systemctl start motioneye
 
-	echo -e "${violetclair}\nFin de l'installation de Motioneye. Appuyer sur Entrée pour poursuivre l'Installation ${neutre}"
-	read
+        if [[ $CHOIX =~ "Debug" ]]; then
+		echo -e "${violetclair}\nFin de l'installation de Motioneye. Appuyer sur Entrée pour poursuivre l'Installation ${neutre}"
+		read
+	fi
     fi
 
 ### ===============================================================
@@ -294,8 +301,10 @@ if [[ $exitstatus = 0 ]]; then
                 sed -i '/'"$L1"'/ c\'"$L2"''"$L3"''"$L4"''"$L5"''"$L6"''"$L7"''"$L8"''"$L9"''"$L10"''"$L11"''"$L12"'' /etc/apache2/apache2.conf
         fi
 
-	echo -e "${violetclair}\nFin de l'installation de Apache2. Appuyer sur Entrée pour poursuivre l'Installation ${neutre}"
-	read
+        if [[ $CHOIX =~ "Debug" ]]; then
+		echo -e "${violetclair}\nFin de l'installation de Apache2. Appuyer sur Entrée pour poursuivre l'Installation ${neutre}"
+		read
+	fi
     fi
 
 ### ===============================================================
@@ -433,8 +442,10 @@ if [[ $exitstatus = 0 ]]; then
         echo -e "${rougeclair}cd /home/pi ${neutre}"
         echo -e "${rougeclair}sudo ./banip.sh ${neutre}"
 
-	echo -e "${violetclair}\nFin de l'installation de Fail2ban. Appuyer sur Entrée pour poursuivre l'Installation ${neutre}"
-	read
+        if [[ $CHOIX =~ "Debug" ]]; then
+		echo -e "${violetclair}\nFin de l'installation de Fail2ban. Appuyer sur Entrée pour poursuivre l'Installation ${neutre}"
+		read
+	fi
     fi
 
 ### ===============================================================
@@ -516,8 +527,10 @@ if [[ $exitstatus = 0 ]]; then
         sed '/'"$L1"'/ c\'"$L2"''"$L3"'' /var/www/html/fail2map/js/maps.js >/home/pi/maps.js
         mv /home/pi/maps.js /var/www/html/fail2map/js/maps.js
 
-	echo -e "${violetclair}\nFin de l'installation de Fail2map. Appuyer sur Entrée pour poursuivre l'Installation ${neutre}"
-	read
+        if [[ $CHOIX =~ "Debug" ]]; then
+		echo -e "${violetclair}\nFin de l'installation de Fail2map. Appuyer sur Entrée pour poursuivre l'Installation ${neutre}"
+		read
+	fi
     fi
 
 ### ===============================================================
@@ -559,8 +572,10 @@ if [[ $exitstatus = 0 ]]; then
     	L5='\nlogpath = /var/log/domoticz.log'
     	echo -e $L1 $L2 $L3 $L4 $L5 >>/etc/fail2ban/jail.d/custom.conf
 
-	echo -e "${violetclair}\nFin de l'installation de Domoticz. Appuyer sur Entrée pour poursuivre l'Installation ${neutre}"
-	read
+        if [[ $CHOIX =~ "Debug" ]]; then
+		echo -e "${violetclair}\nFin de l'installation de Domoticz. Appuyer sur Entrée pour poursuivre l'Installation ${neutre}"
+		read
+	fi
     fi
 
 ### ===============================================================
@@ -575,8 +590,10 @@ if [[ $exitstatus = 0 ]]; then
 	sudo dpkg -i wiringpi-latest.deb && rm wiringpi-latest.deb
         echo -e "${rougeclair}\nExecuter la commande gpio readall pour voir la configuration des broches ${neutre}"
 
-	echo -e "${violetclair}\nFin de l'installation de GPIO. Appuyer sur Entrée pour poursuivre l'Installation ${neutre}"
-	read
+        if [[ $CHOIX =~ "Debug" ]]; then
+		echo -e "${violetclair}\nFin de l'installation de GPIO. Appuyer sur Entrée pour poursuivre l'Installation ${neutre}"
+		read
+	fi
     fi
 
 ### ===============================================================
@@ -716,8 +733,10 @@ if [[ $exitstatus = 0 ]]; then
 	echo -e "${vertclair}\nTest du capteur de température : ${neutre}"
 	sudo /home/pi/script/Adafruit_Python_DHT/examples/AdafruitDHT.py 22 26
 
-	echo -e "${violetclair}\nFin de l'installation de DHT22. Appuyer sur Entrée pour poursuivre l'Installation ${neutre}"
-	read
+        if [[ $CHOIX =~ "Debug" ]]; then
+		echo -e "${violetclair}\nFin de l'installation de DHT22. Appuyer sur Entrée pour poursuivre l'Installation ${neutre}"
+		read
+	fi
     fi
 
 ### ===============================================================
@@ -798,8 +817,10 @@ if [[ $exitstatus = 0 ]]; then
         echo -e "${vertclair}\nTest du capteur de température : ${neutre}"
         /home/pi/script/Adafruit_Python_DHT/examples/AdafruitDHT.py 22 26
 
-	echo -e "${violetclair}\nFin de l'installation de Kuman. Appuyer sur Entrée pour poursuivre l'Installation ${neutre}"
-	read
+        if [[ $CHOIX =~ "Debug" ]]; then
+		echo -e "${violetclair}\nFin de l'installation de Kuman. Appuyer sur Entrée pour poursuivre l'Installation ${neutre}"
+		read
+	fi
     fi
 
 ### ===============================================================
