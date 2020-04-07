@@ -64,8 +64,8 @@ CHOIX=$(whiptail --title "Menu d'installation du Raspberry" --checklist \
 "Apache2" "Serveur web Apache2 " OFF \
 "Fail2ban" "Protection du systeme via auto-bannissement " OFF \
 "Fail2map" "Affichage des ip sur une carte " OFF \
-"Domoticz" "Logiciel de domotique Domoticz " OFF \
 "GPIO" "Wiringpi pour l'utilisation des GPIO " OFF \
+"Domoticz" "Logiciel de domotique Domoticz " OFF \
 "DHT22" "Capteur de température DHT22 " OFF \
 "Kuman" "Affichage données DHT22 sur écran Kuman " OFF \
 "Debug" "Interruption à la fin de chaque installation " OFF 3>&1 1>&2 2>&3)
@@ -130,7 +130,6 @@ if [[ $exitstatus = 0 ]]; then
 	        apt install -y python3-pil
 	        apt install -y python3-pip
 	        apt install -y python3-setuptools
-	        apt install -y python3-rpi.gpio
 	        python3 -m pip install --upgrade pip setuptools wheel
     	else
     		#installation si Python2
@@ -140,7 +139,6 @@ if [[ $exitstatus = 0 ]]; then
 		apt install -y python-pil
 		apt install -y python-pip
 		apt install -y python-setuptools
-		apt install -y python-rpi.gpio
 	        python -m pip install --upgrade pip setuptools wheel
 	fi
 
@@ -278,7 +276,7 @@ if [[ $exitstatus = 0 ]]; then
 				echo "Tu as annulé... Recommence :-("
 			fi
        		done
-		echo -e "${vertclair}Ajout de l'IDX dans le fichier dht22.py ${neutre}"
+		echo -e "${vertclair}Saisi du mot de passe pour Apache2 ${neutre}"
 	        htpasswd -c /var/www/passwd/passwords "$username"
 		erreur=$?
 #		echo -e "L'erreur est $erreur"
@@ -545,6 +543,36 @@ if [[ $exitstatus = 0 ]]; then
     fi
 
 ### ===============================================================
+### GPIO
+### ===============================================================
+
+    if [[ $CHOIX =~ "GPIO" ]]; then
+        echo -e "${bleuclair}\nInstallation de wiringpi pour l'utilisation des GPIO (nécessite Fail2ban) ${neutre}"
+        echo -e "${rougeclair}\nNe pas oublier d'activer les GPIO avec sudo raspi-config ${neutre}"
+	echo -e "${vertclair}\nTéléchargement et installation de wiringpi si nécessaire ${neutre}"
+	apt -y install wiringpi
+        echo -e "${rougeclair}\nExecuter la commande gpio readall pour voir la configuration des broches ${neutre}"
+
+	if [[ $version =~ "Python 3" ]]; then
+		#installation si Python3
+		echo -e "${vertclair}\nTéléchargement et installation de RPi.GPIO pour python3 si nécessaire ${neutre}"
+	        apt install -y python3-rpi.gpio
+	        python3 -m pip install RPi.GPIO
+    	else
+    		#installation si Python2
+	        echo -e "${vertclair}\nTéléchargement et installation de RPi.GPIO pour python2 si nécessaire ${neutre}"
+		apt install -y python-rpi.gpio
+	        python -m pip install RPi.GPIO
+	fi
+
+
+        if [[ $CHOIX =~ "Debug" ]]; then
+                echo -e "${violetclair}\nFin de l'installation de GPIO. Appuyer sur Entrée pour poursuivre l'Installation ${neutre}"
+                read
+        fi
+    fi
+
+### ===============================================================
 ### Installation de Domoticz
 ### ===============================================================
 
@@ -597,30 +625,12 @@ if [[ $exitstatus = 0 ]]; then
     fi
 
 ### ===============================================================
-### GPIO
-### ===============================================================
-
-    if [[ $CHOIX =~ "GPIO" ]]; then
-        echo -e "${bleuclair}\nInstallation de wiringpi pour l'utilisation des GPIO (nécessite Fail2ban) ${neutre}"
-        echo -e "${rougeclair}\nNe pas oublier d'activer les GPIO avec sudo raspi-config ${neutre}"
-	cd /tmp
-	wget https://project-downloads.drogon.net/wiringpi-latest.deb
-	sudo dpkg -i wiringpi-latest.deb && rm wiringpi-latest.deb
-        echo -e "${rougeclair}\nExecuter la commande gpio readall pour voir la configuration des broches ${neutre}"
-
-    	if [[ $CHOIX =~ "Debug" ]]; then
-        	echo -e "${violetclair}\nFin de l'installation de GPIO. Appuyer sur Entrée pour poursuivre l'Installation ${neutre}"
-        	read
-    	fi
-    fi
-
-### ===============================================================
 ### DHT22
 ### ===============================================================
 
     if [[ $CHOIX =~ "DHT22" ]]; then
 	echo -e "${bleuclair}\nInstallation du capteur DHT22 ${neutre}"
-	echo -e "${rougeclair}\nDomoticz doit être installé et le capteur relié au Raspberry ${neutre}"
+	echo -e "${rougeclair}\nDomoticz et GPIO doivent être installés et le capteur relié au Raspberry ${neutre}"
 	echo -e "${rougeclair}Il faut connaître et renseigner : ${neutre}"
 	echo -e "${rougeclair}- l'IDX du capteur dht22 dans domoticz ; ${neutre}"
 	echo -e "${rougeclair}- le numéro GPIO BCM sur lequel est relié le capteur. ${neutre}"
@@ -672,6 +682,7 @@ if [[ $exitstatus = 0 ]]; then
 	L4="'"
 	sed -i '/'"$L1"'/ c\'"$L2"''"$L3"''"$L4"'' /home/pi/script/dht22.py
 
+	#Saisi des paramètres de domoticz pour affichage température et humidité sur domoticz
         boucle=true
         while $boucle;do
                 USER=$(whiptail --title "Paramètres pour dht22.py" --inputbox "\nSaisir l'identifiant domoticz : " 10 60 3>&1 1>&2 2>&3)
@@ -738,6 +749,7 @@ if [[ $exitstatus = 0 ]]; then
        	done
 	echo -e "${vertclair}Ajout du numéro de GPIO (BCM) dans le fichier dht22.py ${neutre}"
 
+	#Modification de la crontab pour mise à jour de température et humidité toutes les 10 minutes
 	crontab -u root -l > /tmp/toto.txt # export de la crontab
 	grep "dht22.py" "/tmp/toto.txt" >/dev/null
 	if [ $? != 0 ];then
@@ -763,7 +775,7 @@ if [[ $exitstatus = 0 ]]; then
 
     if [[ $CHOIX =~ "Kuman" ]]; then
 	echo -e "${bleuclair}\nInstallation de l'écran Kuman ${neutre}"
-	echo -e "${rougeclair}\nDomoticz doit être installé. ${neutre}"
+	echo -e "${rougeclair}\nDomoticz, GPIO et DHT22 doivent être installés. ${neutre}"
 	echo -e "${rougeclair}Le capteur DHT22 et l'écran Kuman, doivent être reliés au Raspberry : ${neutre}"
 
         if [ -d "/home/pi/script/Adafruit_Python_SSD1306" ]; then
@@ -826,9 +838,9 @@ if [[ $exitstatus = 0 ]]; then
 		mv /home/pi/toto.py /home/pi/script/dht22.py
 		chmod +x /home/pi/script/dht22.py
 		chown pi:pi /home/pi/script/dht22.py
-		rm /home/pi/script/Kuman.py
         fi
 
+	rm /home/pi/script/Kuman.py >/dev/null
         echo -e "${vertclair}\nTest module i2c : ${neutre}"
         lsmod | grep i2c_
         echo -e "${vertclair}\nVérification de l'adresse du périphérique i2c : ${neutre}"
