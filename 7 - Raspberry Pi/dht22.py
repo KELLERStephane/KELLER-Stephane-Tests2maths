@@ -2,7 +2,7 @@
 # coding: utf-8
 
 # basé sur le script Adafruit et adapté pour Domoticz
-import os
+from os import system
 import sys
 import Adafruit_DHT
 from requests.auth import HTTPBasicAuth
@@ -49,7 +49,7 @@ humidity, temperature = Adafruit_DHT.read_retry(sensor, pin)
 
 if humidity is not None and temperature is not None:
 
-    print('Temp={0:0.1f}*  Humidity={1:0.1f}%'.format(temperature, humidity))
+#    print('Température = {0:0.1f}°C  Humidité = {1:0.1f}%'.format(temperature, humidity))
 
     #Conversion des valeurs en srting
     temp1 = int(temperature)
@@ -60,12 +60,13 @@ if humidity is not None and temperature is not None:
         temp = str(temp1)
     humid = str(int(humidity))
     #Sauvegarde température et humidité dans un fichier data.txt
-    os.system("cd /home/pi/script")
+    system("cd /home/pi/script")
     # Ecriture du fichier data.txt en mode write 'w'
     li = ["Température : ", temp, "\n", "Humidité : ", humid]
     with open('data.txt','w') as fichier:
         for el in li:
 	    fichier.write(el)
+    system("chown pi:pi data.txt")
 
     # l URL Domoticz pour le widget virtuel
     url='/json.htm?type=command&param=udevice&idx='+str(domoticz_idx)
@@ -75,5 +76,5 @@ if humidity is not None and temperature is not None:
     maj_widget(url)
 
 else:
-    print('Probleme avec la lecture du DHT. Try again!')
+    print('Problème avec la lecture du DHT. Try again!')
     sys.exit(1)

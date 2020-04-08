@@ -1,16 +1,20 @@
+#!/usr/bin/python
+# coding: utf-8
 
 ###################################################################
-###             Paramètres pour l'écran Kuman                   ###
+### Paramètrage de l'écran Kuman pour l'affichage               ###
+### permanent de la température et de l'humidité                ###
 ###################################################################
 
 import Adafruit_GPIO.SPI as SPI
 import Adafruit_SSD1306
+import subprocess
+from os import chdir, getcwd
 
 from PIL import Image
 from PIL import ImageDraw
 from PIL import ImageFont
-
-import subprocess
+from time import sleep
 
 # Raspberry Pi pin configuration:
 RST = None     # on the PiOLED this pin isnt used
@@ -78,7 +82,6 @@ bottom = height-padding
 # Move left to right keeping track of the current x position for drawing shapes.
 x = 0
 
-
 # Load default font.
 #font = ImageFont.load_default()
 
@@ -91,13 +94,20 @@ x = 0
 
 # Shell scripts for system monitoring from here : https://unix.stackexchange.com/questions/119126/command$
 
+
+### Ouverture et affichage du fichier data.txt pour récupérer la température et l'humidité
+chdir("/home/pi/script")
+with open('data.txt','r') as fichier:
+    li = fichier.readlines()	# lecture dans le fichier avec la méthode readlines()
+    ind_temp_deb = li[0].index("rature :")
+    ind_temp_fin = li[0].index("\n")
+    temp = li[0][ind_temp_deb+9:ind_temp_fin]
+    ind_humid_deb = li[1].index("\xc3\xa9 :")
+    humid = li[1][ind_humid_deb+5:ind_humid_deb+7]
+print("temp =",temp, "Humid =", humid)
+
 #Affichage des valeurs sur l'écran
 ligne1, ligne2 = 0, 8
-
-#cmd = "date +%D"
-#date = subprocess.check_output(cmd, shell = True )
-#cmd = "date +%H:%M"
-#horaire = subprocess.check_output(cmd, shell = True )
 
 # Load default font.
 #font = ImageFont.load_default()
@@ -109,11 +119,22 @@ draw.text((x + 80, ligne1),    "HUMIDITE",  font=font, fill=255)
 font = ImageFont.truetype('Minecraftia-Regular.ttf', 18)
 draw.text((x, ligne2),       temp + ' ' + u'\xb0' + 'C',  font=font, fill=255)
 draw.text((x + 80 , ligne2), humid + ' % ',  font=font, fill=255)
+
+### Paramètres supplémentaires affichables avec un écran plus grand
+
+#Affichage des valeurs sur l'écran
+#ligne3 = 16
+
+#cmd = "date +%D"
+#date = subprocess.check_output(cmd, shell = True )
+#cmd = "date +%H:%M"
+#horaire = subprocess.check_output(cmd, shell = True )
+
 #draw.text((x, ligne3),       str(date.decode("utf-8")),  font=font, fill=255)
 #draw.text((x + 80 , ligne3), str(horaire.decode("utf-8")),  font=font, fill=255)
 
 # Display image.
 disp.image(image)
 disp.display()
-time.sleep(5)
+#sleep(5)
 
