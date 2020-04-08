@@ -9,8 +9,10 @@
 import Adafruit_GPIO.SPI as SPI
 import Adafruit_SSD1306
 import subprocess
-from os import chdir, getcwd
+import RPi.GPIO as GPIO
 
+from os import system, chdir
+from sys import version
 from PIL import Image
 from PIL import ImageDraw
 from PIL import ImageFont
@@ -99,7 +101,10 @@ GPIO.setmode(GPIO.BCM)
 # GPIO1 set up as input. It is pulled up to stop false signals
 GPIO.setup(13, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
-print "Attente de l'appui sur l'interrupteur"
+if version[0] == '2':
+	print "Attente de l'appui sur l'interrupteur"
+else:
+	print("Attente de l'appui sur l'interrupteur")
 # maintenant, le programme ne fera rien jusqu'à ce que le signal sur le port 13
 #C'est pourquoi nous avons utilisé le pullup pour maintenir le signal haut et éviter une fausse interruption
 #Pendant ce temps d'attente, votre ordinateur ne gaspille pas de ressources en interrogeant une touche
@@ -116,8 +121,10 @@ try:
 		temp = li[0][ind_temp_deb+9:ind_temp_fin]
 		ind_humid_deb = li[1].index("\xc3\xa9 :")
 		humid = li[1][ind_humid_deb+5:ind_humid_deb+7]
-	print("temp =",temp, "Humid =", humid)
-
+	if version[0] == '2':
+		print "TEMPERATURE =", temp, "°C", "\nHUMIDITE =", humid, "%"
+	else:
+		print("TEMPERATURE =", temp, "°C", "\nHUMIDITE =", humid, "%")
 	#Affichage des valeurs sur l'écran
 	ligne1, ligne2 = 0, 8
 
@@ -148,13 +155,18 @@ try:
 	# Display image.
 	disp.image(image)
 	disp.display()
-	sleep(15)
-	disp.clear()
-	disp.display()
 
 except KeyboardInterrupt:
-	print "Fin de l'interruption"
+        if version[0] == '2':
+                print "Fin de l'interruption"
+        else:
+                print("Fin de l'interruption")
 	GPIO.cleanup()       # nettoie GPIO à la sortie CTRL + C
 
+
+sleep(5) #Attente de 5 seconde
+disp.clear()
+disp.display()
+
 GPIO.cleanup()           # nettoie GPIO à la sortie normale
-os.system("/home/pi/script/interrupteur.py &")
+#system("/home/pi/script/interrupteur.py &")
