@@ -14,8 +14,8 @@
 ### ===============================================================
 
 lien_github="https://github.com/KELLERStephane/KELLER-Stephane-Tests2maths/blob/master/7%20-%20Raspberry%20Pi"
-lien_github_raw="https://raw.githubusercontent.com/KELLERStephane/KELLER-Stephane-Tests2maths/master/7%20-%20Raspberry%20Pi"
-lien_github_zip="https://github.com/KELLERStephane/KELLER-Stephane-Tests2maths/raw/master/7%20-%20Raspberry%20Pi"
+lien_github_raw="https://github.com/KELLERStephane/KELLER-Stephane-Tests2maths/raw/master/7%20-%20Raspberry%20Pi/Ressources"
+lien_github_zip="https://github.com/KELLERStephane/KELLER-Stephane-Tests2maths/raw/master/7%20-%20Raspberry%20Pi/Ressources/"
 
 ### ===============================================================
 ### Définition des couleurs
@@ -74,7 +74,7 @@ CHOIX=$(whiptail --title "Menu d'installation du Raspberry" --checklist \
 exitstatus=$?
 
 if [[ $exitstatus = 0 ]]; then
-    echo -e -n "${jauneclair}  ======================================= \n ${neutre}"
+    echo -e -n "${jauneclair} ======================================= \n ${neutre}"
     echo -e -n "${jauneclair} Les logiciels suivants seront installes \n ${neutre}"
     echo -e -n "${jauneclair} $CHOIX \n ${neutre}"
     echo -e -n "${jauneclair} ======================================= \n ${neutre}"
@@ -192,7 +192,7 @@ if [[ $exitstatus = 0 ]]; then
         fi
 
 	echo -e "${vertclair}\nInstallation du module bcm2835-v4l2 pour la caméra CSI OV5647 ${neutre}"
-	grep "bcm2835-v4l2" "/etc/modules" >/dev/null
+	grep -i "bcm2835-v4l2" "/etc/modules" >/dev/null
 	if [ $? = 0 ]; then
                 echo -e "${cyanclair}Le module bcm2835-v4l2 est déjà déclaré dans /etc/modules ${neutre}"
 	else
@@ -201,7 +201,7 @@ if [[ $exitstatus = 0 ]]; then
 	fi
 
         echo -e "${vertclair}\nDésactivation de la led de la caméra CSI OV5647 pour le Rapsberry Pi ${neutre}"
-	grep "disable_camera_led=1" "/boot/config.txt" >/dev/null
+	grep -i "disable_camera_led=1" "/boot/config.txt" >/dev/null
 	if [ $? = 0 ]; then
                 echo -e "${cyanclair}La désactivation de la led de la caméra est déjà active dans /boot/config.txt ${neutre}"
         else
@@ -289,7 +289,7 @@ if [[ $exitstatus = 0 ]]; then
 	done
 
         echo -e "${vertclair}\nModification du fichier /etc/apache2/apache2.conf pour sécuriser l'accès à Apache2 ${neutre}"
-	grep "AuthType Basic" "/etc/modules" >/dev/null
+	grep -i "AuthType Basic" "/etc/modules" >/dev/null
         if [ $? = 0  ]; then
                 echo -e "${cyanclair}Le fichier /etc/apache2/apache2.conf a déjà été modifié ${neutre}"
 		echo -e "${cyanclair}Poursuite de l'installation ${neutre}"
@@ -605,7 +605,7 @@ if [[ $exitstatus = 0 ]]; then
 		chown pi:pi /etc/fail2ban/jail.d/custom.conf
     	fi
 
-	grep "domoticz" "/etc/fail2ban/jail.d/custom.conf" >/dev/null
+	grep -i "domoticz" "/etc/fail2ban/jail.d/custom.conf" >/dev/null
         if [ $? = 0  ]; then
                 echo -e "${cyanclair}Le fichier /etc/fail2ban/jail.d/custom.conf a déjà été modifié ${neutre}"
 		echo -e "${cyanclair}Poursuite de l'installation ${neutre}"
@@ -752,7 +752,7 @@ if [[ $exitstatus = 0 ]]; then
 
 	#Modification de la crontab pour mise à jour de température et humidité toutes les 10 minutes
 	crontab -u root -l > /tmp/toto.txt # export de la crontab
-	grep "dht22.py" "/tmp/toto.txt" >/dev/null
+	grep -i "dht22.py" "/tmp/toto.txt" >/dev/null
 	if [ $? = 0 ];then
 		echo -e "${vertclair}\nLa crontab a déja été modifiée ${neutre}"
 	else
@@ -777,16 +777,16 @@ if [[ $exitstatus = 0 ]]; then
 ### ===============================================================
 
     if [[ $CHOIX =~ "Kuman" ]]; then
-	CHOIX2=$(whiptail --title "Menu d'installation de l'écran Kuman" --checklist \
-	"\nScript réalisé par :\n- KELLER Stéphane (Lycée Agricole Louis Pasteur)\n- José De Castro\nhttps://github.com/KELLERStephane/KELLER-Stephane-Tests2maths\n\nAffichage de la température et de l'humidité sur l'écran\n\nQue soutaitez-vous installer ?" 15 72 2 \
-	"PERM" "Affichage permanent " OFF \
-	"PONCT" "Affichage ponctuel via un interrupteur " OFF 3>&1 1>&2 2>&3)
+	CHOIX2=$(whiptail --title "Menu d'installation de l'écran Kuman" --menu \
+	"\nScript réalisé par :\n- KELLER Stéphane (Lycée Agricole Louis Pasteur)\n- José De Castro\nhttps://github.com/KELLERStephane/KELLER-Stephane-Tests2maths\n\nAffichage de la température et de l'humidité sur l'écran\n\nQue soutaitez-vous installer ?" 20 72 4 \
+	"1" "Affichage permanent  "\
+	"2" "Affichage ponctuel via un interrupteur " 3>&1 1>&2 2>&3)
 
 	exitstatus=$?
 
 	if [[ $exitstatus = 0 ]]; then
-	    	echo -e -n "${jauneclair}  ======================================= \n ${neutre}"
-	    	echo -e -n "${jauneclair} Les logiciels suivants seront installes \n ${neutre}"
+	    	echo -e -n "${jauneclair} ======================================= \n ${neutre}"
+	    	echo -e -n "${jauneclair} L'affichage sera le suivant              \n ${neutre}"
 	    	echo -e -n "${jauneclair} $CHOIX \n ${neutre}"
 	    	echo -e -n "${jauneclair} ======================================= \n ${neutre}"
 
@@ -833,13 +833,18 @@ if [[ $exitstatus = 0 ]]; then
 	        apt install -y python-smbus i2c-tools
 	        apt install -y python-smbus i2c-tools
 
-		if [[ $CHOIX2 =~ "PERM" ]]; then
+		if [[ $CHOIX2 =~ "1" ]]; then
 	                if [ -e /home/pi/script/Kuman.py ] ; then
-        	                echo -e "${cyanclair}\nLe fichier /home/pi/script/Kuman.py existe déjà ${neutre}"
-                	        echo -e "${cyanclair}Effacement du fichier puis création du nouveau fichier ${neutre}"
-                        	rm /home/pi/script/Kuman.py*
+        	                echo -e "${cyanclair}\nLe fichier /etc/systemd/system/interrupteur.service existe ${neutre}"
+                	        echo -e "${cyanclair}et n'est plus nécessaire. Suppression du service ${neutre}"
+				systemctl disable interrupteur.service
+                        	rm /etc/systemd/system/interrupteur.service
 	                fi
-
+		        if [ -e /etc/ntp.com ] ; then
+        			echo -e "${cyanclair}\nLe fichier /etc/ntp.com existe déjà ${neutre}"
+				echo -e "${cyanclair}Effacement du fichier puis création du nouveau fichier ${neutre}"
+				rm /etc/ntp.com*
+			fi
 		        echo -e "${vertclair}\nTéléchargement du fichier kuman.py ${neutre}"
 	        	wget -P /home/pi/script $lien_github_raw/Kuman.py
 		        chown pi:pi /home/pi/script/Kuman.py
@@ -847,47 +852,52 @@ if [[ $exitstatus = 0 ]]; then
 
 			#Modification de la crontab pour Affichage de la température et humidité toutes les 10 minutes
 			crontab -u root -l > /tmp/toto.txt # export de la crontab
-			grep "Kuman.py" "/tmp/toto.txt" >/dev/null
+			grep -i "Kuman.py" "/tmp/toto.txt" >/dev/null
 			if [ $? = 0 ];then
 				echo -e "${vertclair}\nLa crontab a déja été modifiée ${neutre}"
 			else
 		                echo -e "${vertclair}\nModification de la crontab ${neutre}"
-                		echo -e "#Affichage de la température et de l'humidité toutes les 10 mn chaque jour" >> /tmp/toto.txt # ajout de la ligne dans le fichier temporaire
+                		echo -e "\n#Affichage permanent de la température et de l'humidité" >> /tmp/toto.txt # ajout de la ligne dans le fichier temporaire
 		                echo -e "*/10 * * * * sudo /home/pi/script/Kuman.py" >> /tmp/toto.txt # ajout de la ligne dans le fichier temporaire
 		               	crontab /tmp/toto.txt # import de la crontab
 		               	rm /tmp/toto.txt* # le fichier temporaire ne sert plus à rien
 			fi
 		fi
 
-                if [[ $CHOIX2 =~ "PONCT" ]]; then
+                if [[ $CHOIX2 =~ "2" ]]; then
                         if [ -e /home/pi/script/interrupteur.py ] ; then
                                 echo -e "${cyanclair}\nLe fichier /home/pi/script/interrupteur.py existe déjà ${neutre}"
                                 echo -e "${cyanclair}Effacement du fichier puis création du nouveau fichier ${neutre}"
                                 rm /home/pi/script/interrupteur.py*
                         fi
-
-                        echo -e "${vertclair}\nTéléchargement du fichier interrupteur.py ${neutre}"
+			echo -e "${vertclair}\nTéléchargement du fichier interrupteur.py ${neutre}"
                         wget -P /home/pi/script $lien_github_raw/interrupteur.py
                         chown pi:pi /home/pi/script/interrupteur.py
                         chmod +x /home/pi/script/interrupteur.py
 
+			if [ -e /home/pi/script/Kuman.py ] ; then
+                                echo -e "${cyanclair}\nLe fichier /etc/systemd/system/interrupteur.service existe déjà${neutre}"
+				echo -e "${cyanclair}Suppression du service puis téléchargement du nouveau fichier ${neutre}"
+			fi
+			wget -P /etc/systemd/system/ $lien_github_raw/interrupteur.service
+			echo -e "${cyanclair}Activation et démarrage du service /etc/systemd/system/interrupteur.service ${neutre}"
+			systemctl enable interrupteur.service
+			systemctl start interrupteur.service
+
                         #Modification de la crontab pour supprimer affichage permanent de la température et humidité
+			echo -e "${vertclair}\nModification de la crontab ${neutre}"
                         crontab -u root -l > /tmp/toto.txt # export de la crontab
-                        grep "kuman.py" "/tmp/toto.txt" >/dev/null
+                        grep -i "Kuman.py" "/tmp/toto.txt" >/dev/null
                         if [ $? = 0 ];then
 				echo -e "${vertclair}\nSuppression de l'affichage permanent dans la crontab ${neutre}"
-				L1='#Affichage de la température et de l'humidité toutes les 10 mn chaque jour'
+				L1="#Affichage permanent de la température et de l'humidité"
 				L2=''
 				sed -i '/'"$L1"'/ c\'"$L2"'' /tmp/toto.txt
-                                L3='kuman.py'
+                                L3='Kuman.py'
                                 L4=''
                                 sed -i '/'"$L3"'/ c\'"$L4"'' /tmp/toto.txt
-                        else
-#                                echo -e "${vertclair}\nModification de la crontab ${neutre}"
-#                                echo -e "#Affichage de la température et de l'humidité via l'interrupteur" >> /tmp/toto.txt # ajout de la ligne dans le fichier temporaire
-#                                echo -e "*/10 * * * * sudo /home/pi/script/interrupteur.py" >> /tmp/toto.txt # ajout de la ligne dans le fichier temporaire
-#                                crontab /tmp/toto.txt # import de la crontab
-#                                rm /tmp/toto.txt* # le fichier temporaire ne sert plus à rien
+				crontab /tmp/toto.txt # import de la crontab
+				rm /tmp/toto.txt* # le fichier temporaire ne sert plus à rien
                         fi
                 fi
 
@@ -901,24 +911,6 @@ if [[ $exitstatus = 0 ]]; then
                         read
                 fi
 	fi
-    fi
-
-	#Concaténation de dht22.py et de Kuman.py dans dht22.py
-#	echo -e "${vertclair}\nModification du fichier /home/pi/script/dht22.py ${neutre}"
-#	grep "Kuman" "/home/pi/script/dht22.py" >/dev/null
-#	if [ $? = 0 ];then
-#                echo -e "${cyanclair}Le fichier /home/pi/script/dht22.py a déjà été modifié ${neutre}"
-#		echo -e "${cyanclair}Poursuite de l'installation ${neutre}"
-#	else
-#		echo -e 'Concaténation des fichiers dht22.py et Kuman.py'
-#		cat dht22.py Kuman.py >>/home/pi/toto.py
-#		mv /home/pi/toto.py /home/pi/script/dht22.py
-#		chmod +x /home/pi/script/dht22.py
-#		chown pi:pi /home/pi/script/dht22.py
-#        fi
-
-#	rm /home/pi/script/Kuman.py >/dev/null
-
     fi
 
 ### ===============================================================
