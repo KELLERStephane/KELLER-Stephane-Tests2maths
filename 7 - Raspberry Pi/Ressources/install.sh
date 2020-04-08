@@ -636,7 +636,6 @@ if [[ $exitstatus = 0 ]]; then
 	echo -e "${rougeclair}- l'IDX du capteur dht22 dans domoticz ; ${neutre}"
 	echo -e "${rougeclair}- le numéro GPIO BCM sur lequel est relié le capteur. ${neutre}"
 	echo -e "${rougeclair}\nNe pas oublier d'activer les GPIO avec sudo raspi-config ${neutre}" 
-	echo -e "${rougeclair}Ne pas oublier d'activer I2C avec sudo raspi-config ${neutre}"
 
         if [ -d "/home/pi/script/Adafruit_Python_DHT" ]; then
                 echo -e "${cyanclair}\nLe répertoire d'installation /home/pi/script/Adafruit_Python_DHT existe déjà. Suppression du répertoire avant la nouvelle installation ${neutre}"
@@ -792,7 +791,9 @@ if [[ $exitstatus = 0 ]]; then
 
 		echo -e "${bleuclair}\nInstallation de l'écran Kuman ${neutre}"
 		echo -e "${rougeclair}\nDomoticz, GPIO et DHT22 doivent être installés. ${neutre}"
-		echo -e "${rougeclair}Le capteur DHT22 et l'écran Kuman, doivent être reliés au Raspberry : ${neutre}"
+		echo -e "${rougeclair}Le capteur DHT22 et l'écran Kuman, doivent être reliés correctement au Raspberry : ${neutre}"
+		echo -e "${rougeclair}\nNe pas oublier d'activer les GPIO avec sudo raspi-config ${neutre}"
+		echo -e "${rougeclair}Ne pas oublier d'activer I2C avec sudo raspi-config ${neutre}"
 
 	        if [ -d "/home/pi/script/Adafruit_Python_SSD1306" ]; then
         	        echo -e "${cyanclair}Le répertoire d'installation /home/pi/script/Adafruit_Python_SSD1306 existe déjà. Suppression du répertoire avant la nouvelle installation ${neutre}"
@@ -865,6 +866,26 @@ if [[ $exitstatus = 0 ]]; then
 		fi
 
                 if [[ $CHOIX2 =~ "2" ]]; then
+			echo -e "${rougeclair}\nDHT22 et GPIO doivent être installés et l'interrupteur relié au Raspberry ${neutre}"
+			echo -e "${rougeclair}Il faut connaître et renseigner le numéro GPIO BCM ${neutre}"
+			echo -e "${rougeclair}sur lequel est relié l'interrupteur.. ${neutre}"
+
+		       	boucle=true
+		       	while $boucle;do
+				BCM=$(whiptail --title "Paramètres pour l'interupteur" --inputbox "\nSaisir le GPIO (BCM) de l'interrupteur : " 10 60 3>&1 1>&2 2>&3)
+				exitstatus=$?
+				if [ $exitstatus = 0 ]; then
+					L1="BCM ="
+		                       	L2="BCM = "
+					L3=$BCM
+				sed -i '/'"$L1"'/ c\'"$L2"''"$L3"'' /home/pi/script/interrupteur.py
+				boucle=false
+				else
+					echo "Tu as annulé... Recommence :-("
+               			fi
+       			done
+			echo -e "${vertclair}Ajout du GPIO (BCM) dans le fichier interrupteur.py ${neutre}"
+
                         if [ -e /home/pi/script/interrupteur.py ] ; then
                                 echo -e "${cyanclair}\nLe fichier /home/pi/script/interrupteur.py existe déjà ${neutre}"
                                 echo -e "${cyanclair}Effacement du fichier puis création du nouveau fichier ${neutre}"
