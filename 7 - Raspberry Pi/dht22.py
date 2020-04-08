@@ -3,6 +3,7 @@
 
 # basé sur le script Adafruit et adapté pour Domoticz
 from os import system
+from sys import version
 import sys
 import Adafruit_DHT
 from requests.auth import HTTPBasicAuth
@@ -43,13 +44,19 @@ def maj_widget(val_url):
     #print requete
     r=requests.get(requete,auth=HTTPBasicAuth(user,password))
     if  r.status_code != 200:
-          print("Erreur API Domoticz")
+	if version[0] == '2':
+		print "Erreur API Domoticz"
+	else:
+        	print("Erreur API Domoticz")
 
 humidity, temperature = Adafruit_DHT.read_retry(sensor, pin)
 
 if humidity is not None and temperature is not None:
 
-#    print('Température = {0:0.1f}°C  Humidité = {1:0.1f}%'.format(temperature, humidity))
+    if version[0] == '2':
+		print 'Température = {0:0.1f}°C  Humidité = {1:0.1f}%'.format(temperature, humidity)
+    else:
+		print('Température = {0:0.1f}°C  Humidité = {1:0.1f}%'.format(temperature, humidity))
 
     #Conversion des valeurs en srting
     temp1 = int(temperature)
@@ -72,9 +79,15 @@ if humidity is not None and temperature is not None:
     url='/json.htm?type=command&param=udevice&idx='+str(domoticz_idx)
     url+='&nvalue=0&svalue='
     url+=str('{0:0.1f};{1:0.1f};2').format(temperature, humidity)
-    #print url
+    if version[0] == '2':
+		print url
+    else:
+		print(url)
     maj_widget(url)
 
 else:
-    print('Problème avec la lecture du DHT. Try again!')
+    if version[0] == '2':
+		print 'Problème avec la lecture du DHT. Try again!'
+    else:
+		print('Problème avec la lecture du DHT. Try again!')
     sys.exit(1)

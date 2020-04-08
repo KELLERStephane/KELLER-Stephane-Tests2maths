@@ -1,4 +1,5 @@
 #!/bin/bash
+# coding: utf-8
 
 ### ===============================================================
 ### Script d'installation du Raspberry et des logiciels tiers
@@ -107,7 +108,7 @@ if [[ $exitstatus = 0 ]]; then
         if [ -e /etc/ntp.com ] ; then
              echo -e "${cyanclair}\nLe fichier /etc/ntp.com existe déjà ${neutre}"
              echo -e "${cyanclair}Effacement du fichier puis création du nouveau fichier ${neutre}"
-             rm /etc/ntp.com
+             rm /etc/ntp.com*
         fi
         echo -e "${vertclair}Création du fichier /etc/ntp.com ${neutre}"
         echo "server 0.fr.pool.ntp.org" | sudo tee -a /etc/ntp.com
@@ -164,7 +165,7 @@ if [[ $exitstatus = 0 ]]; then
 	### telecharger la derniere version de Webmin
 	wget -q --show-progress http://www.webmin.com/download/deb/webmin-current.deb --no-check-certificate
 	### installer le paquet puis le supprimer
-	dpkg --install webmin-current.deb && rm -f webmin-current.deb
+	dpkg --install webmin-current.deb && rm -f webmin-current.deb*
 
 	if [[ $CHOIX =~ "Debug" ]]; then
 		echo -e "${violetclair}\nFin de l'installation de Webmin. Appuyer sur Entrée pour poursuivre l'Installation ${neutre}"
@@ -220,7 +221,7 @@ if [[ $exitstatus = 0 ]]; then
 	fi
         wget https://github.com/Motion-Project/motion/releases/download/release-4.2.2/pi_buster_motion_4.2.2-1_armhf.deb
         echo -e "${vertclair}\nInstallation de Motioneye ${neutre}"
-        dpkg -i pi_buster_motion_4.2.2-1_armhf.deb && rm -f pi_buster_motion_4.2.2-1_armhf.deb
+        dpkg -i pi_buster_motion_4.2.2-1_armhf.deb && rm -f pi_buster_motion_4.2.2-1_armhf.deb*
         pip install motioneye
 
         mkdir -p /etc/motioneye
@@ -257,7 +258,7 @@ if [[ $exitstatus = 0 ]]; then
 
 	echo -e "${vertclair}suppression si nécessaire de la page par défaut d'Apache2 ${neutre}"
 	if [ -f "/var/www/html/index.html" ]; then
-		rm /var/www/html/index.html
+		rm /var/www/html/index.html*
 	fi
 
 	boucle1=true
@@ -343,7 +344,7 @@ if [[ $exitstatus = 0 ]]; then
         if [ -e /etc/fail2ban/jail.d/custom.conf ]; then
                 echo -e "${cyanclair}\nLe fichier /etc/fail2ban/jail.d/custom.conf existe déjà ${neutre}"
                 echo -e "${cyanclair}Effacement du fichier puis création du nouveau fichier ${neutre}"
-                rm /etc/fail2ban/jail.d/custom.conf
+                rm /etc/fail2ban/jail.d/custom.conf*
         fi
         wget -P /etc/fail2ban/jail.d/ $lien_github_raw/custom.conf
 	chown pi:pi /etc/fail2ban/jail.d/custom.conf
@@ -395,7 +396,7 @@ if [[ $exitstatus = 0 ]]; then
         if [ -e /etc/fail2ban/action.d/iptables-multiport.copy ] ; then
              echo -e "${cyanclair}\nLe fichier /etc/fail2ban/action.d/iptables-multiport.copy existe déjà ${neutre}"
              echo -e "${cyanclair}Effacement du fichier puis création du nouveau fichier ${neutre}"
-             rm /etc/fail2ban/action.d/iptables-multiport.copy
+             rm /etc/fail2ban/action.d/iptables-multiport.copy*
         fi
 	cp /etc/fail2ban/action.d/iptables-multiport.conf /etc/fail2ban/action.d/iptables-multiport.copy
         L1='actionban = '
@@ -426,7 +427,7 @@ if [[ $exitstatus = 0 ]]; then
 	echo -e "${vertclair}\nCréation d'un raccourci vers le bureau ${neutre}"
 	if [ -h "/home/pi/jails.sh" ]; 	then
 		cd /home/pi
-		rm jails.sh
+		rm jails.sh*
 	fi
 	ln -s /home/pi/script/jails.sh /home/pi/
 	echo -e "${rougelair}Pour la liste des prisons et le nombre de bannis : ${neutre}"
@@ -442,7 +443,7 @@ if [[ $exitstatus = 0 ]]; then
 	chmod +x /home/pi/script/banip.sh
         if [ -h "/home/pi/banip.sh" ]; then
 		cd /home/pi
-		rm banip.sh
+		rm banip.sh*
                 unlink /home/pi/script/banip.sh
         fi
 	echo -e "${vertclair}\nCréation d'un raccourci vers le bureau ${neutre}"
@@ -515,13 +516,13 @@ if [[ $exitstatus = 0 ]]; then
 	if [ -e /etc/fail2ban/actions.d/fail2map-action.conf ]; then
 		echo -e "${cyanclair}\nLe fichier /etc/fail2ban/action.d/fail2map-action.conf existe déjà ${neutre}"
 		echo -e "${cyanclair}Effacement du fichier puis création du nouveau fichier ${neutre}"
-		rm /etc/fail2ban/action.d/fail2map-action.conf
+		rm /etc/fail2ban/action.d/fail2map-action.conf*
 	fi
         cp /var/www/html/fail2map/fail2map-action.conf /etc/fail2ban/action.d/fail2map-action.conf
 
 	#Effacement du fichier exemple IP puis création fichier vierge d'IP
         echo -e "${vertclair}Suppression du fichier d'exemple de localisation /var/www/html/fail2map/places.geojson ${neutre}"
-        rm /var/www/html/fail2map/places.geojson
+        rm /var/www/html/fail2map/places.geojson*
         echo -e "${vertclair}Création d'un fichier vide localisation /var/www/html/fail2map/places.geojson ${neutre}"
         echo "" | sudo tee -a /var/www/html/fail2map/places.geojson
         echo -e "${vertclair}Modification des droits du fichier /var/www/html/fail2map/places.geojson en -rwxr-xr-x ${neutre}"
@@ -592,7 +593,7 @@ if [[ $exitstatus = 0 ]]; then
     	if [ -e /etc/fail2ban/filter.d/domoticz.conf ] ; then
 		echo -e "${cyanclair}\nLe fichier /etc/fail2ban/filter.d/domoticz.conf existe déjà ${neutre}"
         	echo -e "${cyanclair}Effacement du fichier puis création du nouveau fichier ${neutre}"
-        	rm /etc/fail2ban/filter.d/domoticz.conf
+        	rm /etc/fail2ban/filter.d/domoticz.conf*
     	fi
     	wget -P /etc/fail2ban/filter.d/ $lien_github_raw/domoticz.conf
     	chown pi:pi /etc/fail2ban/filter.d/domoticz.conf
@@ -644,7 +645,7 @@ if [[ $exitstatus = 0 ]]; then
         if [ -e /home/pi/script/dht22.py ] ; then
              echo -e "${cyanclair}\nLe fichier /home/pi/script/dht22.py existe déjà ${neutre}"
              echo -e "${cyanclair}Effacement du fichier puis création du nouveau fichier ${neutre}"
-             rm /home/pi/script/dht22.py
+             rm /home/pi/script/dht22.py*
         fi
 
         cd /home/pi/script
@@ -654,7 +655,7 @@ if [[ $exitstatus = 0 ]]; then
         sudo chown pi:pi /home/pi/script/Adafruit_Python_DHT
 
 	version=$(python --version 2>&1 | cut -c1-8)
-	echo -e -n"${vertclair}\nVersion de Python par défaut : ${neutre}"
+	echo -e -n "${vertclair}\nVersion de Python par défaut : ${neutre}"
 	echo -e $version
 	if [[ $version =~ "Python 3" ]]; then
 		#installation si Python3
@@ -752,12 +753,14 @@ if [[ $exitstatus = 0 ]]; then
 	#Modification de la crontab pour mise à jour de température et humidité toutes les 10 minutes
 	crontab -u root -l > /tmp/toto.txt # export de la crontab
 	grep "dht22.py" "/tmp/toto.txt" >/dev/null
-	if [ $? != 0 ];then
-               echo -e "${vertclair}\nModification de la crontab : affichage de temp+hum toutes les 10 mn chaque jour: ${neutre}"
-               echo -e "\n#affichage de la temp+hum toutes les 10 mn chaque jour" >> /tmp/toto.txt # ajout de la ligne dans le fichier temporaire
-               echo -e "*/10 * * * * sudo /home/pi/script/dht22.py" >> /tmp/toto.txt # ajout de la ligne dans le fichier temporaire
-               crontab /tmp/toto.txt # import de la crontab
-               rm /tmp/toto.txt # le fichier temporaire ne sert plus à rien
+	if [ $? = 0 ];then
+		echo -e "${vertclair}\nLa crontab a déja été modifiée ${neutre}"
+	else
+               	echo -e "${vertclair}\nModification de la crontab : affichage de temp+hum toutes les 10 mn chaque jour: ${neutre}"
+               	echo -e "\n#affichage de la temp+hum toutes les 10 mn chaque jour" >> /tmp/toto.txt # ajout de la ligne dans le fichier temporaire
+               	echo -e "*/10 * * * * sudo /home/pi/script/dht22.py" >> /tmp/toto.txt # ajout de la ligne dans le fichier temporaire
+               	crontab /tmp/toto.txt # import de la crontab
+               	rm /tmp/toto.txt* # le fichier temporaire ne sert plus à rien
 	fi
 
 	echo -e "${vertclair}\nTest du capteur de température : ${neutre}"
@@ -785,29 +788,29 @@ if [[ $exitstatus = 0 ]]; then
         if [ -e /home/pi/script/kuman.py ] ; then
              	echo -e "${cyanclair}\nLe fichier /home/pi/script/Kuman.py existe déjà ${neutre}"
              	echo -e "${cyanclair}Effacement du fichier puis création du nouveau fichier ${neutre}"
-             	rm /home/pi/script/Kuman.py
+             	rm /home/pi/script/Kuman.py*
         fi
         if [ -e /usr/share/fonts/truetype/Minecraftia/Minecraftia-Regular.ttf ] ; then
              	echo -e "${cyanclair}\nLe répertoire /usr/share/fonts/truetype/Minecraftia existe déjà. Suppression du répertoire avant la nouvelle installation ${neutre}"
 		rm -r /usr/share/fonts/truetype/Minecraftia
         fi
 
-	apt install -y python-smbus i2c-tools
+	#Téléchargement et décompactage de la police pour l'écran
 	echo -e "${cyanclair}\nTéléchargement du fichier /usr/share/fonts/truetype/Minecraftia/Minecraftia-Regular.ttf ${neutre}"
 	mkdir /usr/share/fonts/truetype/Minecraftia >/dev/null
 	wget -P /usr/share/fonts/truetype/Minecraftia/ $lien_github_zip/minecraftia.zip
 	cd /usr/share/fonts/truetype/Minecraftia/
 	unzip -u minecraftia.zip
-	rm /usr/share/fonts/truetype/Minecraftia/minecraftia.zip
+	rm /usr/share/fonts/truetype/Minecraftia/minecraftia.zip*
 
-        cd /home/pi/script
         #Téléchargement des bibliothèques et des fichiers
+	cd /home/pi/script
         echo -e "${bleuclair}\nInstallation des bilbiothèques AdaFruit pour l'écran Kuman (nécessite Domoticz et DHT22) ${neutre}"
         git clone https://github.com/adafruit/Adafruit_Python_SSD1306.git
         chown pi:pi /home/pi/script/Adafruit_Python_SSD1306
 
         version=$(python --version 2>&1 | cut -c1-8)
-        echo -e -n"${vertclair}\nVersion de Python par défaut : ${neutre}"
+        echo -e -n "${vertclair}\nVersion de Python par défaut : ${neutre}"
         echo -e $version
         if [[ $version =~ "Python 3" ]]; then
                 #installation si Python3
@@ -820,6 +823,7 @@ if [[ $exitstatus = 0 ]]; then
                 cd /home/pi/script/Adafruit_Python_SSD1306
                 python setup.py install
         fi
+	apt install -y python-smbus i2c-tools
 
         echo -e "${vertclair}\nTéléchargement du fichier kuman.py ${neutre}"
         wget -P /home/pi/script $lien_github_raw/Kuman.py
@@ -827,27 +831,25 @@ if [[ $exitstatus = 0 ]]; then
         chmod +x /home/pi/script/Kuman.py
 
 	#Concaténation de dht22.py et de Kuman.py dans dht22.py
-	echo -e "${vertclair}\nModification du fichier /home/pi/script/dht22.py ${neutre}"
-	grep "Kuman" "/home/pi/script/dht22.py" >/dev/null
-	if [ $? = 0 ];then
-                echo -e "${cyanclair}Le fichier /home/pi/script/dht22.py a déjà été modifié ${neutre}"
-		echo -e "${cyanclair}Poursuite de l'installation ${neutre}"
-	else
-		echo -e 'Concaténation des fichiers dht22.py et Kuman.py'
-		cat dht22.py Kuman.py >>/home/pi/toto.py
-		mv /home/pi/toto.py /home/pi/script/dht22.py
-		chmod +x /home/pi/script/dht22.py
-		chown pi:pi /home/pi/script/dht22.py
-        fi
+#	echo -e "${vertclair}\nModification du fichier /home/pi/script/dht22.py ${neutre}"
+#	grep "Kuman" "/home/pi/script/dht22.py" >/dev/null
+#	if [ $? = 0 ];then
+#                echo -e "${cyanclair}Le fichier /home/pi/script/dht22.py a déjà été modifié ${neutre}"
+#		echo -e "${cyanclair}Poursuite de l'installation ${neutre}"
+#	else
+#		echo -e 'Concaténation des fichiers dht22.py et Kuman.py'
+#		cat dht22.py Kuman.py >>/home/pi/toto.py
+#		mv /home/pi/toto.py /home/pi/script/dht22.py
+#		chmod +x /home/pi/script/dht22.py
+#		chown pi:pi /home/pi/script/dht22.py
+#        fi
 
-	rm /home/pi/script/Kuman.py >/dev/null
+#	rm /home/pi/script/Kuman.py >/dev/null
+
         echo -e "${vertclair}\nTest module i2c : ${neutre}"
         lsmod | grep i2c_
         echo -e "${vertclair}\nVérification de l'adresse du périphérique i2c : ${neutre}"
         i2cdetect -y 1
-
-        echo -e "${vertclair}\nTest du capteur de température : ${neutre}"
-        /home/pi/script/Adafruit_Python_DHT/examples/AdafruitDHT.py 22 26
 
     	if [[ $CHOIX =~ "Debug" ]]; then
         	echo -e "${violetclair}\nFin de l'installation de Kuman. Appuyer sur Entrée pour poursuivre l'Installation ${neutre}"
