@@ -18,6 +18,9 @@ from PIL import ImageDraw
 from PIL import ImageFont
 from time import sleep
 
+#Numéro de GPIO (BCM)
+BCM = 12
+
 # Raspberry Pi pin configuration:
 RST = None     # on the PiOLED this pin isnt used
 # Note the following are only used with SPI:
@@ -96,22 +99,22 @@ x = 0
 
 # Shell scripts for system monitoring from here : https://unix.stackexchange.com/questions/119126/command$
 
-# configuration de la broche BCM13 en entrée
+# configuration de la broche BCM en entrée
 GPIO.setmode(GPIO.BCM)
-# GPIO1 set up as input. It is pulled up to stop false signals
-GPIO.setup(13, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+# GPIO (BCM) set up as input. It is pulled up to stop false signals
+GPIO.setup(BCM, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
 if version[0] == '2':
 	print "Attente de l'appui sur l'interrupteur"
 else:
 	print("Attente de l'appui sur l'interrupteur")
-# maintenant, le programme ne fera rien jusqu'à ce que le signal sur le port 13
+# maintenant, le programme ne fera rien jusqu'au front descendant sur le GPIO BCM
 #C'est pourquoi nous avons utilisé le pullup pour maintenir le signal haut et éviter une fausse interruption
 #Pendant ce temps d'attente, votre ordinateur ne gaspille pas de ressources en interrogeant une touche
 #Appuyez sur votre bouton lorsque vous êtes prêt à déclencher une interruption sur front descendant
 
 try:
-	GPIO.wait_for_edge(13, GPIO.FALLING)
+	GPIO.wait_for_edge(BCM, GPIO.FALLING)
 	### Ouverture et affichage du fichier data.txt pour récupérer la température et l'humidité
 	chdir("/home/pi/script")
 	with open('data.txt','r') as fichier:
@@ -162,7 +165,6 @@ except KeyboardInterrupt:
         else:
                 print("Fin de l'interruption")
 	GPIO.cleanup()       # nettoie GPIO à la sortie CTRL + C
-
 
 sleep(5) #Attente de 5 seconde
 disp.clear()
