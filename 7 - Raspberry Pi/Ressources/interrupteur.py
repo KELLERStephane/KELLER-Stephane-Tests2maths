@@ -19,7 +19,7 @@ from PIL import ImageFont
 from time import sleep
 
 #Numéro de GPIO (BCM)
-BCM = 12
+BCM = 13
 
 # Raspberry Pi pin configuration:
 RST = None     # on the PiOLED this pin isnt used

@@ -836,20 +836,21 @@ if [[ $exitstatus = 0 ]]; then
 
 		if [[ $CHOIX2 =~ "1" ]]; then
 	                if [ -e /home/pi/script/Kuman.py ] ; then
+                                echo -e "${cyanclair}\nLe fichier /home/pi/script/Kuman.py existe déjà${neutre}"
+                                echo -e "${cyanclair}Effacement du fichier puis télechargement du nouveau fichier ${neutre}"
+                                rm /home/pi/script/Kuman.py
+                        fi
+                        echo -e "${vertclair}\nTéléchargement du fichier kuman.py ${neutre}"
+                        wget -P /home/pi/script $lien_github_raw/Kuman.py
+                        chown pi:pi /home/pi/script/Kuman.py
+                        chmod +x /home/pi/script/Kuman.py
+
+                        if [ -e /etc/systemd/system/interrupteur.service ] ; then
         	                echo -e "${cyanclair}\nLe fichier /etc/systemd/system/interrupteur.service existe ${neutre}"
                 	        echo -e "${cyanclair}et n'est plus nécessaire. Suppression du service ${neutre}"
 				systemctl disable interrupteur.service
-                        	rm /etc/systemd/system/interrupteur.service
+                        	rm /etc/systemd/system/interrupteur.service*
 	                fi
-		        if [ -e /etc/ntp.com ] ; then
-        			echo -e "${cyanclair}\nLe fichier /etc/ntp.com existe déjà ${neutre}"
-				echo -e "${cyanclair}Effacement du fichier puis création du nouveau fichier ${neutre}"
-				rm /etc/ntp.com*
-			fi
-		        echo -e "${vertclair}\nTéléchargement du fichier kuman.py ${neutre}"
-	        	wget -P /home/pi/script $lien_github_raw/Kuman.py
-		        chown pi:pi /home/pi/script/Kuman.py
-		        chmod +x /home/pi/script/Kuman.py
 
 			#Modification de la crontab pour Affichage de la température et humidité toutes les 10 minutes
 			crontab -u root -l > /tmp/toto.txt # export de la crontab
@@ -870,24 +871,23 @@ if [[ $exitstatus = 0 ]]; then
 			echo -e "${rougeclair}Il faut connaître et renseigner le numéro GPIO BCM ${neutre}"
 			echo -e "${rougeclair}sur lequel est relié l'interrupteur.. ${neutre}"
 
-		       	boucle=true
-		       	while $boucle;do
-				BCM=$(whiptail --title "Paramètres pour l'interupteur" --inputbox "\nSaisir le GPIO (BCM) de l'interrupteur : " 10 60 3>&1 1>&2 2>&3)
-				exitstatus=$?
-				if [ $exitstatus = 0 ]; then
-					L1="BCM ="
-		                       	L2="BCM = "
-					L3=$BCM
-				sed -i '/'"$L1"'/ c\'"$L2"''"$L3"'' /home/pi/script/interrupteur.py
-				boucle=false
-				else
-					echo "Tu as annulé... Recommence :-("
-               			fi
-       			done
-			echo -e "${vertclair}Ajout du GPIO (BCM) dans le fichier interrupteur.py ${neutre}"
+			echo -e "${vertclair}\nAjout du GPIO (BCM) dans le fichier interrupteur.py ${neutre}"
+
+                        if [ -e /etc/systemd/system/interrupteur.service ] ; then
+                                echo -e "${cyanclair}\nLe fichier /etc/systemd/system/interrupteur.service existe déjà ${neutre}"
+                                echo -e "${cyanclair}Effacement du fichier puis téléchargement du nouveau fichier ${neutre}"
+                                systemctl disable interrupteur.service
+                                rm /etc/systemd/system/interrupteur.service*
+                        fi
+                        echo -e "${vertclair}\nTéléchargement du fichier interrupteur.service ${neutre}"
+                        wget -P /etc/systemd/system $lien_github_raw/interrupteur.service
+                        chown pi:pi /etc/systemd/system/interrupteur.service
+			echo -e "${vertclair}\nActivation et démarrage du servie interrupteur.service ${neutre}"
+ 			systemctl enable interrupteur.service
+			systemctl start interrupteur.service
 
                         if [ -e /home/pi/script/interrupteur.py ] ; then
-                                echo -e "${cyanclair}\nLe fichier /home/pi/script/interrupteur.py existe déjà ${neutre}"
+                                echo -e "${cyanclair}Le fichier /home/pi/script/interrupteur.py existe déjà ${neutre}"
                                 echo -e "${cyanclair}Effacement du fichier puis création du nouveau fichier ${neutre}"
                                 rm /home/pi/script/interrupteur.py*
                         fi
@@ -896,6 +896,29 @@ if [[ $exitstatus = 0 ]]; then
                         chown pi:pi /home/pi/script/interrupteur.py
                         chmod +x /home/pi/script/interrupteur.py
 
+                        #Modification de la crontab pour Affichage de la température et humidité toutes les 10 minutes
+                        crontab -u root -l > /tmp/toto.txt # export de la crontab
+                        grep -i "Kuman.py" "/tmp/toto.txt" >/dev/null
+
+			#Modification du fichier interrupteur.py en renseignant le numéro de GPIO BCM
+                        boucle=true
+                        while $boucle;do
+                                BCM=$(whiptail --title "Paramètres pour l'interupteur" --inputbox "\nSaisir le GPIO (BCM) de l'interrupteur : " 10 60 3>&1 1>&2 2>&3)
+                                exitstatus=$?
+                                if [ $exitstatus = 0 ]; then
+                                        echo -e "${rougeclair}\nModification du fichier interrupteur.py en ajoutant le numéro de GPIO (BCM) ${neutre}"
+                                        L1="BCM ="
+                                        L2="BCM = "
+                                        L3=$BCM
+                                sed -i '/'"$L1"'/ c\'"$L2"''"$L3"'' /home/pi/script/interrupteur.py
+                                boucle=false
+                                else
+                                        echo "Tu as annulé... Recommence :-("
+                                fi
+                        done
+                        echo -e "${vertclair}\nAjout du GPIO (BCM) dans le fichier interrupteur.py ${neutre}"
+
+			#Ajout du service interrupteur
 			if [ -e /home/pi/script/Kuman.py ] ; then
                                 echo -e "${cyanclair}\nLe fichier /etc/systemd/system/interrupteur.service existe déjà${neutre}"
 				echo -e "${cyanclair}Suppression du service puis téléchargement du nouveau fichier ${neutre}"
@@ -906,7 +929,6 @@ if [[ $exitstatus = 0 ]]; then
 			systemctl start interrupteur.service
 
                         #Modification de la crontab pour supprimer affichage permanent de la température et humidité
-			echo -e "${vertclair}\nModification de la crontab ${neutre}"
                         crontab -u root -l > /tmp/toto.txt # export de la crontab
                         grep -i "Kuman.py" "/tmp/toto.txt" >/dev/null
                         if [ $? = 0 ];then
