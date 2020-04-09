@@ -58,7 +58,7 @@ fi
 ### ===============================================================
 
 CHOIX=$(whiptail --title "Menu d'installation du Raspberry" --checklist \
-"\nScript réalisé par :\n- KELLER Stéphane (Lycée Agricole Louis Pasteur)\n- José De Castro\nhttps://github.com/KELLERStephane/KELLER-Stephane-Tests2maths\n\nQue soutaitez-vous installer ?" 24 72 11 \
+"\nScript réalisé par :\n- KELLER Stéphane (Lycée Agricole Louis Pasteur)\n- José De Castro\nhttps://github.com/KELLERStephane/KELLER-Stephane-Tests2maths\n\nQue soutaitez-vous installer ?" 25 72 12 \
 "MAJ" "Mise a jour du systeme " OFF \
 "Webmin" "Administration du système en mode WEB " OFF \
 "Motioneye" "Logiciel de vidéosurveillance " OFF \
@@ -67,7 +67,8 @@ CHOIX=$(whiptail --title "Menu d'installation du Raspberry" --checklist \
 "Fail2map" "Affichage des ip sur une carte " OFF \
 "GPIO" "Wiringpi pour l'utilisation des GPIO " OFF \
 "Domoticz" "Logiciel de domotique Domoticz " OFF \
-"DHT22" "Capteur de température DHT22 " OFF \
+"DHT22" "Capteur de température et d'humidité DHT22 " OFF \
+"DS18B20" "Capteur de température DS18B20 " OFF \
 "Kuman" "Affichage données DHT22 sur écran Kuman " OFF \
 "Debug" "Interruption à la fin de chaque installation " OFF 3>&1 1>&2 2>&3)
 
@@ -179,7 +180,7 @@ if [[ $exitstatus = 0 ]]; then
 
     if [[ $CHOIX =~ "Motioneye" ]]; then
 	echo -e "${bleuclair}\nInstallation de Motioneye avec le module de caméra CSI OV5647 pour le Rapsberry Pi ${neutre}" 
-	echo -e "${rougeclair}\nNe pas oublier d'activer la caméra avec sudo raspi-config ${neutre}"
+	echo -e "${rougeclair}Ne pas oublier d'activer la caméra avec sudo raspi-config ${neutre}"
 
         if [ -d "/etc/motioneye" ]; then
                 echo -e "${cyanclair}Le répertoire d'installation /etc/motioneye existe déjà. Suppression du répertoire avant la nouvelle installation  ${neutre}"
@@ -549,7 +550,7 @@ if [[ $exitstatus = 0 ]]; then
 
     if [[ $CHOIX =~ "GPIO" ]]; then
         echo -e "${bleuclair}\nInstallation de wiringpi pour l'utilisation des GPIO (nécessite Fail2ban) ${neutre}"
-        echo -e "${rougeclair}\nNe pas oublier d'activer les GPIO avec sudo raspi-config ${neutre}"
+        echo -e "${rougeclair}Ne pas oublier d'activer les GPIO avec sudo raspi-config ${neutre}"
 	echo -e "${vertclair}\nTéléchargement et installation de wiringpi si nécessaire ${neutre}"
 	apt -y install wiringpi
         echo -e "${rougeclair}\nExecuter la commande gpio readall pour voir la configuration des broches ${neutre}"
@@ -626,16 +627,16 @@ if [[ $exitstatus = 0 ]]; then
     fi
 
 ### ===============================================================
-### DHT22
+### CAPTEUR DE TEMPERATURE ET D'HUMIDITE DHT22
 ### ===============================================================
 
     if [[ $CHOIX =~ "DHT22" ]]; then
-	echo -e "${bleuclair}\nInstallation du capteur DHT22 ${neutre}"
-	echo -e "${rougeclair}\nDomoticz et GPIO doivent être installés et le capteur relié au Raspberry ${neutre}"
+	echo -e "${bleuclair}\nInstallation du capteur de température et d'humidité DHT22 ${neutre}"
+	echo -e "${rougeclair}Domoticz et GPIO doivent être installés et le capteur relié au Raspberry ${neutre}"
 	echo -e "${rougeclair}Il faut connaître et renseigner : ${neutre}"
 	echo -e "${rougeclair}- l'IDX du capteur dht22 dans domoticz ; ${neutre}"
 	echo -e "${rougeclair}- le numéro GPIO BCM sur lequel est relié le capteur. ${neutre}"
-	echo -e "${rougeclair}\nNe pas oublier d'activer les GPIO avec sudo raspi-config ${neutre}" 
+	echo -e "${rougeclair}Ne pas oublier d'activer les GPIO avec sudo raspi-config ${neutre}" 
 
         if [ -d "/home/pi/script/Adafruit_Python_DHT" ]; then
                 echo -e "${cyanclair}\nLe répertoire d'installation /home/pi/script/Adafruit_Python_DHT existe déjà. Suppression du répertoire avant la nouvelle installation ${neutre}"
@@ -772,12 +773,64 @@ if [[ $exitstatus = 0 ]]; then
     fi
 
 ### ===============================================================
+### CAPTEUR DE TEMPERATURE DS18B20
+### ===============================================================
+
+    if [[ $CHOIX =~ "DS18B20" ]]; then
+	echo -e "${bleuclair}\nInstallation du capteur de température DS18B20 ${neutre}"
+	echo -e "${rougeclair}Domoticz et GPIO doivent être installés et le capteur relié au Raspberry ${neutre}"
+	echo -e "${rougeclair}Il faut connaître et renseigner  le numéro ${neutre}"
+	echo -e "${rougeclair}GPIO BCM sur lequel est relié le capteur. ${neutre}"
+	echo -e "${rougeclair}Ne pas oublier d'activer les GPIO avec sudo raspi-config ${neutre}"
+        echo -e "${rougeclair}Ne pas oublier d'activer bus 1-Wire avec sudo raspi-config ${neutre}"
+
+	#Modification du fichier /boot/config.txt en renseignant le numéro de GPIO BCM
+        boucle=true
+        while $boucle;do
+        BCM=$(whiptail --title "Paramètres pour le capteur DS18B20" --inputbox "\nSaisir le GPIO (BCM) pour le capteur : " 10 60 3>&1 1>&2 2>&3)
+		exitstatus=$?
+                if [ $exitstatus = 0 ]; then
+			echo -e "${vertclair}\nActivation du bus 1-Wire ${neutre}"
+			grep -i "dtoverlay=w1-gpio" "/boot/config.txt" >/dev/null
+			if [ $? = 0 ]; then
+	                	echo -e "${vertclair}\nModification du fichier config.txt en modifiant le numéro de GPIO (BCM) ${neutre}"
+        	                L1="dtoverlay=w1-gpio,gpiopin="
+                	        L2="dtoverlay=w1-gpio,gpiopin="
+                        	L3=$BCM
+                                sed -i '/'"$L1"'/ c\'"$L2"''"$L3"'' /boot/config.txt
+			else
+				echo -e "${cyanclair}Modification du fichier /boot/config.txt en ajoutant le numéro de GPIO (BCM) ${neutre}"
+				echo -e "\n#Capteur température DS18B20\ndtoverlay=w1-gpio,gpiopin=$BCM" >>/boot/config.txt
+			fi
+                               	boucle=false
+                else
+                	echo "Tu as annulé... Recommence :-("
+		fi
+	done
+	echo -e "${vertclair}\nAjout du GPIO (BCM) dans le fichier /boot/config.txt ${neutre}"
+
+	#Modification du fichier /etc/modules en ajoutant les modules
+	echo -e "${vertclair}\nModification du fichier /etc/modules ${neutre}"
+	grep -i "w1-therm" "/etc/modules" >/dev/null
+	if [ $? = 0 ]; then
+		echo -e "${cyanclair}Le fichier /etc/modules a déjà été modifié ${neutre}"
+		echo -e "${cyanclair}Poursuite de l'installation ${neutre}"
+	else
+		echo -e "\nw1-therm\nw1-gpio" >>/etc/modules
+
+	fi
+	echo -e "${vertclair}\nExécution des modules ${neutre}"
+	sudo modprobe w1-gpio
+	sudo modprobe w1-therm
+    fi
+
+### ===============================================================
 ### Ecran Kuman pour affichage données DHT22
 ### ===============================================================
 
     if [[ $CHOIX =~ "Kuman" ]]; then
 	CHOIX2=$(whiptail --title "Menu d'installation de l'écran Kuman" --menu \
-	"\nScript réalisé par :\n- KELLER Stéphane (Lycée Agricole Louis Pasteur)\n- José De Castro\nhttps://github.com/KELLERStephane/KELLER-Stephane-Tests2maths\n\nAffichage de la température et de l'humidité sur l'écran\n\nQue soutaitez-vous installer ?" 20 72 4 \
+	"\nScript réalisé par :\n- KELLER Stéphane (Lycée Agricole Louis Pasteur)\n- José De Castro\nhttps://github.com/KELLERStephane/KELLER-Stephane-Tests2maths\n\nAffichage de la température et de l'humidité sur l'écran\n\nQue soutaitez-vous installer ?" 18 72 2 \
 	"1" "Affichage permanent  "\
 	"2" "Affichage ponctuel via un interrupteur " 3>&1 1>&2 2>&3)
 
@@ -790,9 +843,9 @@ if [[ $exitstatus = 0 ]]; then
 	    	echo -e -n "${jauneclair} ======================================= \n ${neutre}"
 
 		echo -e "${bleuclair}\nInstallation de l'écran Kuman ${neutre}"
-		echo -e "${rougeclair}\nDomoticz, GPIO et DHT22 doivent être installés. ${neutre}"
+		echo -e "${rougeclair}Domoticz, GPIO et DHT22 doivent être installés. ${neutre}"
 		echo -e "${rougeclair}Le capteur DHT22 et l'écran Kuman, doivent être reliés correctement au Raspberry : ${neutre}"
-		echo -e "${rougeclair}\nNe pas oublier d'activer les GPIO avec sudo raspi-config ${neutre}"
+		echo -e "${rougeclair}Ne pas oublier d'activer les GPIO avec sudo raspi-config ${neutre}"
 		echo -e "${rougeclair}Ne pas oublier d'activer I2C avec sudo raspi-config ${neutre}"
 
 	        if [ -d "/home/pi/script/Adafruit_Python_SSD1306" ]; then
@@ -867,7 +920,7 @@ if [[ $exitstatus = 0 ]]; then
 		fi
 
                 if [[ $CHOIX2 =~ "2" ]]; then
-			echo -e "${rougeclair}\nDHT22 et GPIO doivent être installés et l'interrupteur relié au Raspberry ${neutre}"
+			echo -e "${rougeclair}DHT22 et GPIO doivent être installés et l'interrupteur relié au Raspberry ${neutre}"
 			echo -e "${rougeclair}Il faut connaître et renseigner le numéro GPIO BCM ${neutre}"
 			echo -e "${rougeclair}sur lequel est relié l'interrupteur.. ${neutre}"
 
@@ -906,7 +959,7 @@ if [[ $exitstatus = 0 ]]; then
                                 BCM=$(whiptail --title "Paramètres pour l'interupteur" --inputbox "\nSaisir le GPIO (BCM) de l'interrupteur : " 10 60 3>&1 1>&2 2>&3)
                                 exitstatus=$?
                                 if [ $exitstatus = 0 ]; then
-                                        echo -e "${rougeclair}\nModification du fichier interrupteur.py en ajoutant le numéro de GPIO (BCM) ${neutre}"
+                                        echo -e "${vertclair}Modification du fichier interrupteur.py en ajoutant le numéro de GPIO (BCM) ${neutre}"
                                         L1="BCM ="
                                         L2="BCM = "
                                         L3=$BCM
