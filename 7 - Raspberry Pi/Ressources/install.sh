@@ -821,6 +821,11 @@ if [[ $exitstatus = 0 ]]; then
 	sudo modprobe w1-gpio
 	sudo modprobe w1-therm
 
+       if [ -e /home/pi/script/dht22.py ] ; then
+             echo -e "${cyanclair}\nLe fichier /home/pi/script/ds18b20.py existe déjà ${neutre}"
+             echo -e "${cyanclair}Effacement du fichier puis création du nouveau fichier ${neutre}"
+             rm /home/pi/script/ds18b20.py*
+        fi
 	echo -e "${vertclair}\nTéléchargement du fichier ds18b20.py ${neutre}"
 	wget -P /home/pi/script $lien_github_raw/ds18b20.py
 	chown pi:pi /home/pi/script/ds18b20.py
