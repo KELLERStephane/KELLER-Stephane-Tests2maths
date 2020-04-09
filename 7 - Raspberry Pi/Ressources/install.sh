@@ -58,7 +58,7 @@ fi
 ### ===============================================================
 
 CHOIX=$(whiptail --title "Menu d'installation du Raspberry" --checklist \
-"\nScript réalisé par :\n- KELLER Stéphane (Lycée Agricole Louis Pasteur)\n- José De Castro\nhttps://github.com/KELLERStephane/KELLER-Stephane-Tests2maths\n\nQue soutaitez-vous installer ?" 25 72 12 \
+"\nScript réalisé par :\n- KELLER Stéphane (Lycée Agricole Louis Pasteur)\n- José De Castro\nhttps://github.com/KELLERStephane/KELLER-Stephane-Tests2maths\n\nQue soutaitez-vous installer ?" 26 72 13 \
 "MAJ" "Mise a jour du systeme " OFF \
 "Webmin" "Administration du système en mode WEB " OFF \
 "Motioneye" "Logiciel de vidéosurveillance " OFF \
@@ -70,6 +70,7 @@ CHOIX=$(whiptail --title "Menu d'installation du Raspberry" --checklist \
 "DHT22" "Capteur de température et d'humidité DHT22 " OFF \
 "DS18B20" "Capteur de température DS18B20 " OFF \
 "Kuman" "Affichage données DHT22 sur écran Kuman " OFF \
+"Tests" "Tests des capteurs" OFF \
 "Debug" "Interruption à la fin de chaque installation " OFF 3>&1 1>&2 2>&3)
 
 exitstatus=$?
@@ -822,6 +823,11 @@ if [[ $exitstatus = 0 ]]; then
 	echo -e "${vertclair}\nExécution des modules ${neutre}"
 	sudo modprobe w1-gpio
 	sudo modprobe w1-therm
+
+	echo -e "${vertclair}\nTéléchargement du fichier ds18b20.py ${neutre}"
+	wget -P /home/pi/script $lien_github_raw/ds18b20.py
+	chown pi:pi /home/pi/script/ds18b20.py
+	chmod +x /home/pi/script/ds18b20.py
     fi
 
 ### ===============================================================
@@ -1006,6 +1012,53 @@ if [[ $exitstatus = 0 ]]; then
                         echo -e "${violetclair}\nFin de l'installation de Kuman. Appuyer sur Entrée pour poursuivre l'Installation ${neutre}"
                         read
                 fi
+	fi
+    fi
+
+### ===============================================================
+### TEST DES CAPTEURS
+### ===============================================================
+
+    if [[ $CHOIX =~ "Tests" ]]; then
+	echo -e "${bleuclair}\nTests des capteurs DHT22 ; DS18B20 et de l'écran Kuman ${neutre}"
+	echo -e "${rougeclair}Les capteurs doivent être installés et reliés correctement au Raspberry ${neutre}"
+	echo -e "${rougeclair}Le Raspberry a été redémarré : ${neutre}"
+	echo -e "${rougeclair}GPIO, I2C et 1-wire doivent être activés si nécessaire avec sudo raspi-config ${neutre}"
+
+	cd /home/pi/script
+
+	CHOIX3=$(whiptail --title "Menu d'installation du Raspberry" --checklist \
+	"\nScript réalisé par :\n- KELLER Stéphane (Lycée Agricole Louis Pasteur)\n- José De Castro\nhttps://github.com/KELLERStephane/KELLER-Stephane-Tests2maths\n\nQue soutaitez-vous installer ?" 18 72 4 \
+	"DHT22" "Test du capteur de température et d'humidité DHT22 " OFF \
+	"DS18B20" "Test du capteur de température DS18B20 " OFF \
+	"Kuman" "Test de l'écran Kuman " OFF \
+	"Int" "Test de l'interrupteur " OFF 3>&1 1>&2 2>&3)
+
+	exitstatus=$?
+
+	if [[ $exitstatus = 0 ]]; then
+	    echo -e -n "${jauneclair} ======================================= \n ${neutre}"
+	    echo -e -n "${jauneclair} Les capteurs suivants seront testés     \n ${neutre}"
+	    echo -e -n "${jauneclair} $CHOIX3 \n ${neutre}"
+	    echo -e -n "${jauneclair} ======================================= \n ${neutre}"
+	fi
+
+    	if [[ $CHOIX3 =~ "DHT22" ]]; then
+		echo -e "${vertclair}\nTest du capteur de température et d'humidité DHT22 ${neutre}"
+		/home/pi/script/dht22.py
+	fi
+        if [[ $CHOIX3 =~ "DS18B20" ]]; then
+		echo -e "${vertclair}\nTest du capteur de température DS18B20 ${neutre}"
+	        /home/pi/script/ds18b20.py
+	fi
+
+        if [[ $CHOIX3 =~ "Kuman" ]]; then
+		echo -e "${vertclair}\nTest de l'écran Kuman ${neutre}"
+        	/home/pi/script/Kuman.py
+	fi
+        if [[ $CHOIX3 =~ "Int" ]]; then
+                echo -e "${vertclair}\nTest de l'interrupteur ${neutre}"
+                /home/pi/script/interrupteur.py
 	fi
     fi
 

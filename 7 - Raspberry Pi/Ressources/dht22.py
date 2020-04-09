@@ -41,7 +41,10 @@ pin = 26
 
 def maj_widget(val_url):
     requete='http://'+domoticz_ip+':'+domoticz_port+val_url
-    #print requete
+    if version[0] == '2':
+	print "Requete = ", requete
+    else:
+	print("Requete = ", requete)
     r=requests.get(requete,auth=HTTPBasicAuth(user,password))
     if  r.status_code != 200:
 	if version[0] == '2':
@@ -80,9 +83,9 @@ if humidity is not None and temperature is not None:
     url+='&nvalue=0&svalue='
     url+=str('{0:0.1f};{1:0.1f};2').format(temperature, humidity)
     if version[0] == '2':
-		print url
+		print "url =", url
     else:
-		print(url)
+		print("url =", url)
     maj_widget(url)
 
 else:
