@@ -59,6 +59,7 @@ fi
 
 CHOIX=$(whiptail --title "Menu d'installation du Raspberry" --checklist \
 "\nScript réalisé par :\n- KELLER Stéphane (Lycée Agricole Louis Pasteur)\n- José De Castro\nhttps://github.com/KELLERStephane/KELLER-Stephane-Tests2maths\n\nQue soutaitez-vous installer ?" 26 72 13 \
+"Debug" "Interruption à la fin de chaque installation " OFF \
 "MAJ" "Mise a jour du systeme " OFF \
 "Webmin" "Administration du système en mode WEB " OFF \
 "Motioneye" "Logiciel de vidéosurveillance " OFF \
@@ -70,14 +71,13 @@ CHOIX=$(whiptail --title "Menu d'installation du Raspberry" --checklist \
 "DHT22" "Capteur de température et d'humidité DHT22 " OFF \
 "DS18B20" "Capteur de température DS18B20 " OFF \
 "Kuman" "Affichage données DHT22 sur écran Kuman " OFF \
-"Tests" "Tests des capteurs" OFF \
-"Debug" "Interruption à la fin de chaque installation " OFF 3>&1 1>&2 2>&3)
+"Tests" "Tests des capteurs" OFF 3>&1 1>&2 2>&3)
 
 exitstatus=$?
 
 if [[ $exitstatus = 0 ]]; then
     echo -e -n "${jauneclair} ======================================= \n ${neutre}"
-    echo -e -n "${jauneclair} Les logiciels suivants seront installes \n ${neutre}"
+    echo -e -n "${jauneclair} Les logiciels suivants seront installés \n ${neutre}"
     echo -e -n "${jauneclair} $CHOIX \n ${neutre}"
     echo -e -n "${jauneclair} ======================================= \n ${neutre}"
 
@@ -249,7 +249,7 @@ if [[ $exitstatus = 0 ]]; then
         echo -e "${bleuclair}\nInstallation d'Apache ${neutre}"
 
         if [ -d "/etc/apache2" ]; then
-                echo -e "${cyanclair}Apache2 est déjà installé. Désinstallation d'Apache2 avant la nouvelle installation ${neutre}"
+                echo -e "${cyanclair}Le répertoire /etc/apache2 exite déjà. Désinstallation avant la nouvelle installation ${neutre}"
 		apt -y purge apache2
 	        if [ -d "/var/www/passwd" ]; then
         	        echo -e "${cyanclair}Le répertoire de mots de passe /var/www/passwd existe déjà. Suppression du répertoire avant la nouvelle installation  ${neutre}"
@@ -410,7 +410,7 @@ if [[ $exitstatus = 0 ]]; then
         echo -e "${rougeclair}sudo nano  /var/log/ipbannies.log ${neutre}"
 
 	#Démarrage automatique de Fail2ban
-        echo -e "${vertclair}\nDémarrer Fail2ban automatiquement lors du démarrage du système ${neutre}"
+        echo -e "${vertclair}\nDémarrage automatique du service Fail2ban lors du démarrage du système ${neutre}"
 	sudo systemctl enable fail2ban
 
 	#Téléchargement si nécessaire du script jails.sh
@@ -764,9 +764,6 @@ if [[ $exitstatus = 0 ]]; then
                	rm /tmp/toto.txt* # le fichier temporaire ne sert plus à rien
 	fi
 
-	echo -e "${vertclair}\nTest du capteur de température : ${neutre}"
-	sudo /home/pi/script/Adafruit_Python_DHT/examples/AdafruitDHT.py 22 26
-
     	if [[ $CHOIX =~ "Debug" ]]; then
         	echo -e "${violetclair}\nFin de l'installation de DHT22. Appuyer sur Entrée pour poursuivre l'Installation ${neutre}"
         	read
@@ -788,14 +785,14 @@ if [[ $exitstatus = 0 ]]; then
 	#Modification du fichier /boot/config.txt en renseignant le numéro de GPIO BCM
         boucle=true
         while $boucle;do
-        BCM=$(whiptail --title "Paramètres pour le capteur DS18B20" --inputbox "\nSaisir le GPIO (BCM) pour le capteur : " 10 60 3>&1 1>&2 2>&3)
+        BCM=$(whiptail --title "Paramètres pour le capteur DS18B20" --inputbox "\nSaisir le GPIO (BCM) pour le capteur DS18B20 : " 10 60 3>&1 1>&2 2>&3)
 		exitstatus=$?
                 if [ $exitstatus = 0 ]; then
 			echo -e "${vertclair}\nActivation du bus 1-Wire ${neutre}"
 			grep -i "dtoverlay=w1-gpio" "/boot/config.txt" >/dev/null
 			if [ $? = 0 ]; then
 	                	echo -e "${vertclair}\nModification du fichier config.txt en modifiant le numéro de GPIO (BCM) ${neutre}"
-        	                L1="dtoverlay=w1-gpio,gpiopin="
+        	                L1="dtoverlay=w1-gpio"
                 	        L2="dtoverlay=w1-gpio,gpiopin="
                         	L3=$BCM
                                 sed -i '/'"$L1"'/ c\'"$L2"''"$L3"'' /boot/config.txt
@@ -803,7 +800,7 @@ if [[ $exitstatus = 0 ]]; then
 				echo -e "${cyanclair}Modification du fichier /boot/config.txt en ajoutant le numéro de GPIO (BCM) ${neutre}"
 				echo -e "\n#Capteur température DS18B20\ndtoverlay=w1-gpio,gpiopin=$BCM" >>/boot/config.txt
 			fi
-                               	boucle=false
+                        boucle=false
                 else
                 	echo "Tu as annulé... Recommence :-("
 		fi
@@ -890,7 +887,6 @@ if [[ $exitstatus = 0 ]]; then
 	                cd /home/pi/script/Adafruit_Python_SSD1306
         	        python setup.py install
 	        fi
-	        apt install -y python-smbus i2c-tools
 	        apt install -y python-smbus i2c-tools
 
 		if [[ $CHOIX2 =~ "1" ]]; then
@@ -1003,11 +999,6 @@ if [[ $exitstatus = 0 ]]; then
                         fi
                 fi
 
-                echo -e "${vertclair}\nTest module i2c : ${neutre}"
-                lsmod | grep i2c_
-                echo -e "${vertclair}\nVérification de l'adresse du périphérique i2c : ${neutre}"
-                i2cdetect -y 1
-
                 if [[ $CHOIX =~ "Debug" ]]; then
                         echo -e "${violetclair}\nFin de l'installation de Kuman. Appuyer sur Entrée pour poursuivre l'Installation ${neutre}"
                         read
@@ -1044,19 +1035,51 @@ if [[ $exitstatus = 0 ]]; then
 	fi
 
     	if [[ $CHOIX3 =~ "DHT22" ]]; then
+		if [ ! -e /home/pi/script/dht22.py ]; then
+			echo -e "${vertclair}\nLe fichier dht22.py n'existe pas ${neutre}"
+			echo -e "${vertclair}\nTéléchargement du fichier dht22.py ${neutre}"
+			wget -P /home/pi/script $lien_github_raw/dht22.py
+			chown pi:pi /home/pi/script/dht22.py
+			chmod +x /home/pi/script/dht22.py
+		fi
 		echo -e "${vertclair}\nTest du capteur de température et d'humidité DHT22 ${neutre}"
 		/home/pi/script/dht22.py
 	fi
         if [[ $CHOIX3 =~ "DS18B20" ]]; then
+                if [ ! -e /home/pi/script/ds18b20.py ]; then
+                        echo -e "${vertclair}\nLe fichier ds18b20.py n'existe pas ${neutre}"
+                        echo -e "${vertclair}\nTéléchargement du fichier ds18b20.py ${neutre}"
+                        wget -P /home/pi/script $lien_github_raw/ds18b20.py
+                        chown pi:pi /home/pi/script/ds18b20.py
+                        chmod +x /home/pi/script/ds18b20.py
+  		fi
 		echo -e "${vertclair}\nTest du capteur de température DS18B20 ${neutre}"
 	        /home/pi/script/ds18b20.py
 	fi
 
         if [[ $CHOIX3 =~ "Kuman" ]]; then
+                echo -e "${vertclair}\nTest module i2c : ${neutre}"
+                lsmod | grep i2c_
+                echo -e "${vertclair}\nAffichage de l'adresse du (des) périphériques i2c : ${neutre}"
+                i2cdetect -y 1
+                if [ ! -e /home/pi/script/Kuman.py ]; then
+                        echo -e "${vertclair}\nLe fichier Kuman.py n'existe pas ${neutre}"
+                        echo -e "${vertclair}\nTéléchargement du fichier Kuman.py ${neutre}"
+                        wget -P /home/pi/script $lien_github_raw/Kuman.py
+                        chown pi:pi /home/pi/script/Kuman.py
+                        chmod +x /home/pi/script/Kuman.py
+                fi
 		echo -e "${vertclair}\nTest de l'écran Kuman ${neutre}"
         	/home/pi/script/Kuman.py
 	fi
         if [[ $CHOIX3 =~ "Int" ]]; then
+                if [ ! -e /home/pi/script/interrupteur.py ]; then
+                        echo -e "${vertclair}\nLe fichier interrupteur.py n'existe pas ${neutre}"
+                        echo -e "${vertclair}\nTéléchargement du fichier interrupteur.py ${neutre}"
+                        wget -P /home/pi/script $lien_github_raw/interupteur.py
+                        chown pi:pi /home/pi/script/interrupteur.py
+                        chmod +x /home/pi/script/interrupteur.py
+                fi
                 echo -e "${vertclair}\nTest de l'interrupteur ${neutre}"
                 /home/pi/script/interrupteur.py
 	fi
@@ -1085,3 +1108,4 @@ if [[ $exitstatus = 0 ]]; then
 else
     echo "Annulation des installations."
 fi
+
