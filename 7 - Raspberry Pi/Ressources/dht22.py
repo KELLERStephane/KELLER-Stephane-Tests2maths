@@ -3,8 +3,7 @@
 
 # basé sur le script Adafruit et adapté pour Domoticz
 from os import system
-from sys import version
-import sys
+from sys import version, exit
 import Adafruit_DHT
 from requests.auth import HTTPBasicAuth
 import requests
@@ -57,9 +56,9 @@ humidity, temperature = Adafruit_DHT.read_retry(sensor, pin)
 if humidity is not None and temperature is not None:
 
     if version[0] == '2':
-		print 'Température = {0:0.1f}°C  Humidité = {1:0.1f}%'.format(temperature, humidity)
+	print 'Température = {0:0.1f}°C  Humidité = {1:0.1f}%'.format(temperature, humidity)
     else:
-		print('Température = {0:0.1f}°C  Humidité = {1:0.1f}%'.format(temperature, humidity))
+	print('Température = {0:0.1f}°C  Humidité = {1:0.1f}%'.format(temperature, humidity))
 
     #Conversion des valeurs en srting
     temp1 = int(temperature)
@@ -72,6 +71,11 @@ if humidity is not None and temperature is not None:
     #Sauvegarde température et humidité dans un fichier data.txt
     system("cd /home/pi/script")
     # Ecriture du fichier data.txt en mode write 'w'
+
+    if version[0] == '2':
+	print "Ecriture des données dans le fichier /home/pi/script/data.txt"
+    else:
+	print("Ecriture des données dans le fichier /home/pi/script/data.txt")
     li = ["Température : ", temp, "\n", "Humidité : ", humid]
     with open('data.txt','w') as fichier:
         for el in li:

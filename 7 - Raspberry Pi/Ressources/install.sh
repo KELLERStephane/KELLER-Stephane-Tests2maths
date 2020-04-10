@@ -378,9 +378,8 @@ if [[ $exitstatus = 0 ]]; then
 	cp /etc/fail2ban/jail.d/custom.conf /etc/fail2ban/jail.d/custom.copy
         echo -e "${vertclair}Ajout de l'adresse dans le fichier de configuration personnalisable de Fail2ban ${neutre}"
         L1='destemail='
-        L2='#destemail='
-        L3='\ndestemail='
-        sed -i '/'"$L1"'/ c\'"$L2"''"$L3"''"$repmaila"'' /etc/fail2ban/jail.d/custom.conf
+        L2='\ndestemail='
+        sed -i '/'"$L1"'/ c\'"$L2"''"$repmaila"'' /etc/fail2ban/jail.d/custom.conf
 
 	#Démarrage du service Postfix
 	echo -e "${vertclair}Démarrage du service Postfix ${neutre}"
@@ -759,7 +758,7 @@ if [[ $exitstatus = 0 ]]; then
 	else
                 echo -e "${vertclair}\nModification de la crontab ${neutre}"
                 echo -e "#Affichage de la température et de l'humidité toutes les 10 mn chaque jour" >> /tmp/toto.txt # ajout de la ligne dans le fichier temporaire
-		echo -e "*/10 * * * * sudo /home/pi/script/dht22.py" >> /tmp/toto.txt # ajout de la ligne dans le fichier temporaire
+		echo -e "*/10 * * * * cd /home/pi/script && python dht22.py" >> /tmp/toto.txt # ajout de la ligne dans le fichier temporaire
                	crontab /tmp/toto.txt # import de la crontab
                	rm /tmp/toto.txt* # le fichier temporaire ne sert plus à rien
 	fi
@@ -920,7 +919,7 @@ if [[ $exitstatus = 0 ]]; then
 			else
 		                echo -e "${vertclair}\nModification de la crontab ${neutre}"
                 		echo -e "\n#Affichage permanent de la température et de l'humidité" >> /tmp/toto.txt # ajout de la ligne dans le fichier temporaire
-		                echo -e "*/10 * * * * sudo /home/pi/script/Kuman.py" >> /tmp/toto.txt # ajout de la ligne dans le fichier temporaire
+		                echo -e "*/10 * * * * cd /home/pi/script && python Kuman.py" >> /tmp/toto.txt # ajout de la ligne dans le fichier temporaire
 		               	crontab /tmp/toto.txt # import de la crontab
 		               	rm /tmp/toto.txt* # le fichier temporaire ne sert plus à rien
 			fi
@@ -955,10 +954,6 @@ if [[ $exitstatus = 0 ]]; then
                         wget -P /home/pi/script $lien_github_raw/interrupteur.py
                         chown pi:pi /home/pi/script/interrupteur.py
                         chmod +x /home/pi/script/interrupteur.py
-
-                        #Modification de la crontab pour Affichage de la température et humidité toutes les 10 minutes
-                        crontab -u root -l > /tmp/toto.txt # export de la crontab
-                        grep -i "Kuman.py" "/tmp/toto.txt" >/dev/null
 
 			#Modification du fichier interrupteur.py en renseignant le numéro de GPIO BCM
                         boucle=true
