@@ -289,26 +289,27 @@ if [[ $exitstatus = 0 ]]; then
 		fi
 	done
 
-        echo -e "${vertclair}\nModification du fichier /etc/apache2/apache2.conf pour sécuriser l'accès à Apache2 ${neutre}"
+        echo -e "${vertclair}\nSécurisisation de l'accès à Apache2 ${neutre}"
 	grep -i "AuthType Basic" "/etc/modules" >/dev/null
         if [ $? = 0  ]; then
                 echo -e "${cyanclair}Le fichier /etc/apache2/apache2.conf a déjà été modifié ${neutre}"
 		echo -e "${cyanclair}Poursuite de l'installation ${neutre}"
         else
                 echo -e "${vertclair}Sauvegarde du fichier /etc/apache2/apache2.conf dans /etc/apache2/apache2.copy ${neutre}"
+		echo -e "${vertclair}\nModification du fichier /etc/apache2/apache2.conf ${neutre}"
                 cp /etc/apache2/apache2.conf /etc/apache2/apache2.copy
                 L1='#<\/Directory>'
-                L2='\n\<Directory /var/www/html>'
-                L3='\n\tAuthType Basic'
-                L4='\n\tAuthName "ACCES PROTEGE"'
-                L5='\n\t# (Following line optional)'
-                L6='\n\tAuthBasicProvider file'
-                L7='\n\tAuthUserFile "/var/www/passwd/passwords"'
-                L8='\n\tRequire valid-user'
-                L9='\n\t# tri horaire décroissant'
-                L10='\n\tIndexOrderDefault Descending Date'
-                L11='\n</Directory>'
-                L12='\n#</Directory>'
+		L2='#</Directory>'
+                L3='\n\n\<Directory /var/www/html>'
+                L4='\n\tAuthType Basic'
+                L5='\n\tAuthName "ACCES PROTEGE"'
+                L6='\n\t# (Following line optional)'
+                L7='\n\tAuthBasicProvider file'
+                L8='\n\tAuthUserFile "/var/www/passwd/passwords"'
+                L9='\n\tRequire valid-user'
+                L10='\n\t# tri horaire décroissant'
+                L11='\n\tIndexOrderDefault Descending Date'
+                L12='\n</Directory>'
                 sed -i '/'"$L1"'/ c\'"$L2"''"$L3"''"$L4"''"$L5"''"$L6"''"$L7"''"$L8"''"$L9"''"$L10"''"$L11"''"$L12"'' /etc/apache2/apache2.conf
         fi
 
@@ -405,7 +406,7 @@ if [[ $exitstatus = 0 ]]; then
         L4='\n            if ! grep -Fq <ip> /var/log/ipbannies.log; then echo "fail2ban-<name> <ip> %(madate)s" | sudo tee -a /var/log/ipbannies.log; fi '
         sed -i '/'"$L1"'/ c\'"$L2"''"$L3"''"$L4"'' /etc/fail2ban/action.d/iptables-multiport.conf
         echo -e "${rougeclair}Pour visualiser le fichier d'IP bannies : ${neutre}"
-        echo -e "${rougeclair}sudo nano  /var/log/ipbannies.log ${neutre}"
+        echo -e "${rougeclair}sudo nano /var/log/ipbannies.log ${neutre}"
 
 	#Démarrage automatique de Fail2ban
         echo -e "${vertclair}\nDémarrage automatique du service Fail2ban lors du démarrage du système ${neutre}"
