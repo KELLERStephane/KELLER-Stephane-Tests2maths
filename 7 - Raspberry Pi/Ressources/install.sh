@@ -5,7 +5,6 @@
 ### Script d'installation du Raspberry et des logiciels tiers
 ### Stéphane KELLER – Lycée Agricole Louis Pasteur
 ### José De Castro
-### echo -e "et José De Castro "
 ### https://github.com/KELLERStephane/KELLER-Stephane-Tests2maths
 ### ===============================================================
 
