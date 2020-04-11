@@ -1100,7 +1100,7 @@ if [[ $exitstatus = 0 ]]; then
     echo -e "${vertclair}Redémarrage du service Apache2 ${neutre}"
     /etc/init.d/apache2 restart
  
-    echo -e "${blancclignotant}Appuyer une touche pour redémarrer le Raspberry ${neutre}"
+    echo -e "${jauneclair}Appuyer une touche pour redémarrer le Raspberry ${neutre}"
     read
     reboot
 
