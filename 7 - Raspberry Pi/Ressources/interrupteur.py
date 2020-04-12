@@ -134,7 +134,6 @@ try:
         # Display image.
         disp.image(image)
         disp.display()
-        sleep(1)
 
         # Load default font.
         #font = ImageFont.load_default()
