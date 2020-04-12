@@ -57,7 +57,7 @@ fi
 ### ===============================================================
 
 CHOIX=$(whiptail --title "Menu d'installation du Raspberry" --checklist \
-"\nScript réalisé par :\n- KELLER Stéphane (Lycée Agricole Louis Pasteur)\n- José De Castro\nhttps://github.com/KELLERStephane/KELLER-Stephane-Tests2maths\n\nQue soutaitez-vous installer ?" 26 72 13 \
+"\nScript réalisé par :\n- KELLER Stéphane (Lycée Agricole Louis Pasteur)\n- José De Castro\nhttps://github.com/KELLERStephane/KELLER-Stephane-Tests2maths\n\nQue soutaitez-vous installer ?" 23 72 10 \
 "Debug" "Interruption à la fin de chaque installation " OFF \
 "MAJ" "Mise a jour du systeme " OFF \
 "Webmin" "Administration du système en mode WEB " OFF \
@@ -67,10 +67,7 @@ CHOIX=$(whiptail --title "Menu d'installation du Raspberry" --checklist \
 "Fail2map" "Affichage des ip sur une carte " OFF \
 "GPIO" "Wiringpi pour l'utilisation des GPIO " OFF \
 "Domoticz" "Logiciel de domotique Domoticz " OFF \
-"DHT22" "Capteur de température et d'humidité DHT22 " OFF \
-"DS18B20" "Capteur de température DS18B20 " OFF \
-"Kuman" "Affichage données DHT22 sur écran Kuman " OFF \
-"Tests" "Tests des capteurs" OFF 3>&1 1>&2 2>&3)
+"Capteur" "Installation et tests des capteurs" OFF 3>&1 1>&2 2>&3)
 
 exitstatus=$?
 
@@ -377,9 +374,9 @@ if [[ $exitstatus = 0 ]]; then
         echo -e "${vertclair}/etc/fail2ban/jail.d/custom.conf -> /etc/fail2ban/jail.d/custom.copy ${neutre}"
 	cp /etc/fail2ban/jail.d/custom.conf /etc/fail2ban/jail.d/custom.copy
         echo -e "${vertclair}Ajout de l'adresse dans le fichier de configuration personnalisable de Fail2ban ${neutre}"
-        L1='destemail='
-        L2='\ndestemail='
-        sed -i '/'"$L1"'/ c\'"$L2"''"$repmaila"'' /etc/fail2ban/jail.d/custom.conf
+        L1='destmail ='
+        L2='\ndestmail = '
+        sed -i '/'"$L1"'/ c\'"$L2"''"$mail1"'' /etc/fail2ban/jail.d/custom.conf
 
 	#Démarrage du service Postfix
 	echo -e "${vertclair}Démarrage du service Postfix ${neutre}"
@@ -630,461 +627,493 @@ if [[ $exitstatus = 0 ]]; then
 ### CAPTEUR DE TEMPERATURE ET D'HUMIDITE DHT22
 ### ===============================================================
 
-    if [[ $CHOIX =~ "DHT22" ]]; then
-	echo -e "${bleuclair}\nInstallation du capteur de température et d'humidité DHT22 ${neutre}"
-	echo -e "${rougeclair}Domoticz et GPIO doivent être installés et le capteur relié au Raspberry ${neutre}"
-	echo -e "${rougeclair}Il faut connaître et renseigner : ${neutre}"
-	echo -e "${rougeclair}- l'IDX du capteur dht22 dans domoticz ; ${neutre}"
-	echo -e "${rougeclair}- le numéro GPIO BCM sur lequel est relié le capteur. ${neutre}"
-	echo -e "${rougeclair}Ne pas oublier d'activer les GPIO avec sudo raspi-config ${neutre}" 
+    if [[ $CHOIX =~ "Capteur" ]]; then
+        CHOIX_CAPTEUR=$(whiptail --title "Menu d'installation des capteurs Raspberry" --checklist \
+	"\nScript réalisé par :\n- KELLER Stéphane (Lycée Agricole Louis Pasteur)\n- José De Castro\nhttps://github.com/KELLERStephane/KELLER-Stephane-Tests2maths\n\nQuels capteurs soutaitez-vous installer ?" 20 72 6 \
+	"Debug" "Interruption à la fin de chaque installation " OFF \
+	"DHT22" "Capteur de température et d'humidité DHT22 " OFF \
+	"DS18B20" "Capteur de température DS18B20 " OFF \
+	"Kuman" "Affichage données DHT22 sur écran Kuman " OFF \
+	"SPI" "Affichage données DHT22 sur écran bus SPI " OFF \
+	"Tests" "Tests des capteurs" OFF 3>&1 1>&2 2>&3)
 
-        if [ -d "/home/pi/script/Adafruit_Python_DHT" ]; then
-                echo -e "${cyanclair}\nLe répertoire d'installation /home/pi/script/Adafruit_Python_DHT existe déjà. Suppression du répertoire avant la nouvelle installation ${neutre}"
-                rm -r /home/pi/script/Adafruit_Python_DHT
-        fi
-        if [ -e /home/pi/script/dht22.py ] ; then
-             echo -e "${cyanclair}\nLe fichier /home/pi/script/dht22.py existe déjà ${neutre}"
-             echo -e "${cyanclair}Effacement du fichier puis création du nouveau fichier ${neutre}"
-             rm /home/pi/script/dht22.py*
-        fi
+	exitstatus=$?
 
-        cd /home/pi/script
-        #Téléchargement des bibliothèques et des fichiers
-        echo -e "${bleuclair}\nInstallation des bilbiothèques AdaFruit pour le capteur DHT22 (nécessite Domoticz) ${neutre}"
-        git clone https://github.com/adafruit/Adafruit_Python_DHT.git
-        sudo chown pi:pi /home/pi/script/Adafruit_Python_DHT
+	if [[ $exitstatus = 0 ]]; then
+	    echo -e -n "${jauneclair} ======================================= \n ${neutre}"
+	    echo -e -n "${jauneclair} Les capteurs suivants seront installés \n ${neutre}"
+	    echo -e -n "${jauneclair} $CHOIX \n ${neutre}"
+	     echo -e -n "${jauneclair} ======================================= \n ${neutre}"
 
-	version=$(python --version 2>&1 | cut -c1-8)
-	echo -e -n "${vertclair}\nVersion de Python par défaut : ${neutre}"
-	echo -e $version
-	if [[ $version =~ "Python 3" ]]; then
-		#installation si Python3
-		cd /home/pi/script/Adafruit_Python_DHT
-		python3 setup.py install
-	else
-		#installation si Python2
-		cd /home/pi/script/Adafruit_Python_DHT
-		python setup.py install
-	fi
+	    if [[ $CHOIX_CAPTEUR =~ "DHT22" ]]; then
+		echo -e "${bleuclair}\nInstallation du capteur de température et d'humidité DHT22 ${neutre}"
+		echo -e "${rougeclair}Domoticz et GPIO doivent être installés et le capteur relié au Raspberry ${neutre}"
+		echo -e "${rougeclair}Il faut connaître et renseigner : ${neutre}"
+		echo -e "${rougeclair}- l'IDX du capteur dht22 dans domoticz ; ${neutre}"
+		echo -e "${rougeclair}- le numéro GPIO BCM sur lequel est relié le capteur. ${neutre}"
+		echo -e "${rougeclair}Ne pas oublier d'activer les GPIO avec sudo raspi-config ${neutre}" 
 
-	echo -e "${vertclair}\nTéléchargement du fichier dht22.py ${neutre}"
-	wget -P /home/pi/script $lien_github_raw/dht22.py
-	chown pi:pi /home/pi/script/dht22.py
-	chmod +x /home/pi/script/dht22.py
+	        if [ -d "/home/pi/script/Adafruit_Python_DHT" ]; then
+        	    echo -e "${cyanclair}\nLe répertoire d'installation /home/pi/script/Adafruit_Python_DHT existe déjà. Suppression du répertoire avant la nouvelle installation ${neutre}"
+                    rm -r /home/pi/script/Adafruit_Python_DHT
+	        fi
+	        if [ -e /home/pi/script/dht22.py ] ; then
+	            echo -e "${cyanclair}\nLe fichier /home/pi/script/dht22.py existe déjà ${neutre}"
+        	    echo -e "${cyanclair}Effacement du fichier puis création du nouveau fichier ${neutre}"
+	            rm /home/pi/script/dht22.py*
+	        fi
 
-	#Saisie des paramètres pour le fichier dht22.py
-	adresse=$(hostname -I | cut -d' ' -f1)
-	echo -e -n "${vertclair}Adresse IP = ${neutre}"
-	echo -e $adresse
-	echo -e "${vertclair}Ajout de l'adresse IP dans le fichier dht22.py ${neutre}"
-        L1="domoticz_ip ="
-	L2="domoticz_ip = '"
-	L3=$adresse
-	L4="'"
-	sed -i '/'"$L1"'/ c\'"$L2"''"$L3"''"$L4"'' /home/pi/script/dht22.py
+	        cd /home/pi/script
+	        #Téléchargement des bibliothèques et des fichiers
+	        echo -e "${bleuclair}\nInstallation des bilbiothèques AdaFruit pour le capteur DHT22 (nécessite Domoticz) ${neutre}"
+	        git clone https://github.com/adafruit/Adafruit_Python_DHT.git
+	        sudo chown pi:pi /home/pi/script/Adafruit_Python_DHT
 
-	#Saisi des paramètres de domoticz pour affichage température et humidité sur domoticz
-        boucle=true
-        while $boucle;do
-                USER=$(whiptail --title "Paramètres pour dht22.py" --inputbox "\nSaisir l'identifiant domoticz : " 10 60 3>&1 1>&2 2>&3)
-                exitstatus=$?
-                if [ $exitstatus = 0 ]; then
-                        L1="user ="
-                        L2="user = '"
+		version=$(python --version 2>&1 | cut -c1-8)
+		echo -e -n "${vertclair}\nVersion de Python par défaut : ${neutre}"
+		echo -e $version
+		if [[ $version =~ "Python 3" ]]; then
+		    #installation si Python3
+		    cd /home/pi/script/Adafruit_Python_DHT
+		    python3 setup.py install
+		else
+		    #installation si Python2
+		    cd /home/pi/script/Adafruit_Python_DHT
+		    python setup.py install
+		fi
+
+		echo -e "${vertclair}\nTéléchargement du fichier dht22.py ${neutre}"
+		wget -P /home/pi/script $lien_github_raw/dht22.py
+		chown pi:pi /home/pi/script/dht22.py
+		chmod +x /home/pi/script/dht22.py
+
+		#Saisie des paramètres pour le fichier dht22.py
+		adresse=$(hostname -I | cut -d' ' -f1)
+		echo -e -n "${vertclair}Adresse IP = ${neutre}"
+		echo -e $adresse
+		echo -e "${vertclair}Ajout de l'adresse IP dans le fichier dht22.py ${neutre}"
+	        L1="domoticz_ip ="
+		L2="domoticz_ip = '"
+		L3=$adresse
+		L4="'"
+		sed -i '/'"$L1"'/ c\'"$L2"''"$L3"''"$L4"'' /home/pi/script/dht22.py
+
+		#Saisi des paramètres de domoticz pour affichage température et humidité sur domoticz
+	        boucle=true
+	        while $boucle;do
+        	    USER=$(whiptail --title "Paramètres pour dht22.py" --inputbox "\nSaisir l'identifiant domoticz : " 10 60 3>&1 1>&2 2>&3)
+                    exitstatus=$?
+	            if [ $exitstatus = 0 ]; then
+        	        L1="user ="
+                	L2="user = '"
                         L3=$USER
-                        L4="'"
-                        sed -i '/'"$L1"'/ c\'"$L2"''"$L3"''"$L4"'' /home/pi/script/dht22.py
-                        boucle=false
-                else
-                        echo "Tu as annulé... Recommence :-("
-                fi
-        done
-        echo -e "${vertclair}Ajout de l'identifiant dans le fichier dht22.py ${neutre}"
+	                L4="'"
+        	        sed -i '/'"$L1"'/ c\'"$L2"''"$L3"''"$L4"'' /home/pi/script/dht22.py
+                	boucle=false
+	            else
+        	        echo "Tu as annulé... Recommence :-("
+	            fi
+	        done
+        	echo -e "${vertclair}Ajout de l'identifiant dans le fichier dht22.py ${neutre}"
 
-        boucle=true
-        while $boucle;do
-		MDP=$(whiptail --title "Paramètres pour dht22.py" --passwordbox "\nSaisir votre mot de passe pour domoticz" 10 60 3>&1 1>&2 2>&3)
-		exitstatus=$?
-		if [ $exitstatus = 0 ]; then
+	        boucle=true
+       		while $boucle;do
+		    MDP=$(whiptail --title "Paramètres pour dht22.py" --passwordbox "\nSaisir votre mot de passe pour domoticz" 10 60 3>&1 1>&2 2>&3)
+		    exitstatus=$?
+		    if [ $exitstatus = 0 ]; then
 	                L1="password ="
 			L2="password = '"
 			L3=$MDP
 			L4="'"
 			sed -i '/'"$L1"'/ c\'"$L2"''"$L3"''"$L4"'' /home/pi/script/dht22.py
 			boucle=false
+		    else
+		        echo "Vous avez annulez"
+		    fi
+		done
+        	echo -e "${vertclair}Ajout du mot de passe dans le fichier dht22.py ${neutre}"
+
+	       	boucle=true
+       		while $boucle;do
+	            IDX=$(whiptail --title "Paramètres pour dht22.py" --inputbox "\nSaisir l'IDX du dispositif dht22 : " 10 60 3>&1 1>&2 2>&3)
+        	    exitstatus=$?
+               	if [ $exitstatus = 0 ]; then
+                    L1="domoticz_idx ="
+                    L2="domoticz_idx = "
+	            L3=$IDX
+        	    sed -i '/'"$L1"'/ c\'"$L2"''"$L3"'' /home/pi/script/dht22.py
+                    boucle=false
+	        else
+        	    echo "Tu as annulé... Recommence :-("
+	        fi
+	       	done
+		echo -e "${vertclair}Ajout de l'IDX dans le fichier dht22.py ${neutre}"
+
+	       	boucle=true
+		while $boucle;do
+	            PIN=$(whiptail --title "Paramètres pour dht22.py" --inputbox "\nSaisir le numéro de GPIO (BCM) sur lequel est relié le dht22 sur le rapsberry : " 10 60 3>&1 1>&2 2>&3)
+        	    exitstatus=$?
+	            if [ $exitstatus = 0 ]; then
+        	        L1="pin ="
+                        L2="pin = "
+                        L3=$PIN
+	                sed -i '/'"$L1"'/ c\'"$L2"''"$L3"'' /home/pi/script/dht22.py
+        	      	boucle=false
+	            else
+        	        echo "Tu as annulé... Recommence :-("
+	            fi
+       		done
+		echo -e "${vertclair}Ajout du numéro de GPIO (BCM) dans le fichier dht22.py ${neutre}"
+
+		#Modification de la crontab pour mise à jour de température et humidité toutes les 10 minutes
+		crontab -u root -l > /tmp/toto.txt # export de la crontab
+		grep -i "dht22.py" "/tmp/toto.txt" >/dev/null
+		if [ $? = 0 ];then
+		    echo -e "${vertclair}\nLa crontab a déja été modifiée ${neutre}"
 		else
-		    echo "Vous avez annulez"
+        	    echo -e "${vertclair}\nModification de la crontab ${neutre}"
+                    echo -e "#Affichage de la température et de l'humidité toutes les 10 mn chaque jour" >> /tmp/toto.txt # ajout de la ligne dans le fichier temporaire
+		    echo -e "*/10 * * * * cd /home/pi/script && python dht22.py" >> /tmp/toto.txt # ajout de la ligne dans le fichier temporaire
+        	    crontab /tmp/toto.txt # import de la crontab
+	            rm /tmp/toto.txt* # le fichier temporaire ne sert plus à rien
 		fi
-	done
-        echo -e "${vertclair}Ajout du mot de passe dans le fichier dht22.py ${neutre}"
 
-       	boucle=true
-       	while $boucle;do
-               IDX=$(whiptail --title "Paramètres pour dht22.py" --inputbox "\nSaisir l'IDX du dispositif dht22 : " 10 60 3>&1 1>&2 2>&3)
-               exitstatus=$?
-               if [ $exitstatus = 0 ]; then
-                       	L1="domoticz_idx ="
-                       	L2="domoticz_idx = "
-                       	L3=$IDX
-                       	sed -i '/'"$L1"'/ c\'"$L2"''"$L3"'' /home/pi/script/dht22.py
-                       	boucle=false
-               else
-                       	echo "Tu as annulé... Recommence :-("
-               fi
-       	done
-	echo -e "${vertclair}Ajout de l'IDX dans le fichier dht22.py ${neutre}"
-
-       	boucle=true
-	while $boucle;do
-               PIN=$(whiptail --title "Paramètres pour dht22.py" --inputbox "\nSaisir le numéro de GPIO (BCM) sur lequel est relié le dht22 sur le rapsberry : " 10 60 3>&1 1>&2 2>&3)
-               exitstatus=$?
-               if [ $exitstatus = 0 ]; then
-                       	L1="pin ="
-                       	L2="pin = "
-                       	L3=$PIN
-                       	sed -i '/'"$L1"'/ c\'"$L2"''"$L3"'' /home/pi/script/dht22.py
-                       	boucle=false
-               else
-                       echo "Tu as annulé... Recommence :-("
-               fi
-       	done
-	echo -e "${vertclair}Ajout du numéro de GPIO (BCM) dans le fichier dht22.py ${neutre}"
-
-	#Modification de la crontab pour mise à jour de température et humidité toutes les 10 minutes
-	crontab -u root -l > /tmp/toto.txt # export de la crontab
-	grep -i "dht22.py" "/tmp/toto.txt" >/dev/null
-	if [ $? = 0 ];then
-		echo -e "${vertclair}\nLa crontab a déja été modifiée ${neutre}"
-	else
-                echo -e "${vertclair}\nModification de la crontab ${neutre}"
-                echo -e "#Affichage de la température et de l'humidité toutes les 10 mn chaque jour" >> /tmp/toto.txt # ajout de la ligne dans le fichier temporaire
-		echo -e "*/10 * * * * cd /home/pi/script && python dht22.py" >> /tmp/toto.txt # ajout de la ligne dans le fichier temporaire
-               	crontab /tmp/toto.txt # import de la crontab
-               	rm /tmp/toto.txt* # le fichier temporaire ne sert plus à rien
-	fi
-
-    	if [[ $CHOIX =~ "Debug" ]]; then
-        	echo -e "${violetclair}\nFin de l'installation de DHT22. Appuyer sur Entrée pour poursuivre l'Installation ${neutre}"
-        	read
-    	fi
-    fi
+	    	if [[ $CHOIX_CAPTEUR =~ "Debug" ]]; then
+	            echo -e "${violetclair}\nFin de l'installation du capteur DHT22. Appuyer sur Entrée pour poursuivre l'Installation ${neutre}"
+        	    read
+	    	fi
+	    fi
 
 ### ===============================================================
 ### CAPTEUR DE TEMPERATURE DS18B20
 ### ===============================================================
 
-    if [[ $CHOIX =~ "DS18B20" ]]; then
-	echo -e "${bleuclair}\nInstallation du capteur de température DS18B20 ${neutre}"
-	echo -e "${rougeclair}Domoticz et GPIO doivent être installés et le capteur relié au Raspberry ${neutre}"
-	echo -e "${rougeclair}Il faut connaître et renseigner  le numéro ${neutre}"
-	echo -e "${rougeclair}GPIO BCM sur lequel est relié le capteur. ${neutre}"
-	echo -e "${rougeclair}Ne pas oublier d'activer les GPIO avec sudo raspi-config ${neutre}"
-        echo -e "${rougeclair}Ne pas oublier d'activer bus 1-Wire avec sudo raspi-config ${neutre}"
+	    if [[ $CHOIX_CAPTEUR =~ "DS18B20" ]]; then
+		echo -e "${bleuclair}\nInstallation du capteur de température DS18B20 ${neutre}"
+		echo -e "${rougeclair}Domoticz et GPIO doivent être installés et le capteur relié au Raspberry ${neutre}"
+		echo -e "${rougeclair}Il faut connaître et renseigner  le numéro ${neutre}"
+		echo -e "${rougeclair}GPIO BCM sur lequel est relié le capteur. ${neutre}"
+		echo -e "${rougeclair}Ne pas oublier d'activer les GPIO avec sudo raspi-config ${neutre}"
+	        echo -e "${rougeclair}Ne pas oublier d'activer bus 1-Wire avec sudo raspi-config ${neutre}"
 
-	#Modification du fichier /boot/config.txt en renseignant le numéro de GPIO BCM
-        boucle=true
-        while $boucle;do
-        BCM=$(whiptail --title "Paramètres pour le capteur DS18B20" --inputbox "\nSaisir le GPIO (BCM) pour le capteur DS18B20 : " 10 60 3>&1 1>&2 2>&3)
-		exitstatus=$?
-                if [ $exitstatus = 0 ]; then
-			echo -e "${vertclair}\nActivation du bus 1-Wire ${neutre}"
+		#Modification du fichier /boot/config.txt en renseignant le numéro de GPIO BCM
+	        boucle=true
+	        while $boucle;do
+	        BCM=$(whiptail --title "Paramètres pour le capteur DS18B20" --inputbox "\nSaisir le GPIO (BCM) pour le capteur DS18B20 : " 10 60 3>&1 1>&2 2>&3)
+		    exitstatus=$?
+                    if [ $exitstatus = 0 ]; then
+		        echo -e "${vertclair}\nActivation du bus 1-Wire ${neutre}"
 			grep -i "dtoverlay=w1-gpio" "/boot/config.txt" >/dev/null
 			if [ $? = 0 ]; then
-	                	echo -e "${vertclair}\nModification du fichier config.txt en modifiant le numéro de GPIO (BCM) ${neutre}"
-        	                L1="dtoverlay=w1-gpio"
-                	        L2="dtoverlay=w1-gpio,gpiopin="
-                        	L3=$BCM
-                                sed -i '/'"$L1"'/ c\'"$L2"''"$L3"'' /boot/config.txt
+	        	    echo -e "${vertclair}\nModification du fichier config.txt en modifiant le numéro de GPIO (BCM) ${neutre}"
+        	            L1="dtoverlay=w1-gpio"
+                	    L2="dtoverlay=w1-gpio,gpiopin="
+	                    L3=$BCM
+        	            sed -i '/'"$L1"'/ c\'"$L2"''"$L3"'' /boot/config.txt
 			else
-				echo -e "${cyanclair}Modification du fichier /boot/config.txt en ajoutant le numéro de GPIO (BCM) ${neutre}"
-				echo -e "\n#Capteur température DS18B20\ndtoverlay=w1-gpio,gpiopin=$BCM" >>/boot/config.txt
+			    echo -e "${cyanclair}Modification du fichier /boot/config.txt en ajoutant le numéro de GPIO (BCM) ${neutre}"
+			    echo -e "\n#Capteur température DS18B20\ndtoverlay=w1-gpio,gpiopin=$BCM" >>/boot/config.txt
 			fi
-                        boucle=false
-                else
-                	echo "Tu as annulé... Recommence :-("
+        	            boucle=false
+                    else
+                        echo "Tu as annulé... Recommence :-("
+		    fi
+		done
+		echo -e "${vertclair}\nAjout du GPIO (BCM) dans le fichier /boot/config.txt ${neutre}"
+
+		#Modification du fichier /etc/modules en ajoutant les modules
+		echo -e "${vertclair}\nModification du fichier /etc/modules ${neutre}"
+		grep -i "w1-therm" "/etc/modules" >/dev/null
+		if [ $? = 0 ]; then
+		    echo -e "${cyanclair}Le fichier /etc/modules a déjà été modifié ${neutre}"
+		    echo -e "${cyanclair}Poursuite de l'installation ${neutre}"
+		else
+		    echo -e "\nw1-therm\nw1-gpio" >>/etc/modules
+
 		fi
-	done
-	echo -e "${vertclair}\nAjout du GPIO (BCM) dans le fichier /boot/config.txt ${neutre}"
+		echo -e "${vertclair}\nExécution des modules ${neutre}"
+		sudo modprobe w1-gpio
+		sudo modprobe w1-therm
 
-	#Modification du fichier /etc/modules en ajoutant les modules
-	echo -e "${vertclair}\nModification du fichier /etc/modules ${neutre}"
-	grep -i "w1-therm" "/etc/modules" >/dev/null
-	if [ $? = 0 ]; then
-		echo -e "${cyanclair}Le fichier /etc/modules a déjà été modifié ${neutre}"
-		echo -e "${cyanclair}Poursuite de l'installation ${neutre}"
-	else
-		echo -e "\nw1-therm\nw1-gpio" >>/etc/modules
+	        if [ -e /home/pi/script/dht22.py ] ; then
+        	     echo -e "${cyanclair}\nLe fichier /home/pi/script/ds18b20.py existe déjà ${neutre}"
+	             echo -e "${cyanclair}Effacement du fichier puis création du nouveau fichier ${neutre}"
+        	     rm /home/pi/script/ds18b20.py*
+	        fi
+		echo -e "${vertclair}\nTéléchargement du fichier ds18b20.py ${neutre}"
+		wget -P /home/pi/script $lien_github_raw/ds18b20.py
+		chown pi:pi /home/pi/script/ds18b20.py
+		chmod +x /home/pi/script/ds18b20.py
 
-	fi
-	echo -e "${vertclair}\nExécution des modules ${neutre}"
-	sudo modprobe w1-gpio
-	sudo modprobe w1-therm
-
-       if [ -e /home/pi/script/dht22.py ] ; then
-             echo -e "${cyanclair}\nLe fichier /home/pi/script/ds18b20.py existe déjà ${neutre}"
-             echo -e "${cyanclair}Effacement du fichier puis création du nouveau fichier ${neutre}"
-             rm /home/pi/script/ds18b20.py*
-        fi
-	echo -e "${vertclair}\nTéléchargement du fichier ds18b20.py ${neutre}"
-	wget -P /home/pi/script $lien_github_raw/ds18b20.py
-	chown pi:pi /home/pi/script/ds18b20.py
-	chmod +x /home/pi/script/ds18b20.py
-    fi
+                if [[ $CHOIX_CAPTEUR =~ "Debug" ]]; then
+                    echo -e "${violetclair}\nFin de l'installation du capteur DS18B20. Appuyer sur Entrée pour poursuivre l'Installation ${neutre}"
+                    read
+                fi
+	    fi
 
 ### ===============================================================
 ### Ecran Kuman pour affichage données DHT22
 ### ===============================================================
 
-    if [[ $CHOIX =~ "Kuman" ]]; then
-	CHOIX2=$(whiptail --title "Menu d'installation de l'écran Kuman" --menu \
-	"\nScript réalisé par :\n- KELLER Stéphane (Lycée Agricole Louis Pasteur)\n- José De Castro\nhttps://github.com/KELLERStephane/KELLER-Stephane-Tests2maths\n\nAffichage de la température et de l'humidité sur l'écran\n\nQue soutaitez-vous installer ?" 18 72 2 \
-	"1" "Affichage permanent  "\
-	"2" "Affichage ponctuel via un interrupteur " 3>&1 1>&2 2>&3)
+	    if [[ $CHOIX_CAPTEUR =~ "Kuman" ]]; then
+		CHOIX_KUMAN=$(whiptail --title "Menu d'installation de l'écran Kuman" --menu \
+		"\nScript réalisé par :\n- KELLER Stéphane (Lycée Agricole Louis Pasteur)\n- José De Castro\nhttps://github.com/KELLERStephane/KELLER-Stephane-Tests2maths\n\nAffichage de la température et de l'humidité sur l'écran\n\nQue soutaitez-vous installer ?" 18 72 2 \
+		"1" "Affichage permanent  "\
+		"2" "Affichage ponctuel via un interrupteur " 3>&1 1>&2 2>&3)
 
-	exitstatus=$?
+		exitstatus=$?
 
-	if [[ $exitstatus = 0 ]]; then
-	    	echo -e -n "${jauneclair} ======================================= \n ${neutre}"
-	    	echo -e -n "${jauneclair} L'affichage sera le suivant              \n ${neutre}"
-	    	echo -e -n "${jauneclair} $CHOIX \n ${neutre}"
-	    	echo -e -n "${jauneclair} ======================================= \n ${neutre}"
+		if [[ $exitstatus = 0 ]]; then
+	    	    echo -e -n "${jauneclair} ======================================= \n ${neutre}"
+		    echo -e -n "${jauneclair} L'affichage sera le suivant              \n ${neutre}"
+		    echo -e -n "${jauneclair} $CHOIX \n ${neutre}"
+	    	    echo -e -n "${jauneclair} ======================================= \n ${neutre}"
 
-		echo -e "${bleuclair}\nInstallation de l'écran Kuman ${neutre}"
-		echo -e "${rougeclair}Domoticz, GPIO et DHT22 doivent être installés. ${neutre}"
-		echo -e "${rougeclair}Le capteur DHT22 et l'écran Kuman, doivent être reliés correctement au Raspberry : ${neutre}"
-		echo -e "${rougeclair}Ne pas oublier d'activer les GPIO avec sudo raspi-config ${neutre}"
-		echo -e "${rougeclair}Ne pas oublier d'activer I2C avec sudo raspi-config ${neutre}"
+		    echo -e "${bleuclair}\nInstallation de l'écran Kuman ${neutre}"
+		    echo -e "${rougeclair}Domoticz, GPIO et DHT22 doivent être installés. ${neutre}"
+		    echo -e "${rougeclair}Le capteur DHT22 et l'écran Kuman, doivent être reliés correctement au Raspberry : ${neutre}"
+		    echo -e "${rougeclair}Ne pas oublier d'activer les GPIO avec sudo raspi-config ${neutre}"
+		    echo -e "${rougeclair}Ne pas oublier d'activer I2C avec sudo raspi-config ${neutre}"
 
-	        if [ -d "/home/pi/script/Adafruit_Python_SSD1306" ]; then
+		    if [ -d "/home/pi/script/Adafruit_Python_SSD1306" ]; then
         	        echo -e "${cyanclair}Le répertoire d'installation /home/pi/script/Adafruit_Python_SSD1306 existe déjà. Suppression du répertoire avant la nouvelle installation ${neutre}"
                 	rm -r /home/pi/script/Adafruit_Python_SSD1306
-	        fi
-	        if [ -e /usr/share/fonts/truetype/Minecraftia/Minecraftia-Regular.ttf ] ; then
+		    fi
+		    if [ -e /usr/share/fonts/truetype/Minecraftia/Minecraftia-Regular.ttf ] ; then
         	        echo -e "${cyanclair}\nLe répertoire /usr/share/fonts/truetype/Minecraftia existe déjà. Suppression du répertoire avant la nouvelle installation ${neutre}"
                 	rm -r /usr/share/fonts/truetype/Minecraftia
-	        fi
-	        #Téléchargement et décompactage de la police pour l'écran
-	        echo -e "${cyanclair}\nTéléchargement du fichier /usr/share/fonts/truetype/Minecraftia/Minecraftia-Regular.ttf ${neutre}"
-	        mkdir /usr/share/fonts/truetype/Minecraftia >/dev/null
-	        wget -P /usr/share/fonts/truetype/Minecraftia/ $lien_github_zip/minecraftia.zip
-	        cd /usr/share/fonts/truetype/Minecraftia/
-	        unzip -u minecraftia.zip
-	        rm /usr/share/fonts/truetype/Minecraftia/minecraftia.zip*
+		    fi
+		    #Téléchargement et décompactage de la police pour l'écran
+	            echo -e "${cyanclair}\nTéléchargement du fichier /usr/share/fonts/truetype/Minecraftia/Minecraftia-Regular.ttf ${neutre}"
+		    mkdir /usr/share/fonts/truetype/Minecraftia >/dev/null
+		    wget -P /usr/share/fonts/truetype/Minecraftia/ $lien_github_zip/minecraftia.zip
+		    cd /usr/share/fonts/truetype/Minecraftia/
+		    unzip -u minecraftia.zip
+	            rm /usr/share/fonts/truetype/Minecraftia/minecraftia.zip*
 
-	        #Téléchargement des bibliothèques et des fichiers
-	        cd /home/pi/script
-	        echo -e "${bleuclair}\nInstallation des bilbiothèques AdaFruit pour l'écran Kuman (nécessite Domoticz et DHT22) ${neutre}"
-	        git clone https://github.com/adafruit/Adafruit_Python_SSD1306.git
-	        chown pi:pi /home/pi/script/Adafruit_Python_SSD1306
+		    #Téléchargement des bibliothèques et des fichiers
+		    cd /home/pi/script
+	            echo -e "${bleuclair}\nInstallation des bilbiothèques AdaFruit pour l'écran Kuman (nécessite Domoticz et DHT22) ${neutre}"
+		    git clone https://github.com/adafruit/Adafruit_Python_SSD1306.git
+		    chown pi:pi /home/pi/script/Adafruit_Python_SSD1306
 
-	        version=$(python --version 2>&1 | cut -c1-8)
-	        echo -e -n "${vertclair}\nVersion de Python par défaut : ${neutre}"
-	        echo -e $version
-	        if [[ $version =~ "Python 3" ]]; then
+		    version=$(python --version 2>&1 | cut -c1-8)
+		    echo -e -n "${vertclair}\nVersion de Python par défaut : ${neutre}"
+	            echo -e $version
+		    if [[ $version =~ "Python 3" ]]; then
         	        #installation si Python3
                 	pip3 install requests
 	                cd /home/pi/script/Adafruit_Python_SSD1306
-	                sudo python3 setup.py install
-	        else
+		                sudo python3 setup.py install
+		    else
         	        #installation si Python2
                 	pip install requests
-	                cd /home/pi/script/Adafruit_Python_SSD1306
-        	        python setup.py install
-	        fi
-	        apt install -y python-smbus i2c-tools
+		        cd /home/pi/script/Adafruit_Python_SSD1306
+        		python setup.py install
+	            fi
+		    apt install -y python-smbus i2c-tools
 
-		if [[ $CHOIX2 =~ "1" ]]; then
+		    if [[ $CHOIX_KUMAN =~ "1" ]]; then
 	                if [ -e /home/pi/script/Kuman.py ] ; then
-                                echo -e "${cyanclair}\nLe fichier /home/pi/script/Kuman.py existe déjà${neutre}"
-                                echo -e "${cyanclair}Effacement du fichier puis télechargement du nouveau fichier ${neutre}"
-                                rm /home/pi/script/Kuman.py
-                        fi
-                        echo -e "${vertclair}\nTéléchargement du fichier kuman.py ${neutre}"
+                            echo -e "${cyanclair}\nLe fichier /home/pi/script/Kuman.py existe déjà${neutre}"
+                            echo -e "${cyanclair}Effacement du fichier puis télechargement du nouveau fichier ${neutre}"
+	                    rm /home/pi/script/Kuman.py
+        	        fi
+                	echo -e "${vertclair}\nTéléchargement du fichier kuman.py ${neutre}"
                         wget -P /home/pi/script $lien_github_raw/Kuman.py
-                        chown pi:pi /home/pi/script/Kuman.py
-                        chmod +x /home/pi/script/Kuman.py
+	                chown pi:pi /home/pi/script/Kuman.py
+        	        chmod +x /home/pi/script/Kuman.py
 
-                        if [ -e /etc/systemd/system/interrupteur.service ] ; then
-        	                echo -e "${cyanclair}\nLe fichier /etc/systemd/system/interrupteur.service existe ${neutre}"
-                	        echo -e "${cyanclair}et n'est plus nécessaire. Suppression du service ${neutre}"
-				systemctl disable interrupteur.service
-                        	rm /etc/systemd/system/interrupteur.service*
-	                fi
+                	if [ -e /etc/systemd/system/interrupteur.service ] ; then
+        	            echo -e "${cyanclair}\nLe fichier /etc/systemd/system/interrupteur.service existe ${neutre}"
+                	    echo -e "${cyanclair}et n'est plus nécessaire. Suppression du service ${neutre}"
+			    systemctl disable interrupteur.service
+        	            rm /etc/systemd/system/interrupteur.service*
+	        	fi
 
 			#Modification de la crontab pour Affichage de la température et humidité toutes les 10 minutes
 			crontab -u root -l > /tmp/toto.txt # export de la crontab
 			grep -i "Kuman.py" "/tmp/toto.txt" >/dev/null
 			if [ $? = 0 ];then
-				echo -e "${vertclair}\nLa crontab a déja été modifiée ${neutre}"
+			    echo -e "${vertclair}\nLa crontab a déja été modifiée ${neutre}"
 			else
-		                echo -e "${vertclair}\nModification de la crontab ${neutre}"
-                		echo -e "\n#Affichage permanent de la température et de l'humidité" >> /tmp/toto.txt # ajout de la ligne dans le fichier temporaire
-		                echo -e "*/10 * * * * cd /home/pi/script && python Kuman.py" >> /tmp/toto.txt # ajout de la ligne dans le fichier temporaire
-		               	crontab /tmp/toto.txt # import de la crontab
-		               	rm /tmp/toto.txt* # le fichier temporaire ne sert plus à rien
+			    echo -e "${vertclair}\nModification de la crontab ${neutre}"
+	                    echo -e "\n#Affichage permanent de la température et de l'humidité" >> /tmp/toto.txt # ajout de la ligne dans le fichier temporaire
+			    echo -e "*/10 * * * * cd /home/pi/script && python Kuman.py" >> /tmp/toto.txt # ajout de la ligne dans le fichier temporaire
+		            crontab /tmp/toto.txt # import de la crontab
+			    rm /tmp/toto.txt* # le fichier temporaire ne sert plus à rien
 			fi
-		fi
+		    fi
 
-                if [[ $CHOIX2 =~ "2" ]]; then
-			echo -e "${rougeclair}DHT22 et GPIO doivent être installés et l'interrupteur relié au Raspberry ${neutre}"
+        	    if [[ $CHOIX_KUMAN =~ "2" ]]; then
+		        echo -e "${rougeclair}DHT22 et GPIO doivent être installés et l'interrupteur relié au Raspberry ${neutre}"
 			echo -e "${rougeclair}Il faut connaître et renseigner le numéro GPIO BCM ${neutre}"
 			echo -e "${rougeclair}sur lequel est relié l'interrupteur.. ${neutre}"
 
 			echo -e "${vertclair}\nAjout du GPIO (BCM) dans le fichier interrupteur.py ${neutre}"
 
-                        if [ -e /etc/systemd/system/interrupteur.service ] ; then
-                                echo -e "${cyanclair}\nLe fichier /etc/systemd/system/interrupteur.service existe déjà ${neutre}"
-                                echo -e "${cyanclair}Effacement du fichier puis téléchargement du nouveau fichier ${neutre}"
-                                systemctl disable interrupteur.service
-                                rm /etc/systemd/system/interrupteur.service*
-                        fi
-                        echo -e "${vertclair}\nTéléchargement du fichier interrupteur.service ${neutre}"
-                        wget -P /etc/systemd/system $lien_github_raw/interrupteur.service
-                        chown pi:pi /etc/systemd/system/interrupteur.service
-			echo -e "${vertclair}\nActivation et démarrage du servie interrupteur.service ${neutre}"
- 			systemctl enable interrupteur.service
-			systemctl start interrupteur.service
+                	if [ -e /etc/systemd/system/interrupteur.service ] ; then
+                            echo -e "${cyanclair}\nLe fichier /etc/systemd/system/interrupteur.service existe déjà ${neutre}"
+                            echo -e "${cyanclair}Effacement du fichier puis téléchargement du nouveau fichier ${neutre}"
+	                    systemctl disable interrupteur.service
+        	            rm /etc/systemd/system/interrupteur.service*
+	                fi
+        	            echo -e "${vertclair}\nTéléchargement du fichier interrupteur.service ${neutre}"
+                	    wget -P /etc/systemd/system $lien_github_raw/interrupteur.service
+	                    chown pi:pi /etc/systemd/system/interrupteur.service
+			    echo -e "${vertclair}\nActivation et démarrage du servie interrupteur.service ${neutre}"
+ 			    systemctl enable interrupteur.service
+			    systemctl start interrupteur.service
 
-                        if [ -e /home/pi/script/interrupteur.py ] ; then
-                                echo -e "${cyanclair}Le fichier /home/pi/script/interrupteur.py existe déjà ${neutre}"
-                                echo -e "${cyanclair}Effacement du fichier puis création du nouveau fichier ${neutre}"
-                                rm /home/pi/script/interrupteur.py*
-                        fi
+	                if [ -e /home/pi/script/interrupteur.py ] ; then
+        	            echo -e "${cyanclair}Le fichier /home/pi/script/interrupteur.py existe déjà ${neutre}"
+                	    echo -e "${cyanclair}Effacement du fichier puis création du nouveau fichier ${neutre}"
+                            rm /home/pi/script/interrupteur.py*
+	                fi
 			echo -e "${vertclair}\nTéléchargement du fichier interrupteur.py ${neutre}"
-                        wget -P /home/pi/script $lien_github_raw/interrupteur.py
+                	wget -P /home/pi/script $lien_github_raw/interrupteur.py
                         chown pi:pi /home/pi/script/interrupteur.py
-                        chmod +x /home/pi/script/interrupteur.py
+	                chmod +x /home/pi/script/interrupteur.py
 
 			#Modification du fichier interrupteur.py en renseignant le numéro de GPIO BCM
                         boucle=true
-                        while $boucle;do
-                                BCM=$(whiptail --title "Paramètres pour l'interupteur" --inputbox "\nSaisir le GPIO (BCM) de l'interrupteur : " 10 60 3>&1 1>&2 2>&3)
-                                exitstatus=$?
-                                if [ $exitstatus = 0 ]; then
-                                        echo -e "${vertclair}Modification du fichier interrupteur.py en ajoutant le numéro de GPIO (BCM) ${neutre}"
-                                        L1="BCM ="
-                                        L2="BCM = "
-                                        L3=$BCM
-                                sed -i '/'"$L1"'/ c\'"$L2"''"$L3"'' /home/pi/script/interrupteur.py
-                                boucle=false
-                                else
-                                        echo "Tu as annulé... Recommence :-("
-                                fi
-                        done
-                        echo -e "${vertclair}\nAjout du GPIO (BCM) dans le fichier interrupteur.py ${neutre}"
+                       	while $boucle;do
+                            BCM=$(whiptail --title "Paramètres pour l'interupteur" --inputbox "\nSaisir le GPIO (BCM) de l'interrupteur : " 10 60 3>&1 1>&2 2>&3)
+	                    exitstatus=$?
+        	            if [ $exitstatus = 0 ]; then
+                                echo -e "${vertclair}Modification du fichier interrupteur.py en ajoutant le numéro de GPIO (BCM) ${neutre}"
+                        	L1="BCM ="
+                                L2="BCM = "
+                                L3=$BCM
+	                        sed -i '/'"$L1"'/ c\'"$L2"''"$L3"'' /home/pi/script/interrupteur.py
+        	                boucle=false
+                	    else
+                                echo "Tu as annulé... Recommence :-("
+	                    fi
+        	        done
+                	echo -e "${vertclair}\nAjout du GPIO (BCM) dans le fichier interrupteur.py ${neutre}"
 
 			#Ajout du service interrupteur
 			if [ -e /home/pi/script/Kuman.py ] ; then
-                                echo -e "${cyanclair}\nLe fichier /etc/systemd/system/interrupteur.service existe déjà${neutre}"
-				echo -e "${cyanclair}Suppression du service puis téléchargement du nouveau fichier ${neutre}"
+        	            echo -e "${cyanclair}\nLe fichier /etc/systemd/system/interrupteur.service existe déjà${neutre}"
+			    echo -e "${cyanclair}Suppression du service puis téléchargement du nouveau fichier ${neutre}"
 			fi
 			wget -P /etc/systemd/system/ $lien_github_raw/interrupteur.service
 			echo -e "${cyanclair}Activation et démarrage du service /etc/systemd/system/interrupteur.service ${neutre}"
 			systemctl enable interrupteur.service
 			systemctl start interrupteur.service
 
-                        #Modification de la crontab pour supprimer affichage permanent de la température et humidité
-                        crontab -u root -l > /tmp/toto.txt # export de la crontab
+        	        #Modification de la crontab pour supprimer affichage permanent de la température et humidité
+                	crontab -u root -l > /tmp/toto.txt # export de la crontab
                         grep -i "Kuman.py" "/tmp/toto.txt" >/dev/null
-                        if [ $? = 0 ];then
-				echo -e "${vertclair}\nSuppression de l'affichage permanent dans la crontab ${neutre}"
-				L1="#Affichage permanent de la température et de l'humidité"
-				L2=''
-				sed -i '/'"$L1"'/ c\'"$L2"'' /tmp/toto.txt
-                                L3='Kuman.py'
-                                L4=''
-                                sed -i '/'"$L3"'/ c\'"$L4"'' /tmp/toto.txt
-				crontab /tmp/toto.txt # import de la crontab
-				rm /tmp/toto.txt* # le fichier temporaire ne sert plus à rien
-                        fi
-                fi
+	                if [ $? = 0 ];then
+			    echo -e "${vertclair}\nSuppression de l'affichage permanent dans la crontab ${neutre}"
+			    L1="#Affichage permanent de la température et de l'humidité"
+			    L2=''
+			    sed -i '/'"$L1"'/ c\'"$L2"'' /tmp/toto.txt
+        	            L3='Kuman.py'
+                	    L4=''
+	                    sed -i '/'"$L3"'/ c\'"$L4"'' /tmp/toto.txt
+			    crontab /tmp/toto.txt # import de la crontab
+			    rm /tmp/toto.txt* # le fichier temporaire ne sert plus à rien
+	                fi
+        	    fi
 
-                if [[ $CHOIX =~ "Debug" ]]; then
-                        echo -e "${violetclair}\nFin de l'installation de Kuman. Appuyer sur Entrée pour poursuivre l'Installation ${neutre}"
-                        read
-                fi
-	fi
-    fi
+	            if [[ $CHOIX_CAPTEUR =~ "Debug" ]]; then
+                        echo -e "${violetclair}\nFin de l'installation de l'écran Kuman. Appuyer sur Entrée pour poursuivre l'Installation ${neutre}"
+                	read
+        	    fi
+
+		fi
+   	    fi
 
 ### ===============================================================
 ### TEST DES CAPTEURS
 ### ===============================================================
 
-    if [[ $CHOIX =~ "Tests" ]]; then
-	echo -e "${bleuclair}\nTests des capteurs DHT22 ; DS18B20 et de l'écran Kuman ${neutre}"
-	echo -e "${rougeclair}Les capteurs doivent être installés et reliés correctement au Raspberry ${neutre}"
-	echo -e "${rougeclair}Le Raspberry a été redémarré : ${neutre}"
-	echo -e "${rougeclair}GPIO, I2C et 1-wire doivent être activés si nécessaire avec sudo raspi-config ${neutre}"
+	    if [[ $CHOIX_CAPTEUR =~ "Tests" ]]; then
+                echo -e "${bleuclair}\nTests des capteurs : ${neutre}"
+            	echo -e "${rougeclair}Les capteurs doivent être installés et reliés correctement au Raspberry ${neutre}"
+		echo -e "${rougeclair}Le Raspberry a été redémarré : ${neutre}"
+		echo -e "${rougeclair}GPIO, I2C, SPI et 1-wire doivent être activés si nécessaire avec sudo raspi-config ${neutre}"
 
-	cd /home/pi/script
+		cd /home/pi/script
 
-	CHOIX3=$(whiptail --title "Menu d'installation du Raspberry" --checklist \
-	"\nScript réalisé par :\n- KELLER Stéphane (Lycée Agricole Louis Pasteur)\n- José De Castro\nhttps://github.com/KELLERStephane/KELLER-Stephane-Tests2maths\n\nQue soutaitez-vous installer ?" 18 72 4 \
-	"DHT22" "Test du capteur de température et d'humidité DHT22 " OFF \
-	"DS18B20" "Test du capteur de température DS18B20 " OFF \
-	"Kuman" "Test de l'écran Kuman " OFF \
-	"Int" "Test de l'interrupteur " OFF 3>&1 1>&2 2>&3)
+		CHOIX_TEST=$(whiptail --title "Menu de tests des capteurs" --checklist \
+		"\nScript réalisé par :\n- KELLER Stéphane (Lycée Agricole Louis Pasteur)\n- José De Castro\nhttps://github.com/KELLERStephane/KELLER-Stephane-Tests2maths\n\nQuel capteur soutaitez-vous tester ?" 18 72 4 \
+		"DHT22" "Test du capteur de température et d'humidité DHT22 " OFF \
+		"DS18B20" "Test du capteur de température DS18B20 " OFF \
+		"Kuman" "Test de l'écran Kuman " OFF \
+		"Int" "Test de l'interrupteur " OFF 3>&1 1>&2 2>&3)
 
-	exitstatus=$?
+		exitstatus=$?
 
-	if [[ $exitstatus = 0 ]]; then
-	    echo -e -n "${jauneclair} ======================================= \n ${neutre}"
-	    echo -e -n "${jauneclair} Les capteurs suivants seront testés     \n ${neutre}"
-	    echo -e -n "${jauneclair} $CHOIX3 \n ${neutre}"
-	    echo -e -n "${jauneclair} ======================================= \n ${neutre}"
-	fi
+		if [[ $exitstatus = 0 ]]; then
+		    echo -e -n "${jauneclair} ======================================= \n ${neutre}"
+		    echo -e -n "${jauneclair} Les capteurs suivants seront testés     \n ${neutre}"
+		    echo -e -n "${jauneclair} $CHOIX_TEST \n ${neutre}"
+		    echo -e -n "${jauneclair} ======================================= \n ${neutre}"
+		fi
 
-    	if [[ $CHOIX3 =~ "DHT22" ]]; then
-		if [ ! -e /home/pi/script/dht22.py ]; then
-			echo -e "${vertclair}\nLe fichier dht22.py n'existe pas ${neutre}"
+	    	if [[ $CHOIX_TEST =~ "DHT22" ]]; then
+		    if [ ! -e /home/pi/script/dht22.py ]; then
+		        echo -e "${vertclair}\nLe fichier dht22.py n'existe pas ${neutre}"
 			echo -e "${vertclair}\nTéléchargement du fichier dht22.py ${neutre}"
 			wget -P /home/pi/script $lien_github_raw/dht22.py
 			chown pi:pi /home/pi/script/dht22.py
 			chmod +x /home/pi/script/dht22.py
+		    fi
+			echo -e "${vertclair}\nTest du capteur de température et d'humidité DHT22 ${neutre}"
+			/home/pi/script/dht22.py
 		fi
-		echo -e "${vertclair}\nTest du capteur de température et d'humidité DHT22 ${neutre}"
-		/home/pi/script/dht22.py
-	fi
-        if [[ $CHOIX3 =~ "DS18B20" ]]; then
-                if [ ! -e /home/pi/script/ds18b20.py ]; then
+	        if [[ $CHOIX_TEST =~ "DS18B20" ]]; then
+        	    if [ ! -e /home/pi/script/ds18b20.py ]; then
                         echo -e "${vertclair}\nLe fichier ds18b20.py n'existe pas ${neutre}"
-                        echo -e "${vertclair}\nTéléchargement du fichier ds18b20.py ${neutre}"
-                        wget -P /home/pi/script $lien_github_raw/ds18b20.py
-                        chown pi:pi /home/pi/script/ds18b20.py
-                        chmod +x /home/pi/script/ds18b20.py
-  		fi
-		echo -e "${vertclair}\nTest du capteur de température DS18B20 ${neutre}"
-	        /home/pi/script/ds18b20.py
-	fi
+	                echo -e "${vertclair}\nTéléchargement du fichier ds18b20.py ${neutre}"
+        	        wget -P /home/pi/script $lien_github_raw/ds18b20.py
+	                chown pi:pi /home/pi/script/ds18b20.py
+        	        chmod +x /home/pi/script/ds18b20.py
+	  	    fi
+		    echo -e "${vertclair}\nTest du capteur de température DS18B20 ${neutre}"
+		    /home/pi/script/ds18b20.py
+		fi
 
-        if [[ $CHOIX3 =~ "Kuman" ]]; then
-                echo -e "${vertclair}\nTest module i2c : ${neutre}"
-                lsmod | grep i2c_
-                echo -e "${vertclair}\nAffichage de l'adresse du (des) périphériques i2c : ${neutre}"
-                i2cdetect -y 1
-                if [ ! -e /home/pi/script/Kuman.py ]; then
-                        echo -e "${vertclair}\nLe fichier Kuman.py n'existe pas ${neutre}"
-                        echo -e "${vertclair}\nTéléchargement du fichier Kuman.py ${neutre}"
+        	if [[ $CHOIX_TEST =~ "Kuman" ]]; then
+	            echo -e "${vertclair}\nTest module i2c : ${neutre}"
+        	    lsmod | grep i2c_
+	            echo -e "${vertclair}\nAffichage de l'adresse du (des) périphériques i2c : ${neutre}"
+        	    i2cdetect -y 1
+	            if [ ! -e /home/pi/script/Kuman.py ]; then
+        	        echo -e "${vertclair}\nLe fichier Kuman.py n'existe pas ${neutre}"
+                	echo -e "${vertclair}\nTéléchargement du fichier Kuman.py ${neutre}"
                         wget -P /home/pi/script $lien_github_raw/Kuman.py
-                        chown pi:pi /home/pi/script/Kuman.py
-                        chmod +x /home/pi/script/Kuman.py
-                fi
-		echo -e "${vertclair}\nTest de l'écran Kuman ${neutre}"
-        	/home/pi/script/Kuman.py
-	fi
-        if [[ $CHOIX3 =~ "Int" ]]; then
-                if [ ! -e /home/pi/script/interrupteur.py ]; then
-                        echo -e "${vertclair}\nLe fichier interrupteur.py n'existe pas ${neutre}"
-                        echo -e "${vertclair}\nTéléchargement du fichier interrupteur.py ${neutre}"
+	                chown pi:pi /home/pi/script/Kuman.py
+        	        chmod +x /home/pi/script/Kuman.py
+	            fi
+		    echo -e "${vertclair}\nTest de l'écran Kuman ${neutre}"
+	            /home/pi/script/Kuman.py
+		fi
+        	if [[ $CHOIX_TEST =~ "Int" ]]; then
+	            if [ ! -e /home/pi/script/interrupteur.py ]; then
+        	        echo -e "${vertclair}\nLe fichier interrupteur.py n'existe pas ${neutre}"
+                	echo -e "${vertclair}\nTéléchargement du fichier interrupteur.py ${neutre}"
                         wget -P /home/pi/script $lien_github_raw/interupteur.py
-                        chown pi:pi /home/pi/script/interrupteur.py
-                        chmod +x /home/pi/script/interrupteur.py
+	                chown pi:pi /home/pi/script/interrupteur.py
+        	        chmod +x /home/pi/script/interrupteur.py
+	            fi
+        	    echo -e "${vertclair}\nTest de l'interrupteur ${neutre}"
+	            /home/pi/script/interrupteur.py
+		fi
+
+                if [[ $CHOIX_CAPTEUR =~ "Debug" ]]; then
+                    echo -e "${violetclair}\nFin des tests. Appuyer sur Entrée pour poursuivre l'Installation ${neutre}"
+                    read
                 fi
-                echo -e "${vertclair}\nTest de l'interrupteur ${neutre}"
-                /home/pi/script/interrupteur.py
+	   fi
+        else
+  	    echo "Annulation des installations."
 	fi
     fi
-
 ### ===============================================================
 ### Copyright
 ### ===============================================================
