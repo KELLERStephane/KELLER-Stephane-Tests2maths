@@ -631,7 +631,7 @@ if [[ $exitstatus = 0 ]]; then
         CHOIX_CAPTEUR=$(whiptail --title "Menu d'installation des capteurs Raspberry" --checklist \
 	"\nScript réalisé par :\n- KELLER Stéphane (Lycée Agricole Louis Pasteur)\n- José De Castro\nhttps://github.com/KELLERStephane/KELLER-Stephane-Tests2maths\n\nQuels capteurs soutaitez-vous installer ?" 21 72 7 \
 	"Debug" "Interruption à la fin de chaque installation " OFF \
-        "DHT22" "GrovePI de Dexter Industries " OFF \
+        "GrovePi" "GrovePI de Dexter Industries " OFF \
 	"DHT22" "Capteur de température et d'humidité DHT22 " OFF \
 	"DS18B20" "Capteur de température DS18B20 " OFF \
 	"Kuman" "Affichage données DHT22 sur écran Kuman " OFF \
@@ -645,6 +645,23 @@ if [[ $exitstatus = 0 ]]; then
 	    echo -e -n "${jauneclair} Les capteurs suivants seront installés \n ${neutre}"
 	    echo -e -n "${jauneclair} $CHOIX \n ${neutre}"
 	     echo -e -n "${jauneclair} ======================================= \n ${neutre}"
+
+            if [[ $CHOIX_CAPTEUR =~ "GrovePi" ]]; then
+                    echo -e "${bleuclair}\nInstallation des capteurs GrovePi ${neutre}"
+                    echo -e "${rougeclair}Le shield GrovePi doit être monté sur le Raspberry ${neutre}"
+                    echo -e "${rougeclair}Ne pas oublier d'activer 1-Wire avec sudo raspi-config ${neutre}"
+                    echo -e "${rougeclair}Ne pas oublier d'activer i2C avec sudo raspi-config ${neutre}"
+                    echo -e "${rougeclair}Ne pas oublier d'activer les GPIO avec sudo raspi-config ${neutre}"
+
+                    curl -kL dexterindustries.com/update_grovepi | bash
+
+                if [ -e /home/pi/script/dht22.py ] ; then
+                    echo -e "${cyanclair}\nLe fichier /home/pi/script/dht22.py existe déjà ${neutre}"
+                    echo -e "${cyanclair}Effacement du fichier puis création du nouveau fichier ${neutre}"
+                    rm /home/pi/script/dht22.py*
+                fi
+            fi
+
 
 	    if [[ $CHOIX_CAPTEUR =~ "DHT22" ]]; then
 		echo -e "${bleuclair}\nInstallation du capteur de température et d'humidité DHT22 ${neutre}"
@@ -1058,16 +1075,30 @@ if [[ $exitstatus = 0 ]]; then
 		    echo -e -n "${jauneclair} ======================================= \n ${neutre}"
 		fi
 
+                if [[ $CHOIX_TEST =~ "GrovePi" ]]; then
+#                    if [ ! -e /home/pi/script/dht22.py ]; then
+#                        echo -e "${vertclair}\nLe répertoire /home/pi/.........../GrovePi n'existe pas ${neutre}"
+#                        echo -e "${vertclair}\nPoursuite des tests ${neutre}"
+#                    fi
+#                    else
+#                        echo -e "${vertclair}\nTest de shield GrovePi ${neutre}"
+#                        cd ~/Dexter/GrovePi/Troubleshooting
+#                        bash all_tests.sh
+#                    fi
+                    if [[ $CHOIX_TEST =~ "Debug" ]]; then
+                        echo -e "${violetclair}\nFin du test du shield GrovePi. Appuyer sur Entrée pour poursuivre les tests ${neutre}"
+                        read
+                    fi
+                fi
+
 	    	if [[ $CHOIX_TEST =~ "DHT22" ]]; then
 		    if [ ! -e /home/pi/script/dht22.py ]; then
 		        echo -e "${vertclair}\nLe fichier dht22.py n'existe pas ${neutre}"
-			echo -e "${vertclair}\nTéléchargement du fichier dht22.py ${neutre}"
-			wget -P /home/pi/script $lien_github_raw/dht22.py
-			chown pi:pi /home/pi/script/dht22.py
-			chmod +x /home/pi/script/dht22.py
+			echo -e "${vertclair}\nPoursuite des tests ${neutre}"
+                    else
+                        echo -e "${vertclair}\nTest du capteur de température et d'humidité DHT22 ${neutre}"
+                        /home/pi/script/dht22.py
 		    fi
-			echo -e "${vertclair}\nTest du capteur de température et d'humidité DHT22 ${neutre}"
-			/home/pi/script/dht22.py
                     if [[ $CHOIX_TEST =~ "Debug" ]]; then
                         echo -e "${violetclair}\nFin du test du capteur de température et d'humidité DHT22. Appuyer sur Entrée pour poursuivre les tests ${neutre}"
                         read
@@ -1078,12 +1109,10 @@ if [[ $exitstatus = 0 ]]; then
         	    if [ ! -e /home/pi/script/ds18b20.py ]; then
                         echo -e "${vertclair}\nLe fichier ds18b20.py n'existe pas ${neutre}"
 	                echo -e "${vertclair}\nTéléchargement du fichier ds18b20.py ${neutre}"
-        	        wget -P /home/pi/script $lien_github_raw/ds18b20.py
-	                chown pi:pi /home/pi/script/ds18b20.py
-        	        chmod +x /home/pi/script/ds18b20.py
+                    else
+                        echo -e "${vertclair}\nTest du capteur de température DS18B20 ${neutre}"
+                        /home/pi/script/ds18b20.py
 	  	    fi
-		    echo -e "${vertclair}\nTest du capteur de température DS18B20 ${neutre}"
-		    /home/pi/script/ds18b20.py
                     if [[ $CHOIX_TEST =~ "Debug" ]]; then
                         echo -e "${violetclair}\nFin du test du capteur DS18B20. Appuyer sur Entrée pour poursuivre les tests ${neutre}"
                         read
@@ -1097,13 +1126,11 @@ if [[ $exitstatus = 0 ]]; then
         	    i2cdetect -y 1
 	            if [ ! -e /home/pi/script/Kuman.py ]; then
         	        echo -e "${vertclair}\nLe fichier Kuman.py n'existe pas ${neutre}"
-                	echo -e "${vertclair}\nTéléchargement du fichier Kuman.py ${neutre}"
-                        wget -P /home/pi/script $lien_github_raw/Kuman.py
-	                chown pi:pi /home/pi/script/Kuman.py
-        	        chmod +x /home/pi/script/Kuman.py
+                	echo -e "${vertclair}\nPoursuite des tests ${neutre}"
+                    else
+                        echo -e "${vertclair}\nTest de l'écran Kuman ${neutre}"
+                        /home/pi/script/Kuman.py
 	            fi
-		    echo -e "${vertclair}\nTest de l'écran Kuman ${neutre}"
-	            /home/pi/script/Kuman.py
                     if [[ $CHOIX_TEST =~ "Debug" ]]; then
                         echo -e "${violetclair}\nFin du test de l'écran Kuman. Appuyer sur Entrée pour poursuivre les tests ${neutre}"
                         read
@@ -1113,13 +1140,11 @@ if [[ $exitstatus = 0 ]]; then
         	if [[ $CHOIX_TEST =~ "Int" ]]; then
 	            if [ ! -e /home/pi/script/interrupteur.py ]; then
         	        echo -e "${vertclair}\nLe fichier interrupteur.py n'existe pas ${neutre}"
-                	echo -e "${vertclair}\nTéléchargement du fichier interrupteur.py ${neutre}"
-                        wget -P /home/pi/script $lien_github_raw/interupteur.py
-	                chown pi:pi /home/pi/script/interrupteur.py
-        	        chmod +x /home/pi/script/interrupteur.py
+                	echo -e "${vertclair}\nPoursuite des tests ${neutre}"
+                    else
+                        echo -e "${vertclair}\nTest de l'interrupteur ${neutre}"
+                        /home/pi/script/interrupteur.py
 	            fi
-        	    echo -e "${vertclair}\nTest de l'interrupteur ${neutre}"
-	            /home/pi/script/interrupteur.py
                     if [[ $CHOIX_TEST =~ "Debug" ]]; then
                         echo -e "${violetclair}\nFin du test de l'interrupteur. Appuyer sur Entrée pour les tests ${neutre}"
                         read
