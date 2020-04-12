@@ -131,8 +131,12 @@ try:
 	#Affichage des valeurs sur l'écran
 	ligne1, ligne2 = 0, 8
 
-	# Load default font.
-	#font = ImageFont.load_default()
+        # Display image.
+        disp.image(image)
+        disp.display()
+
+        # Load default font.
+        #font = ImageFont.load_default()
 
 	font = ImageFont.truetype('Minecraftia-Regular.ttf',6)
 	draw.text((x, ligne1),         "TEMPERATURE",  font=font, fill=255)

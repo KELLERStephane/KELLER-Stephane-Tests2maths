@@ -375,7 +375,7 @@ if [[ $exitstatus = 0 ]]; then
 	cp /etc/fail2ban/jail.d/custom.conf /etc/fail2ban/jail.d/custom.copy
         echo -e "${vertclair}Ajout de l'adresse dans le fichier de configuration personnalisable de Fail2ban ${neutre}"
         L1='destmail ='
-        L2='\ndestmail = '
+        L2='destmail = '
         sed -i '/'"$L1"'/ c\'"$L2"''"$mail1"'' /etc/fail2ban/jail.d/custom.conf
 
 	#Démarrage du service Postfix
@@ -629,8 +629,9 @@ if [[ $exitstatus = 0 ]]; then
 
     if [[ $CHOIX =~ "Capteur" ]]; then
         CHOIX_CAPTEUR=$(whiptail --title "Menu d'installation des capteurs Raspberry" --checklist \
-	"\nScript réalisé par :\n- KELLER Stéphane (Lycée Agricole Louis Pasteur)\n- José De Castro\nhttps://github.com/KELLERStephane/KELLER-Stephane-Tests2maths\n\nQuels capteurs soutaitez-vous installer ?" 20 72 6 \
+	"\nScript réalisé par :\n- KELLER Stéphane (Lycée Agricole Louis Pasteur)\n- José De Castro\nhttps://github.com/KELLERStephane/KELLER-Stephane-Tests2maths\n\nQuels capteurs soutaitez-vous installer ?" 21 72 7 \
 	"Debug" "Interruption à la fin de chaque installation " OFF \
+        "DHT22" "GrovePI de Dexter Industries " OFF \
 	"DHT22" "Capteur de température et d'humidité DHT22 " OFF \
 	"DS18B20" "Capteur de température DS18B20 " OFF \
 	"Kuman" "Affichage données DHT22 sur écran Kuman " OFF \
@@ -1040,7 +1041,9 @@ if [[ $exitstatus = 0 ]]; then
 		cd /home/pi/script
 
 		CHOIX_TEST=$(whiptail --title "Menu de tests des capteurs" --checklist \
-		"\nScript réalisé par :\n- KELLER Stéphane (Lycée Agricole Louis Pasteur)\n- José De Castro\nhttps://github.com/KELLERStephane/KELLER-Stephane-Tests2maths\n\nQuel capteur soutaitez-vous tester ?" 18 72 4 \
+		"\nScript réalisé par :\n- KELLER Stéphane (Lycée Agricole Louis Pasteur)\n- José De Castro\nhttps://github.com/KELLERStephane/KELLER-Stephane-Tests2maths\n\nQuel capteur soutaitez-vous tester ?" 21 72 7 \
+                "Debug" "Interruption à la fin de chaque installation " OFF \
+		"GrovePi" "Test du GrovePi de Dexter Industries " OFF \
 		"DHT22" "Test du capteur de température et d'humidité DHT22 " OFF \
 		"DS18B20" "Test du capteur de température DS18B20 " OFF \
 		"Kuman" "Test de l'écran Kuman " OFF \
@@ -1065,7 +1068,12 @@ if [[ $exitstatus = 0 ]]; then
 		    fi
 			echo -e "${vertclair}\nTest du capteur de température et d'humidité DHT22 ${neutre}"
 			/home/pi/script/dht22.py
+                    if [[ $CHOIX_TEST =~ "Debug" ]]; then
+                        echo -e "${violetclair}\nFin du test du capteur de température et d'humidité DHT22. Appuyer sur Entrée pour poursuivre les tests ${neutre}"
+                        read
+                    fi
 		fi
+
 	        if [[ $CHOIX_TEST =~ "DS18B20" ]]; then
         	    if [ ! -e /home/pi/script/ds18b20.py ]; then
                         echo -e "${vertclair}\nLe fichier ds18b20.py n'existe pas ${neutre}"
@@ -1076,6 +1084,10 @@ if [[ $exitstatus = 0 ]]; then
 	  	    fi
 		    echo -e "${vertclair}\nTest du capteur de température DS18B20 ${neutre}"
 		    /home/pi/script/ds18b20.py
+                    if [[ $CHOIX_TEST =~ "Debug" ]]; then
+                        echo -e "${violetclair}\nFin du test du capteur DS18B20. Appuyer sur Entrée pour poursuivre les tests ${neutre}"
+                        read
+                    fi
 		fi
 
         	if [[ $CHOIX_TEST =~ "Kuman" ]]; then
@@ -1092,7 +1104,12 @@ if [[ $exitstatus = 0 ]]; then
 	            fi
 		    echo -e "${vertclair}\nTest de l'écran Kuman ${neutre}"
 	            /home/pi/script/Kuman.py
+                    if [[ $CHOIX_TEST =~ "Debug" ]]; then
+                        echo -e "${violetclair}\nFin du test de l'écran Kuman. Appuyer sur Entrée pour poursuivre les tests ${neutre}"
+                        read
+                    fi
 		fi
+
         	if [[ $CHOIX_TEST =~ "Int" ]]; then
 	            if [ ! -e /home/pi/script/interrupteur.py ]; then
         	        echo -e "${vertclair}\nLe fichier interrupteur.py n'existe pas ${neutre}"
@@ -1103,13 +1120,12 @@ if [[ $exitstatus = 0 ]]; then
 	            fi
         	    echo -e "${vertclair}\nTest de l'interrupteur ${neutre}"
 	            /home/pi/script/interrupteur.py
-		fi
-
-                if [[ $CHOIX_CAPTEUR =~ "Debug" ]]; then
-                    echo -e "${violetclair}\nFin des tests. Appuyer sur Entrée pour poursuivre l'Installation ${neutre}"
-                    read
+                    if [[ $CHOIX_TEST =~ "Debug" ]]; then
+                        echo -e "${violetclair}\nFin du test de l'interrupteur. Appuyer sur Entrée pour les tests ${neutre}"
+                        read
+                    fi
                 fi
-	   fi
+	    fi
         else
   	    echo "Annulation des installations."
 	fi
