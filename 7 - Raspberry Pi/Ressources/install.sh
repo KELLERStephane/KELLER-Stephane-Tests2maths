@@ -56,7 +56,12 @@ fi
 ### Choix des options d'installation
 ### ===============================================================
 
-CHOIX=$(whiptail --title "Menu d'installation du Raspberry" --checklist \
+CHOIX=$(NEWT_COLORS='
+root=,blue
+checkbox=white,brightblue
+shadow=,black
+' \
+whiptail --title "Menu d'installation du Raspberry" --checklist \
 "\nScript réalisé par :\n- KELLER Stéphane (Lycée Agricole Louis Pasteur)\n- José De Castro\nhttps://github.com/KELLERStephane/KELLER-Stephane-Tests2maths\n\nQue soutaitez-vous installer ?" 23 72 10 \
 "Debug" "Interruption à la fin de chaque installation " OFF \
 "MAJ" "Mise a jour du systeme " OFF \
@@ -67,7 +72,7 @@ CHOIX=$(whiptail --title "Menu d'installation du Raspberry" --checklist \
 "Fail2map" "Affichage des ip sur une carte " OFF \
 "GPIO" "Wiringpi pour l'utilisation des GPIO " OFF \
 "Domoticz" "Logiciel de domotique Domoticz " OFF \
-"Capteur" "Installation et tests des capteurs" OFF 3>&1 1>&2 2>&3)
+"Capteurs" "Installation et tests des capteurs" OFF 3>&1 1>&2 2>&3)
 
 exitstatus=$?
 
@@ -374,8 +379,8 @@ if [[ $exitstatus = 0 ]]; then
         echo -e "${vertclair}/etc/fail2ban/jail.d/custom.conf -> /etc/fail2ban/jail.d/custom.copy ${neutre}"
 	cp /etc/fail2ban/jail.d/custom.conf /etc/fail2ban/jail.d/custom.copy
         echo -e "${vertclair}Ajout de l'adresse dans le fichier de configuration personnalisable de Fail2ban ${neutre}"
-        L1='destmail ='
-        L2='destmail = '
+        L1='destemail ='
+        L2='destemail = '
         sed -i '/'"$L1"'/ c\'"$L2"''"$mail1"'' /etc/fail2ban/jail.d/custom.conf
 
 	#Démarrage du service Postfix
@@ -627,8 +632,13 @@ if [[ $exitstatus = 0 ]]; then
 ### CAPTEUR DE TEMPERATURE ET D'HUMIDITE DHT22
 ### ===============================================================
 
-    if [[ $CHOIX =~ "Capteur" ]]; then
-        CHOIX_CAPTEUR=$(whiptail --title "Menu d'installation des capteurs Raspberry" --checklist \
+    if [[ $CHOIX =~ "Capteurs" ]]; then
+        CHOIX_CAPTEUR=$(NEWT_COLORS='
+        root=,black
+        checkbox=white,black
+        shadow=,blue
+        ' \
+        whiptail --title "Menu d'installation des capteurs Raspberry" --checklist \
 	"\nScript réalisé par :\n- KELLER Stéphane (Lycée Agricole Louis Pasteur)\n- José De Castro\nhttps://github.com/KELLERStephane/KELLER-Stephane-Tests2maths\n\nQuels capteurs soutaitez-vous installer ?" 21 72 7 \
 	"Debug" "Interruption à la fin de chaque installation " OFF \
         "GrovePi" "GrovePI de Dexter Industries " OFF \
@@ -644,24 +654,22 @@ if [[ $exitstatus = 0 ]]; then
 	    echo -e -n "${jauneclair} ======================================= \n ${neutre}"
 	    echo -e -n "${jauneclair} Les capteurs suivants seront installés \n ${neutre}"
 	    echo -e -n "${jauneclair} $CHOIX \n ${neutre}"
-	     echo -e -n "${jauneclair} ======================================= \n ${neutre}"
+	    echo -e -n "${jauneclair} ======================================= \n ${neutre}"
 
             if [[ $CHOIX_CAPTEUR =~ "GrovePi" ]]; then
-                    echo -e "${bleuclair}\nInstallation des capteurs GrovePi ${neutre}"
-                    echo -e "${rougeclair}Le shield GrovePi doit être monté sur le Raspberry ${neutre}"
-                    echo -e "${rougeclair}Ne pas oublier d'activer 1-Wire avec sudo raspi-config ${neutre}"
-                    echo -e "${rougeclair}Ne pas oublier d'activer i2C avec sudo raspi-config ${neutre}"
-                    echo -e "${rougeclair}Ne pas oublier d'activer les GPIO avec sudo raspi-config ${neutre}"
+                echo -e "${bleuclair}\nInstallation des capteurs GrovePi ${neutre}"
+                echo -e "${rougeclair}Le shield GrovePi doit être monté sur le Raspberry ${neutre}"
+                echo -e "${rougeclair}Ne pas oublier d'activer 1-Wire avec sudo raspi-config ${neutre}"
+                echo -e "${rougeclair}Ne pas oublier d'activer i2C avec sudo raspi-config ${neutre}"
+                echo -e "${rougeclair}Ne pas oublier d'activer les GPIO avec sudo raspi-config ${neutre}"
 
-                    curl -kL dexterindustries.com/update_grovepi | bash
-
-                if [ -e /home/pi/script/dht22.py ] ; then
-                    echo -e "${cyanclair}\nLe fichier /home/pi/script/dht22.py existe déjà ${neutre}"
-                    echo -e "${cyanclair}Effacement du fichier puis création du nouveau fichier ${neutre}"
-                    rm /home/pi/script/dht22.py*
-                fi
+#                if [ -e /home/pi/Dexter ] ; then
+#                    echo -e "${cyanclair}\nLe répertoire /home/pi/Dexter existe déjà ${neutre}"
+#                    echo -e "${cyanclair}Suppresion du répertoire puis nouvelle installation ${neutre}"
+#                    rm -r /home/pi/Dexter*
+#                fi
+                curl -kL dexterindustries.com/update_grovepi | sudo -u pi bash
             fi
-
 
 	    if [[ $CHOIX_CAPTEUR =~ "DHT22" ]]; then
 		echo -e "${bleuclair}\nInstallation du capteur de température et d'humidité DHT22 ${neutre}"
@@ -1057,13 +1065,18 @@ if [[ $exitstatus = 0 ]]; then
 
 		cd /home/pi/script
 
-		CHOIX_TEST=$(whiptail --title "Menu de tests des capteurs" --checklist \
+                CHOIX_TEST=$(NEWT_COLORS='
+                root=,blue
+                checkbox=white,black
+                ' \
+                whiptail --title "Menu de tests des capteurs" --checklist \
 		"\nScript réalisé par :\n- KELLER Stéphane (Lycée Agricole Louis Pasteur)\n- José De Castro\nhttps://github.com/KELLERStephane/KELLER-Stephane-Tests2maths\n\nQuel capteur soutaitez-vous tester ?" 21 72 7 \
                 "Debug" "Interruption à la fin de chaque installation " OFF \
 		"GrovePi" "Test du GrovePi de Dexter Industries " OFF \
 		"DHT22" "Test du capteur de température et d'humidité DHT22 " OFF \
 		"DS18B20" "Test du capteur de température DS18B20 " OFF \
 		"Kuman" "Test de l'écran Kuman " OFF \
+		"SPI" "Test de l'écran bus SPI " OFF \
 		"Int" "Test de l'interrupteur " OFF 3>&1 1>&2 2>&3)
 
 		exitstatus=$?
@@ -1076,15 +1089,15 @@ if [[ $exitstatus = 0 ]]; then
 		fi
 
                 if [[ $CHOIX_TEST =~ "GrovePi" ]]; then
-#                    if [ ! -e /home/pi/script/dht22.py ]; then
-#                        echo -e "${vertclair}\nLe répertoire /home/pi/.........../GrovePi n'existe pas ${neutre}"
-#                        echo -e "${vertclair}\nPoursuite des tests ${neutre}"
-#                    fi
-#                    else
-#                        echo -e "${vertclair}\nTest de shield GrovePi ${neutre}"
-#                        cd ~/Dexter/GrovePi/Troubleshooting
-#                        bash all_tests.sh
-#                    fi
+                    if [ ! -e /home/pi//Dexter/GrovePi/Troubleshooting ]; then
+                        echo -e "${vertclair}\nLe répertoire /home/pi/.........../GrovePi n'existe pas ${neutre}"
+                        echo -e "${vertclair}\nPoursuite des tests ${neutre}"
+                    else
+                        echo -e "${vertclair}\nTest de shield GrovePi ${neutre}"
+                        mkdir /home/pi/Desktop >/dev/null
+                        cd /home/pi/Dexter/GrovePi/Troubleshooting
+                        bash all_tests.sh
+                    fi
                     if [[ $CHOIX_TEST =~ "Debug" ]]; then
                         echo -e "${violetclair}\nFin du test du shield GrovePi. Appuyer sur Entrée pour poursuivre les tests ${neutre}"
                         read
@@ -1170,10 +1183,10 @@ if [[ $exitstatus = 0 ]]; then
 
     echo -e "${vertclair}Redémarrage du service Apache2 ${neutre}"
     /etc/init.d/apache2 restart
- 
+
     echo -e "${jauneclair}Appuyer une touche pour redémarrer le Raspberry ${neutre}"
     read
-    reboot
+#    reboot
 
 else
     echo "Annulation des installations."
