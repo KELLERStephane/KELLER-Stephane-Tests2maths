@@ -1183,12 +1183,12 @@ if [[ $exitstatus = 0 ]]; then
     if (whiptail --title "Redémarrage du Raspberry" --yesno "Voulez-vous redémarrer le raspberry.\n\nIl est obligatoire de le faire pour que les installations soient pris en compte." 10 60) then
 	reboot
     else
-	echo "Bonne utilisation."
+	echo -e "${bleuclair}\nBonne utilisation. ${neutre}"
     fi
 
     whiptail --title "Copyright" --msgbox "Script réalisé par KELLER Stéphane - Lycée Agricole Louis Pasteur\net José De Castro.\nhttps://github.com/KELLERStephane/KELLER-Stephane-Tests2maths\nCliquer sur Ok pour continuer." 10 70
 
 else
-    echo "Annulation des installations."
+     echo -e "${rougeclair}\nnAnnulation des installations. ${neutre}"
 fi
 
