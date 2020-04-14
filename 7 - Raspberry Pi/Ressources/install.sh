@@ -164,7 +164,7 @@ if [[ $exitstatus = 0 ]]; then
 		apt -y purge webmin
 	fi
         ### Installation de l interface WEB du gestionnaire systeme si nécessaire
-	echo -e -n "${bleuclair}\nInstallation/MAJ de la dernière version de WEBMIN...\n ${neutre}"
+	echo -e -n "${bleuclair}\nInstallation/MAJ de la dernière version de WEBMIN.${neutre}"
 	### installer les dépendances
 	aptitude -y install libnet-ssleay-perl openssl libauthen-pam-perl libio-pty-perl apt-show-versions
 	### telecharger la derniere version de Webmin
@@ -176,15 +176,16 @@ if [[ $exitstatus = 0 ]]; then
             echo -e "${cyanclair}\nFail2ban n'est pas installé ${neutre}"
             echo -e "${cyanclair}Poursuite de l'installation ${neutre}"
         else
-            echo -e "${cyanclair}Fail2ban existe ${neutre}"
+            echo -e "${cyanclair}\nFail2ban existe ${neutre}"
             if [ -f "/etc/fail2ban/jail.d/webmin.conf" ]; then
                 echo -e "${cyanclair}\nLe fichier /etc/fail2ban/jail.d/webmin.conf existe déjà ${neutre}"
                 echo -e "${cyanclair}Poursuite de l'installation ${neutre}"
             else
  	        echo -e "${cyanclair}Création de la prison dans /etc/fail2ban/jail.d/webmin.conf ${neutre}"
-                L1='\n[webmin-auth]'
+                L1='[webmin-auth]'
                 L2='\nenabled  = true'
-                echo -e $L1 $L2 >/etc/fail2ban/jail.d/webmin.conf 
+                echo -e $L1 $L2 >/etc/fail2ban/jail.d/webmin.conf
+                chown pi:pi /etc/fail2ban/jail.d/webmin.conf
             fi
         fi
 
@@ -609,7 +610,7 @@ if [[ $exitstatus = 0 ]]; then
     	L3='\nDAEMON_ARGS="$DAEMON_ARGS -log /var/log/domoticz.log"'
     	sed -i '/'"$L1"'/ c\'"$L2"''"$L3"'' /etc/init.d/domoticz.sh
 
-    	echo -e "${vertclair}Téléchargement du fichier de configuration Fail2ban ${neutre}"
+    	echo -e "${vertclair}Téléchargement du filtre Domoticz pour Fail2ban ${neutre}"
     	echo -e "${vertclair}pour domoticz dans /etc/fail2ban/filter.d/domoticz.conf ${neutre}"
     	if [ -f /etc/fail2ban/filter.d/domoticz.conf ] ; then
 		echo -e "${cyanclair}\nLe fichier /etc/fail2ban/filter.d/domoticz.conf existe déjà ${neutre}"
@@ -619,30 +620,25 @@ if [[ $exitstatus = 0 ]]; then
     	wget -P /etc/fail2ban/filter.d/ $lien_github_raw/domoticz.conf
     	chown pi:pi /etc/fail2ban/filter.d/domoticz.conf
 
-    	if [ ! -e "/etc/fail2ban/jail.d/custom.conf" ] ; then
-		echo -e "${cyanclair}\nLe fichier /etc/fail2ban/jail.d/custom.conf n'existe pas ! ${neutre}"
-		echo -e "${vertclair}\nTéléchargement du fichier de configuration des prisons (à personnaliser) ${neutre}"
-		wget -P /etc/fail2ban/jail.d/ $lien_github_raw/custom.conf
-		chown pi:pi /etc/fail2ban/jail.d/custom.conf
-    	fi
-
-	grep -i "domoticz" "/etc/fail2ban/jail.d/custom.conf" >/dev/null
-        if [ $? = 0  ]; then
-                echo -e "${cyanclair}Le fichier /etc/fail2ban/jail.d/custom.conf a déjà été modifié ${neutre}"
-		echo -e "${cyanclair}Poursuite de l'installation ${neutre}"
+        if [ ! -d "/etc/fail2ban" ]; then
+            echo -e "${cyanclair}\nFail2ban n'est pas installé ${neutre}"
+            echo -e "${cyanclair}Poursuite de l'installation ${neutre}"
         else
-                if [ -f "/etc/fail2ban/jail.d/custom.conf" ]; then
-                    echo -e "${cyanclair}\nCréation de la prison domoticz dans le fichier /etc/fail2ban/jail.d/custom.conf ${neutre}"
-                    L1='[domoticz]'
-                    L2='\nenabled  = true'
-                    L3='\nport = 8080,443'
-                    L4='\nfilter  = domoticz'
-                    L5='\nlogpath = /var/log/domoticz.log'
-                    echo -e $L1 $L2 $L3 $L4 $L5 >> /etc/fail2ban/jail.d/custom.conf
-                else
-                    echo -e "${cyanclair}\nFail2ban n'est pas installé ! ${neutre}"
-                fi
-	fi
+            echo -e "${cyanclair}Fail2ban existe ${neutre}"
+            if [ -f "/etc/fail2ban/jail.d/domoticz.conf" ]; then
+                echo -e "${cyanclair}\nLe fichier /etc/fail2ban/jail.d/domoticz.conf existe déjà ${neutre}"
+                echo -e "${cyanclair}Poursuite de l'installation ${neutre}"
+            else
+ 	        echo -e "${cyanclair}Création de la prison dans /etc/fail2ban/jail.d/domoticz.conf ${neutre}"
+                L1='[domoticz]'
+                L2='\nenabled  = true'
+                L3='\nport = 8080,443'
+                L4='\nfilter  = domoticz'
+                L5='\nlogpath = /var/log/domoticz.log'
+                echo -e $L1 $L2 $L3 $L4 $L5 >> /etc/fail2ban/jail.d/domoticz.conf
+                chown pi:pi /etc/fail2ban/jail.d/domoticz.conf
+            fi
+        fi
 
     	if [[ $CHOIX =~ "Debug" ]]; then
         	echo -e "${violetclair}\nFin de l'installation de Domoticz. Appuyer sur Entrée pour poursuivre l'Installation ${neutre}"
