@@ -77,10 +77,10 @@ whiptail --title "Menu d'installation du Raspberry" --checklist \
 exitstatus=$?
 
 if [[ $exitstatus = 0 ]]; then
-    echo -e -n "${jauneclair} =======================================  \n ${neutre}"
-    echo -e -n "${jauneclair} Les logiciels suivants seront installés  \n ${neutre}"
-    echo -e -n "${jauneclair} $CHOIX                                   \n ${neutre}"
-    echo -e -n "${jauneclair} =======================================  \n ${neutre}"
+    echo -e -n "${jauneclair}\t =======================================  \n ${neutre}"
+    echo -e -n "${jauneclair}\t Les logiciels suivants seront installés  \n ${neutre}"
+    echo -e -n "${jauneclair}\t $CHOIX                                   \n ${neutre}"
+    echo -e -n "${jauneclair}\t =======================================  \n ${neutre}"
 
 ### ===============================================================
 ### Mise à jour du système
@@ -135,6 +135,7 @@ if [[ $exitstatus = 0 ]]; then
 	        apt install -y python3-pip
 	        apt install -y python3-setuptools
 	        python3 -m pip install --upgrade pip setuptools wheel
+		python3 -m pip install requests
     	else
     		#installation si Python2
 	        echo -e "${vertclair}\nInstallation de pip pour python2 si nécessaire ${neutre}"
@@ -144,6 +145,7 @@ if [[ $exitstatus = 0 ]]; then
 		apt install -y python-pip
 		apt install -y python-setuptools
 	        python -m pip install --upgrade pip setuptools wheel
+		python -m pip install requests
 	fi
 
 	if [[ $CHOIX =~ "Debug" ]]; then
@@ -613,7 +615,7 @@ if [[ $exitstatus = 0 ]]; then
                 echo -e "${cyanclair}Le fichier /etc/fail2ban/jail.d/custom.conf a déjà été modifié ${neutre}"
 		echo -e "${cyanclair}Poursuite de l'installation ${neutre}"
         else
-                if [ -d "/etc/fail2ban/jail.d/custom.conf" ]; then
+                if [ -e "/etc/fail2ban/jail.d/custom.conf" ]; then
                     echo -e "${cyanclair}\nCréation de la prison domoticz dans le fichier /etc/fail2ban/jail.d/custom.conf ${neutre}"
                     L1='[domoticz]'
                     L2='\nenabled  = true'
@@ -655,10 +657,10 @@ if [[ $exitstatus = 0 ]]; then
 	exitstatus=$?
 
 	if [[ $exitstatus = 0 ]]; then
-	    echo -e -n "${jauneclair} =======================================  \n ${neutre}"
-	    echo -e -n "${jauneclair} Les capteurs suivants seront installés   \n ${neutre}"
-	    echo -e -n "${jauneclair} $CHOIX                                   \n ${neutre}"
-	    echo -e -n "${jauneclair} =======================================  \n ${neutre}"
+	    echo -e -n "${jauneclair}\t =======================================  \n ${neutre}"
+	    echo -e -n "${jauneclair}\t Les capteurs suivants seront installés   \n ${neutre}"
+	    echo -e -n "${jauneclair}\t $CHOIX                                   \n ${neutre}"
+	    echo -e -n "${jauneclair}\t =======================================  \n ${neutre}"
 
             if [[ $CHOIX_CAPTEUR =~ "GrovePi" ]]; then
                 echo -e "${bleuclair}\nInstallation des capteurs GrovePi ${neutre}"
@@ -890,10 +892,10 @@ if [[ $exitstatus = 0 ]]; then
 		exitstatus=$?
 
 		if [[ $exitstatus = 0 ]]; then
-	    	    echo -e -n "${jauneclair} =======================================  \n ${neutre}"
-		    echo -e -n "${jauneclair} L'affichage sera le suivant              \n ${neutre}"
-		    echo -e -n "${jauneclair} $CHOIX                                   \n ${neutre}"
-	    	    echo -e -n "${jauneclair} =======================================  \n ${neutre}"
+	    	    echo -e -n "${jauneclair}\t =======================================  \n ${neutre}"
+		    echo -e -n "${jauneclair}\t L'affichage sera le suivant              \n ${neutre}"
+		    echo -e -n "${jauneclair}\t $CHOIX                                   \n ${neutre}"
+	    	    echo -e -n "${jauneclair}\t =======================================  \n ${neutre}"
 
 		    echo -e "${bleuclair}\nInstallation de l'écran Kuman ${neutre}"
 		    echo -e "${rougeclair}Domoticz, GPIO et DHT22 doivent être installés. ${neutre}"
@@ -928,12 +930,10 @@ if [[ $exitstatus = 0 ]]; then
 	            echo -e $version
 		    if [[ $version =~ "Python 3" ]]; then
         	        #installation si Python3
-                	pip3 install requests
 	                cd /home/pi/script/Adafruit_Python_SSD1306
 		                sudo python3 setup.py install
 		    else
         	        #installation si Python2
-                	pip install requests
 		        cd /home/pi/script/Adafruit_Python_SSD1306
         		python setup.py install
 	            fi
@@ -1082,10 +1082,10 @@ if [[ $exitstatus = 0 ]]; then
 		exitstatus=$?
 
 		if [[ $exitstatus = 0 ]]; then
-		    echo -e -n "${jauneclair} =======================================  \n ${neutre}"
-		    echo -e -n "${jauneclair} Les capteurs suivants seront testés      \n ${neutre}"
-		    echo -e -n "${jauneclair} $CHOIX_TEST                              \n ${neutre}"
-		    echo -e -n "${jauneclair} =======================================  \n ${neutre}"
+		    echo -e -n "${jauneclair}\t =======================================  \n ${neutre}"
+		    echo -e -n "${jauneclair}\t Les capteurs suivants seront testés      \n ${neutre}"
+		    echo -e -n "${jauneclair}\t $CHOIX_TEST                              \n ${neutre}"
+		    echo -e -n "${jauneclair}\t =======================================  \n ${neutre}"
 		fi
 
                 if [[ $CHOIX_TEST =~ "GrovePi" ]]; then
