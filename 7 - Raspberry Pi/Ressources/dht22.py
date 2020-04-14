@@ -97,4 +97,4 @@ else:
 		print 'Problème avec la lecture du DHT. Try again!'
     else:
 		print('Problème avec la lecture du DHT. Try again!')
-    sys.exit(1)
+    exit(1)
