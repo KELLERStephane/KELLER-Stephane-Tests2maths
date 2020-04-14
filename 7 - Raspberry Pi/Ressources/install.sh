@@ -1139,11 +1139,13 @@ if [[ $exitstatus = 0 ]]; then
         	    i2cdetect -y 1
 	            if [ ! -e /home/pi/script/Kuman.py ]; then
         	        echo -e "${vertclair}\nLe fichier Kuman.py n'existe pas ${neutre}"
-                	echo -e "${vertclair}\nPoursuite des tests ${neutre}"
-                    else
-                        echo -e "${vertclair}\nTest de l'écran Kuman ${neutre}"
-                        /home/pi/script/Kuman.py
-	            fi
+			echo -e "${vertclair}\nTéléchargement du fichier kuman.py ${neutre}"
+                        wget -P /home/pi/script $lien_github_raw/Kuman.py
+	                chown pi:pi /home/pi/script/Kuman.py
+        	        chmod +x /home/pi/script/Kuman.py
+                    fi
+                    echo -e "${vertclair}\nTest de l'écran Kuman ${neutre}"
+                    /home/pi/script/Kuman.py
                     if [[ $CHOIX_TEST =~ "Debug" ]]; then
                         echo -e "${violetclair}\nFin du test de l'écran Kuman. Appuyer sur Entrée pour poursuivre les tests ${neutre}"
                         read
@@ -1178,7 +1180,7 @@ if [[ $exitstatus = 0 ]]; then
         /etc/init.d/apache2 restart
     fi
 
-    if (whiptail --title "Redémarrage du Raspberry" --yesno "Voulez-vous redémarrer le raspberry.\nIl est obligatoire de le faire pour que les installations soient pris en compte." 10 60) then
+    if (whiptail --title "Redémarrage du Raspberry" --yesno "Voulez-vous redémarrer le raspberry.\n\nIl est obligatoire de le faire pour que les installations soient pris en compte." 10 60) then
 	reboot
     else
 	echo "Bonne utilisation."
