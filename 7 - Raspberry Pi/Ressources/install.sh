@@ -183,7 +183,7 @@ if [[ $exitstatus = 0 ]]; then
             else
  	        echo -e "${cyanclair}Création de la prison dans /etc/fail2ban/jail.d/webmin.conf ${neutre}"
                 L1='[webmin-auth]'
-                L2='\nenabled  = true'
+                L2='\nenabled = true'
                 echo -e $L1 $L2 >/etc/fail2ban/jail.d/webmin.conf
                 chown pi:pi /etc/fail2ban/jail.d/webmin.conf
             fi
@@ -393,6 +393,25 @@ if [[ $exitstatus = 0 ]]; then
 			echo -e "${rougeclair}Erreur ${neutre}"
 		fi
         done
+
+        if [ ! -d "/etc/fail2ban" ]; then
+            echo -e "${cyanclair}\nFail2ban n'est pas installé ${neutre}"
+            echo -e "${cyanclair}Poursuite de l'installation ${neutre}"
+        else
+            echo -e "${cyanclair}Fail2ban existe ${neutre}"
+            if [ -f "/etc/fail2ban/jail.d/postfix.conf" ]; then
+                echo -e "${cyanclair}\nLe fichier /etc/fail2ban/jail.d/postfix.conf existe déjà ${neutre}"
+                echo -e "${cyanclair}Poursuite de l'installation ${neutre}"
+            else
+ 	        echo -e "${cyanclair}Création de la prison dans /etc/fail2ban/jail.d/postfix.conf ${neutre}"
+                L1='[postfix]'
+                L2='\nenabled = true'
+                L3='\nport = smtp,ssmtp'
+                L4='\nfilter = postfix'
+                L5='\nlogpath  = /var/log/mail.log'
+                echo -e $L1 $L2 $L3 $L4 $L5 >> /etc/fail2ban/jail.d/postfix.conf
+                chown pi:pi /etc/fail2ban/jail.d/postfix.conf
+            fi
 
         echo -e "${vertclair}Sauvegarde du fichier de configuration personnalisable de Fail2ban ${neutre}"
         echo -e "${vertclair}/etc/fail2ban/jail.d/custom.conf -> /etc/fail2ban/jail.d/custom.copy ${neutre}"
@@ -633,7 +652,7 @@ if [[ $exitstatus = 0 ]]; then
                 L1='[domoticz]'
                 L2='\nenabled  = true'
                 L3='\nport = 8080,443'
-                L4='\nfilter  = domoticz'
+                L4='\nfilter = domoticz'
                 L5='\nlogpath = /var/log/domoticz.log'
                 echo -e $L1 $L2 $L3 $L4 $L5 >> /etc/fail2ban/jail.d/domoticz.conf
                 chown pi:pi /etc/fail2ban/jail.d/domoticz.conf
