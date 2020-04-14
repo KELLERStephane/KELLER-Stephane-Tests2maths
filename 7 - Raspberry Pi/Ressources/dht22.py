@@ -17,11 +17,11 @@ import time
 # les parametres de Domoticz
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-domoticz_ip = '192.168.0.27'
+domoticz_ip =
 domoticz_port = '8080'
-user = 'kontua'
-password = 'edubuntu$20'
-domoticz_idx = 1
+user =
+password =
+domoticz_idx =
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # les paramètres du DHT
