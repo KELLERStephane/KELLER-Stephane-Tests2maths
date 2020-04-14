@@ -66,10 +66,10 @@ whiptail --title "Menu d'installation du Raspberry" --checklist \
 "Debug" "Interruption à la fin de chaque installation " OFF \
 "MAJ" "Mise a jour du systeme " OFF \
 "Webmin" "Administration du système en mode WEB " OFF \
-"Motioneye" "Logiciel de vidéosurveillance " OFF \
-"Apache2" "Serveur web Apache2 " OFF \
 "Fail2ban" "Protection du systeme via auto-bannissement " OFF \
 "Fail2map" "Affichage des ip sur une carte " OFF \
+"Motioneye" "Logiciel de vidéosurveillance " OFF \
+"Apache2" "Serveur web Apache2 " OFF \
 "GPIO" "Wiringpi pour l'utilisation des GPIO " OFF \
 "Domoticz" "Logiciel de domotique Domoticz " OFF \
 "Capteurs" "Installation et tests des capteurs" OFF 3>&1 1>&2 2>&3)
@@ -193,151 +193,6 @@ if [[ $exitstatus = 0 ]]; then
 		echo -e "${violetclair}\nFin de l'installation de Webmin. Appuyer sur Entrée pour poursuivre l'Installation ${neutre}"
 		read
 	fi
-    fi
-
-### ===============================================================
-### Installation de Motioneye
-### ===============================================================
-
-    if [[ $CHOIX =~ "Motioneye" ]]; then
-	echo -e "${bleuclair}\nInstallation de Motioneye avec le module de caméra CSI OV5647 pour le Rapsberry Pi ${neutre}"
-	echo -e "${rougeclair}Ne pas oublier d'activer la caméra avec sudo raspi-config ${neutre}"
-
-        if [ -d "/etc/motioneye" ]; then
-                echo -e "${cyanclair}Le répertoire d'installation /etc/motioneye existe déjà. Suppression du répertoire avant la nouvelle installation  ${neutre}"
-                rm -r /etc/motioneye
-        fi
-
-        if [ -d "/var/lib/motioneye" ]; then
-                echo -e "${cyanclair}Le répertoire média /var/lib/motioneye existe déjà. Suppression du répertoire avant la nouvelle installation  ${neutre}"
-                rm -r /var/lib/motioneye
-        fi
-
-	echo -e "${vertclair}\nInstallation du module bcm2835-v4l2 pour la caméra CSI OV5647 ${neutre}"
-	grep -i "bcm2835-v4l2" "/etc/modules" >/dev/null
-	if [ $? = 0 ]; then
-                echo -e "${cyanclair}Le module bcm2835-v4l2 est déjà déclaré dans /etc/modules ${neutre}"
-	else
- 		echo -e "${cyanclair}Déclaration du module bcm2835-v4l2 dans /etc/modules ${neutre}"
-		echo -e "\nbcm2835-v4l2" >> /etc/modules
-	fi
-
-        echo -e "${vertclair}\nDésactivation de la led de la caméra CSI OV5647 pour le Rapsberry Pi ${neutre}"
-	grep -i "disable_camera_led=1" "/boot/config.txt" >/dev/null
-	if [ $? = 0 ]; then
-                echo -e "${cyanclair}La désactivation de la led de la caméra est déjà active dans /boot/config.txt ${neutre}"
-        else
-		echo -e "${cyanclair}Désactivation de la led de la caméra CSI OV5647 /boot/config.txt ${neutre}"
-		echo -e "\ndisable_camera_led=1" >> /boot/config.txt
-        fi
-
-	echo -e "${vertclair}\nMise à jour des paquets dépendants si nécessaire ${neutre}"
-        apt -y install python-pip python-dev libssl-dev libcurl4-openssl-dev libjpeg-dev libz-dev
-        apt -y install ffmpeg libmariadb3 libpq5 libmicrohttpd12
-
-        echo -e "${vertclair}\ntéléchargement de Motioneye ${neutre}"
-	if [ -f /home/pi/pi_buster* ]; 	then
-		echo -e "${cyanclair}\nLe fichier de téléchargement pour Motioneye existe déjà ${neutre}"
-		echo -e "${cyanclair}Effacement du fichier puis téléchargement du nouveau fichier ${neutre}"
-		rm /home/pi/pi_buster*
-	fi
-        wget https://github.com/Motion-Project/motion/releases/download/release-4.2.2/pi_buster_motion_4.2.2-1_armhf.deb
-        echo -e "${vertclair}\nInstallation de Motioneye ${neutre}"
-        dpkg -i pi_buster_motion_4.2.2-1_armhf.deb && rm -f pi_buster_motion_4.2.2-1_armhf.deb*
-        pip install motioneye
-
-        mkdir -p /etc/motioneye
-        cp /usr/local/share/motioneye/extra/motioneye.conf.sample /etc/motioneye/motioneye.conf
-
-        mkdir -p /var/lib/motioneye
-        cp /usr/local/share/motioneye/extra/motioneye.systemd-unit-local /etc/systemd/system/motioneye.service
-        systemctl daemon-reload
-        systemctl enable motioneye
-        systemctl start motioneye
-
-        if [[ $CHOIX =~ "Debug" ]]; then
-		echo -e "${violetclair}\nFin de l'installation de Motioneye. Appuyer sur Entrée pour poursuivre l'Installation ${neutre}"
-		read
-	fi
-    fi
-
-### ===============================================================
-### Installation d'Apache
-### ===============================================================
-
-    if [[ $CHOIX =~ "Apache2" ]]; then
-        echo -e "${bleuclair}\nInstallation d'Apache ${neutre}"
-
-        if [ -d "/etc/apache2" ]; then
-                echo -e "${cyanclair}Le répertoire /etc/apache2 existe déjà. Désinstallation avant la nouvelle installation ${neutre}"
-		apt -y purge apache2
-	        if [ -d "/var/www/passwd" ]; then
-        	        echo -e "${cyanclair}Le répertoire de mots de passe /var/www/passwd existe déjà. Suppression du répertoire avant la nouvelle installation  ${neutre}"
-                	rm -r /var/www/passwd
-	        fi
-        fi
-        apt -y install apache2
-
-	echo -e "${vertclair}suppression si nécessaire de la page par défaut d'Apache2 ${neutre}"
-	if [ -f "/var/www/html/index.html" ]; then
-		rm /var/www/html/index.html*
-	fi
-
-	boucle1=true
-	while $boucle1;do
-        	echo -e "${vertclair}\nSécuristion d'Apache2. ${neutre}"
-	        echo -e "${vertclair}\nCréation du répertoire de mot de passe sécurisé /var/wwww/passwd ${neutre}"
-	        cd /var/www/
-	        mkdir passwd
-		boucle2=true
-	      	while $boucle2;do
-        		username=$(whiptail --title "Paramètres pour Apache2" --inputbox "\nSaisir le nom d'utilisateur principal pour Apache 2 : " 10 60 3>&1 1>&2 2>&3)
-			exitstatus=$?
-               		if [ $exitstatus = 0 ]; then
-				boucle2=false
-			else
-				echo "Tu as annulé... Recommence :-("
-			fi
-       		done
-		echo -e "${vertclair}Saisi du mot de passe pour Apache2 ${neutre}"
-	        htpasswd -c /var/www/passwd/passwords "$username"
-		erreur=$?
-#		echo -e "L'erreur est $erreur"
-		if [ "$erreur" = 0 ]; then
-			boucle1=false
-		else
-			echo -e "${rougeclair}Erreur. Recommencer ${neutre}"
-		fi
-	done
-
-        echo -e "${vertclair}\nSécurisisation de l'accès à Apache2 ${neutre}"
-	grep -i "AuthType Basic" "/etc/modules" >/dev/null
-        if [ $? = 0  ]; then
-                echo -e "${cyanclair}Le fichier /etc/apache2/apache2.conf a déjà été modifié ${neutre}"
-		echo -e "${cyanclair}Poursuite de l'installation ${neutre}"
-        else
-                echo -e "${vertclair}Sauvegarde du fichier /etc/apache2/apache2.conf dans /etc/apache2/apache2.copy ${neutre}"
-		echo -e "${vertclair}\nModification du fichier /etc/apache2/apache2.conf ${neutre}"
-                cp /etc/apache2/apache2.conf /etc/apache2/apache2.copy
-                L1='#<\/Directory>'
-		L2='#</Directory>'
-                L3='\n\n\<Directory /var/www/html>'
-                L4='\n\tAuthType Basic'
-                L5='\n\tAuthName "ACCES PROTEGE"'
-                L6='\n\t# (Following line optional)'
-                L7='\n\tAuthBasicProvider file'
-                L8='\n\tAuthUserFile "/var/www/passwd/passwords"'
-                L9='\n\tRequire valid-user'
-                L10='\n\t# tri horaire décroissant'
-                L11='\n\tIndexOrderDefault Descending Date'
-                L12='\n</Directory>'
-                sed -i '/'"$L1"'/ c\'"$L2"''"$L3"''"$L4"''"$L5"''"$L6"''"$L7"''"$L8"''"$L9"''"$L10"''"$L11"''"$L12"'' /etc/apache2/apache2.conf
-        fi
-
-    	if [[ $CHOIX =~ "Debug" ]]; then
-	        echo -e "${violetclair}\nFin de l'installation d'Apache2. Appuyer sur Entrée pour poursuivre l'Installation ${neutre}"
-        	read
-    	fi
     fi
 
 ### ===============================================================
@@ -580,6 +435,153 @@ if [[ $exitstatus = 0 ]]; then
 
     	if [[ $CHOIX =~ "Debug" ]]; then
        		echo -e "${violetclair}\nFin de l'installation de Fail2map. Appuyer sur Entrée pour poursuivre l'Installation ${neutre}"
+        	read
+    	fi
+    fi
+
+### ===============================================================
+### Installation de Motioneye
+### ===============================================================
+
+    if [[ $CHOIX =~ "Motioneye" ]]; then
+	echo -e "${bleuclair}\nInstallation de Motioneye avec le module de caméra CSI OV5647 pour le Rapsberry Pi ${neutre}"
+	echo -e "${rougeclair}Ne pas oublier d'activer la caméra avec sudo raspi-config ${neutre}"
+
+        if [ -d "/etc/motioneye" ]; then
+                echo -e "${cyanclair}Le répertoire d'installation /etc/motioneye existe déjà. Suppression du répertoire avant la nouvelle installation  ${neutre}"
+                rm -r /etc/motioneye
+        fi
+
+        if [ -d "/var/lib/motioneye" ]; then
+                echo -e "${cyanclair}Le répertoire média /var/lib/motioneye existe déjà. Suppression du répertoire avant la nouvelle installation  ${neutre}"
+                rm -r /var/lib/motioneye
+        fi
+
+	echo -e "${vertclair}\nInstallation du module bcm2835-v4l2 pour la caméra CSI OV5647 ${neutre}"
+	grep -i "bcm2835-v4l2" "/etc/modules" >/dev/null
+	if [ $? = 0 ]; then
+                echo -e "${cyanclair}Le module bcm2835-v4l2 est déjà déclaré dans /etc/modules ${neutre}"
+	else
+ 		echo -e "${cyanclair}Déclaration du module bcm2835-v4l2 dans /etc/modules ${neutre}"
+		echo -e "\nbcm2835-v4l2" >> /etc/modules
+	fi
+
+        echo -e "${vertclair}\nDésactivation de la led de la caméra CSI OV5647 pour le Rapsberry Pi ${neutre}"
+	grep -i "disable_camera_led=1" "/boot/config.txt" >/dev/null
+	if [ $? = 0 ]; then
+                echo -e "${cyanclair}La désactivation de la led de la caméra est déjà active dans /boot/config.txt ${neutre}"
+        else
+		echo -e "${cyanclair}Désactivation de la led de la caméra CSI OV5647 /boot/config.txt ${neutre}"
+		echo -e "\ndisable_camera_led=1" >> /boot/config.txt
+        fi
+
+	echo -e "${vertclair}\nMise à jour des paquets dépendants si nécessaire ${neutre}"
+        apt -y install python-pip python-dev libssl-dev libcurl4-openssl-dev libjpeg-dev libz-dev
+        apt -y install ffmpeg libmariadb3 libpq5 libmicrohttpd12
+
+        echo -e "${vertclair}\ntéléchargement de Motioneye ${neutre}"
+	if [ -f /home/pi/pi_buster* ]; 	then
+		echo -e "${cyanclair}\nLe fichier de téléchargement pour Motioneye existe déjà ${neutre}"
+		echo -e "${cyanclair}Effacement du fichier puis téléchargement du nouveau fichier ${neutre}"
+		rm /home/pi/pi_buster*
+	fi
+        wget https://github.com/Motion-Project/motion/releases/download/release-4.2.2/pi_buster_motion_4.2.2-1_armhf.deb
+        echo -e "${vertclair}\nInstallation de Motioneye ${neutre}"
+        dpkg -i pi_buster_motion_4.2.2-1_armhf.deb && rm -f pi_buster_motion_4.2.2-1_armhf.deb*
+        pip install motioneye
+
+        mkdir -p /etc/motioneye
+        cp /usr/local/share/motioneye/extra/motioneye.conf.sample /etc/motioneye/motioneye.conf
+
+        mkdir -p /var/lib/motioneye
+        cp /usr/local/share/motioneye/extra/motioneye.systemd-unit-local /etc/systemd/system/motioneye.service
+        systemctl daemon-reload
+        systemctl enable motioneye
+        systemctl start motioneye
+
+        if [[ $CHOIX =~ "Debug" ]]; then
+		echo -e "${violetclair}\nFin de l'installation de Motioneye. Appuyer sur Entrée pour poursuivre l'Installation ${neutre}"
+		read
+	fi
+    fi
+
+### ===============================================================
+### Installation d'Apache
+### ===============================================================
+
+    if [[ $CHOIX =~ "Apache2" ]]; then
+        echo -e "${bleuclair}\nInstallation d'Apache ${neutre}"
+
+        if [ -d "/etc/apache2" ]; then
+                echo -e "${cyanclair}Le répertoire /etc/apache2 existe déjà. Désinstallation avant la nouvelle installation ${neutre}"
+		apt -y purge apache2
+	        if [ -d "/var/www/passwd" ]; then
+        	        echo -e "${cyanclair}Le répertoire de mots de passe /var/www/passwd existe déjà. Suppression du répertoire avant la nouvelle installation  ${neutre}"
+                	rm -r /var/www/passwd
+	        fi
+        fi
+        apt -y install apache2
+
+	echo -e "${vertclair}suppression si nécessaire de la page par défaut d'Apache2 ${neutre}"
+	if [ -f "/var/www/html/index.html" ]; then
+		rm /var/www/html/index.html*
+	fi
+
+	boucle1=true
+	while $boucle1;do
+        	echo -e "${vertclair}\nSécuristion d'Apache2. ${neutre}"
+	        echo -e "${vertclair}\nCréation du répertoire de mot de passe sécurisé /var/wwww/passwd ${neutre}"
+	        cd /var/www/
+	        mkdir passwd
+		boucle2=true
+	      	while $boucle2;do
+        		username=$(whiptail --title "Paramètres pour Apache2" --inputbox "\nSaisir le nom d'utilisateur principal pour Apache 2 : " 10 60 3>&1 1>&2 2>&3)
+			exitstatus=$?
+               		if [ $exitstatus = 0 ]; then
+				boucle2=false
+			else
+				echo "Tu as annulé... Recommence :-("
+			fi
+       		done
+		echo -e "${vertclair}Saisi du mot de passe pour Apache2 ${neutre}"
+	        htpasswd -c /var/www/passwd/passwords "$username"
+		erreur=$?
+#		echo -e "L'erreur est $erreur"
+		if [ "$erreur" = 0 ]; then
+			boucle1=false
+		else
+			echo -e "${rougeclair}Erreur. Recommencer ${neutre}"
+		fi
+	done
+
+        echo -e "${vertclair}\nSécurisisation de l'accès à Apache2 ${neutre}"
+	grep -i "AuthType Basic" "/etc/modules" >/dev/null
+        if [ $? = 0  ]; then
+                echo -e "${cyanclair}Le fichier /etc/apache2/apache2.conf a déjà été modifié ${neutre}"
+		echo -e "${cyanclair}Poursuite de l'installation ${neutre}"
+        else
+                echo -e "${vertclair}Sauvegarde du fichier /etc/apache2/apache2.conf dans /etc/apache2/apache2.copy ${neutre}"
+		echo -e "${vertclair}\nModification du fichier /etc/apache2/apache2.conf ${neutre}"
+                cp /etc/apache2/apache2.conf /etc/apache2/apache2.copy
+                L1='#<\/Directory>'
+		L2='#</Directory>'
+                L3='\n\n\<Directory /var/www/html>'
+                L4='\n\tAuthType Basic'
+                L5='\n\tAuthName "ACCES PROTEGE"'
+                L6='\n\t# (Following line optional)'
+                L7='\n\tAuthBasicProvider file'
+                L8='\n\tAuthUserFile "/var/www/passwd/passwords"'
+                L9='\n\tRequire valid-user'
+                L10='\n\t# tri horaire décroissant'
+                L11='\n\tIndexOrderDefault Descending Date'
+                L12='\n</Directory>'
+                sed -i '/'"$L1"'/ c\'"$L2"''"$L3"''"$L4"''"$L5"''"$L6"''"$L7"''"$L8"''"$L9"''"$L10"''"$L11"''"$L12"'' /etc/apache2/apache2.conf
+        fi
+
+******************************************************************************************************************************************
+
+    	if [[ $CHOIX =~ "Debug" ]]; then
+	        echo -e "${violetclair}\nFin de l'installation d'Apache2. Appuyer sur Entrée pour poursuivre l'Installation ${neutre}"
         	read
     	fi
     fi
