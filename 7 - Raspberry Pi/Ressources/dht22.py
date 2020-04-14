@@ -17,11 +17,11 @@ import time
 # les parametres de Domoticz
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-domoticz_ip = '192.168.0.40'
-domoticz_port = '8080'
-user = 'kontua'
-password = 'toto'
-domoticz_idx = 9
+domoticz_ip = 
+domoticz_port = 
+user = 
+password = 
+domoticz_idx = 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # les paramètres du DHT
