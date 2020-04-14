@@ -108,7 +108,7 @@ if [[ $exitstatus = 0 ]]; then
         echo -e "${bleuclair}\nInstallation du protocole de synchronisation de l'heure si nécessaire ${neutre}"
         aptitude install ntp -y
         /etc/init.d/ntp start
-        if [ -e /etc/ntp.com ] ; then
+        if [ -f /etc/ntp.com ] ; then
              echo -e "${cyanclair}\nLe fichier /etc/ntp.com existe déjà ${neutre}"
              echo -e "${cyanclair}Effacement du fichier puis création du nouveau fichier ${neutre}"
              rm /etc/ntp.com*
@@ -164,13 +164,29 @@ if [[ $exitstatus = 0 ]]; then
 		apt -y purge webmin
 	fi
         ### Installation de l interface WEB du gestionnaire systeme si nécessaire
-	echo -e -n "${bleuclair}\nInstallation/MAJ de la derniere version de WEBMIN...\n ${neutre}"
+	echo -e -n "${bleuclair}\nInstallation/MAJ de la dernière version de WEBMIN...\n ${neutre}"
 	### installer les dépendances
 	aptitude -y install libnet-ssleay-perl openssl libauthen-pam-perl libio-pty-perl apt-show-versions
 	### telecharger la derniere version de Webmin
 	wget -q --show-progress http://www.webmin.com/download/deb/webmin-current.deb --no-check-certificate
 	### installer le paquet puis le supprimer
 	dpkg --install webmin-current.deb && rm -f webmin-current.deb*
+
+        if [ ! -d "/etc/fail2ban" ]; then
+            echo -e "${cyanclair}\nFail2ban n'est pas installé ${neutre}"
+            echo -e "${cyanclair}Poursuite de l'installation ${neutre}"
+        else
+            echo -e "${cyanclair}Fail2ban existe ${neutre}"
+            if [ -f "/etc/fail2ban/jail.d/webmin.conf" ]; then
+                echo -e "${cyanclair}\nLe fichier /etc/fail2ban/jail.d/webmin.conf existe déjà ${neutre}"
+                echo -e "${cyanclair}Poursuite de l'installation ${neutre}"
+            else
+ 	        echo -e "${cyanclair}Création de la prison dans /etc/fail2ban/jail.d/webmin.conf ${neutre}"
+                L1='\n[webmin-auth]'
+                L2='\nenabled  = true'
+                echo -e $L1 $L2 >/etc/fail2ban/jail.d/webmin.conf 
+            fi
+        fi
 
 	if [[ $CHOIX =~ "Debug" ]]; then
 		echo -e "${violetclair}\nFin de l'installation de Webmin. Appuyer sur Entrée pour poursuivre l'Installation ${neutre}"
@@ -183,7 +199,7 @@ if [[ $exitstatus = 0 ]]; then
 ### ===============================================================
 
     if [[ $CHOIX =~ "Motioneye" ]]; then
-	echo -e "${bleuclair}\nInstallation de Motioneye avec le module de caméra CSI OV5647 pour le Rapsberry Pi ${neutre}" 
+	echo -e "${bleuclair}\nInstallation de Motioneye avec le module de caméra CSI OV5647 pour le Rapsberry Pi ${neutre}"
 	echo -e "${rougeclair}Ne pas oublier d'activer la caméra avec sudo raspi-config ${neutre}"
 
         if [ -d "/etc/motioneye" ]; then
@@ -202,7 +218,7 @@ if [[ $exitstatus = 0 ]]; then
                 echo -e "${cyanclair}Le module bcm2835-v4l2 est déjà déclaré dans /etc/modules ${neutre}"
 	else
  		echo -e "${cyanclair}Déclaration du module bcm2835-v4l2 dans /etc/modules ${neutre}"
-		echo -e "\nbcm2835-v4l2" >>/etc/modules
+		echo -e "\nbcm2835-v4l2" >> /etc/modules
 	fi
 
         echo -e "${vertclair}\nDésactivation de la led de la caméra CSI OV5647 pour le Rapsberry Pi ${neutre}"
@@ -211,7 +227,7 @@ if [[ $exitstatus = 0 ]]; then
                 echo -e "${cyanclair}La désactivation de la led de la caméra est déjà active dans /boot/config.txt ${neutre}"
         else
 		echo -e "${cyanclair}Désactivation de la led de la caméra CSI OV5647 /boot/config.txt ${neutre}"
-		echo -e "\ndisable_camera_led=1" >>/boot/config.txt
+		echo -e "\ndisable_camera_led=1" >> /boot/config.txt
         fi
 
 	echo -e "${vertclair}\nMise à jour des paquets dépendants si nécessaire ${neutre}"
@@ -219,7 +235,7 @@ if [[ $exitstatus = 0 ]]; then
         apt -y install ffmpeg libmariadb3 libpq5 libmicrohttpd12
 
         echo -e "${vertclair}\ntéléchargement de Motioneye ${neutre}"
-	if [ -e /home/pi/pi_buster* ]; 	then
+	if [ -f /home/pi/pi_buster* ]; 	then
 		echo -e "${cyanclair}\nLe fichier de téléchargement pour Motioneye existe déjà ${neutre}"
 		echo -e "${cyanclair}Effacement du fichier puis téléchargement du nouveau fichier ${neutre}"
 		rm /home/pi/pi_buster*
@@ -252,7 +268,7 @@ if [[ $exitstatus = 0 ]]; then
         echo -e "${bleuclair}\nInstallation d'Apache ${neutre}"
 
         if [ -d "/etc/apache2" ]; then
-                echo -e "${cyanclair}Le répertoire /etc/apache2 exite déjà. Désinstallation avant la nouvelle installation ${neutre}"
+                echo -e "${cyanclair}Le répertoire /etc/apache2 existe déjà. Désinstallation avant la nouvelle installation ${neutre}"
 		apt -y purge apache2
 	        if [ -d "/var/www/passwd" ]; then
         	        echo -e "${cyanclair}Le répertoire de mots de passe /var/www/passwd existe déjà. Suppression du répertoire avant la nouvelle installation  ${neutre}"
@@ -347,7 +363,7 @@ if [[ $exitstatus = 0 ]]; then
 
         #Téléchargement du fichier personnalisable de configuration des prisons
         echo -e "${vertclair}\nTéléchargement du fichier de configuration des prisons (à personnaliser) ${neutre}"
-        if [ -e /etc/fail2ban/jail.d/custom.conf ]; then
+        if [ -f /etc/fail2ban/jail.d/custom.conf ]; then
                 echo -e "${cyanclair}\nLe fichier /etc/fail2ban/jail.d/custom.conf existe déjà ${neutre}"
                 echo -e "${cyanclair}Effacement du fichier puis création du nouveau fichier ${neutre}"
                 rm /etc/fail2ban/jail.d/custom.conf*
@@ -395,10 +411,10 @@ if [[ $exitstatus = 0 ]]; then
 	L1='[Definition]'
 	L2='\naction start ='
 	L3='\naction stop ='
-	echo -e $L1 $L2 $L3 >>/etc/fail2ban/action.d/sendmail-common.local
+	echo -e $L1 $L2 $L3>/etc/fail2ban/action.d/sendmail-common.local
 
 	#Modification du fichier iptables-multiport.conf pour créer un fichier d'IP banni
-        if [ -e /etc/fail2ban/action.d/iptables-multiport.copy ] ; then
+        if [ -f /etc/fail2ban/action.d/iptables-multiport.copy ] ; then
              echo -e "${cyanclair}\nLe fichier /etc/fail2ban/action.d/iptables-multiport.copy existe déjà ${neutre}"
              echo -e "${cyanclair}Effacement du fichier puis création du nouveau fichier ${neutre}"
              rm /etc/fail2ban/action.d/iptables-multiport.copy*
@@ -518,7 +534,7 @@ if [[ $exitstatus = 0 ]]; then
         mv /home/pi/fail2map-action.conf /var/www/html/fail2map/fail2map-action.conf
 
         echo -e "${vertclair}Copie du fichier /var/www/html/fail2map/fail2map-action.conf -> /etc/fail2ban/action.d/fail2map-action.conf ${neutre}"
-	if [ -e /etc/fail2ban/actions.d/fail2map-action.conf ]; then
+	if [ -f /etc/fail2ban/actions.d/fail2map-action.conf ]; then
 		echo -e "${cyanclair}\nLe fichier /etc/fail2ban/action.d/fail2map-action.conf existe déjà ${neutre}"
 		echo -e "${cyanclair}Effacement du fichier puis création du nouveau fichier ${neutre}"
 		rm /etc/fail2ban/action.d/fail2map-action.conf*
@@ -535,7 +551,7 @@ if [[ $exitstatus = 0 ]]; then
 
 	#Modification de la carte par défaut pour Fail2map
         echo -e "${vertclair}Changement de la carte par défaut en modifiant le fichier /var/www/html/fail2map/js/map.js ${neutre}"
-        sudo sed '/'"$L1"'/ c\'"$L2"''"$L3"'' /var/www/html/fail2map/js/maps.js >>/home/pi/maps.js
+        sudo sed '/'"$L1"'/ c\'"$L2"''"$L3"'' /var/www/html/fail2map/js/maps.js>/home/pi/maps.js
         L1="baseLayer = *"
         L2="//    baseLayer = L.tileLayer.provider('Thunderforest.Landscape', {"
         L3="\n\tbaseLayer = L.tileLayer.provider('Esri.NatGeoWorldMap', {"
@@ -595,7 +611,7 @@ if [[ $exitstatus = 0 ]]; then
 
     	echo -e "${vertclair}Téléchargement du fichier de configuration Fail2ban ${neutre}"
     	echo -e "${vertclair}pour domoticz dans /etc/fail2ban/filter.d/domoticz.conf ${neutre}"
-    	if [ -e /etc/fail2ban/filter.d/domoticz.conf ] ; then
+    	if [ -f /etc/fail2ban/filter.d/domoticz.conf ] ; then
 		echo -e "${cyanclair}\nLe fichier /etc/fail2ban/filter.d/domoticz.conf existe déjà ${neutre}"
         	echo -e "${cyanclair}Effacement du fichier puis création du nouveau fichier ${neutre}"
         	rm /etc/fail2ban/filter.d/domoticz.conf*
@@ -603,7 +619,7 @@ if [[ $exitstatus = 0 ]]; then
     	wget -P /etc/fail2ban/filter.d/ $lien_github_raw/domoticz.conf
     	chown pi:pi /etc/fail2ban/filter.d/domoticz.conf
 
-    	if [ -e !/etc/fail2ban/jail.d/custom.conf ] ; then
+    	if [ ! -e "/etc/fail2ban/jail.d/custom.conf" ] ; then
 		echo -e "${cyanclair}\nLe fichier /etc/fail2ban/jail.d/custom.conf n'existe pas ! ${neutre}"
 		echo -e "${vertclair}\nTéléchargement du fichier de configuration des prisons (à personnaliser) ${neutre}"
 		wget -P /etc/fail2ban/jail.d/ $lien_github_raw/custom.conf
@@ -615,14 +631,14 @@ if [[ $exitstatus = 0 ]]; then
                 echo -e "${cyanclair}Le fichier /etc/fail2ban/jail.d/custom.conf a déjà été modifié ${neutre}"
 		echo -e "${cyanclair}Poursuite de l'installation ${neutre}"
         else
-                if [ -e "/etc/fail2ban/jail.d/custom.conf" ]; then
+                if [ -f "/etc/fail2ban/jail.d/custom.conf" ]; then
                     echo -e "${cyanclair}\nCréation de la prison domoticz dans le fichier /etc/fail2ban/jail.d/custom.conf ${neutre}"
                     L1='[domoticz]'
                     L2='\nenabled  = true'
                     L3='\nport = 8080,443'
                     L4='\nfilter  = domoticz'
                     L5='\nlogpath = /var/log/domoticz.log'
-                    echo -e $L1 $L2 $L3 $L4 $L5 >>/etc/fail2ban/jail.d/custom.conf
+                    echo -e $L1 $L2 $L3 $L4 $L5 >> /etc/fail2ban/jail.d/custom.conf
                 else
                     echo -e "${cyanclair}\nFail2ban n'est pas installé ! ${neutre}"
                 fi
@@ -685,7 +701,7 @@ if [[ $exitstatus = 0 ]]; then
         	    echo -e "${cyanclair}\nLe répertoire d'installation /home/pi/script/Adafruit_Python_DHT existe déjà. Suppression du répertoire avant la nouvelle installation ${neutre}"
                     rm -r /home/pi/script/Adafruit_Python_DHT
 	        fi
-	        if [ -e /home/pi/script/dht22.py ] ; then
+	        if [ -f "/home/pi/script/dht22.py" ] ; then
 	            echo -e "${cyanclair}\nLe fichier /home/pi/script/dht22.py existe déjà ${neutre}"
         	    echo -e "${cyanclair}Effacement du fichier puis création du nouveau fichier ${neutre}"
 	            rm /home/pi/script/dht22.py*
@@ -840,7 +856,7 @@ if [[ $exitstatus = 0 ]]; then
         	            sed -i '/'"$L1"'/ c\'"$L2"''"$L3"'' /boot/config.txt
 			else
 			    echo -e "${cyanclair}Modification du fichier /boot/config.txt en ajoutant le numéro de GPIO (BCM) ${neutre}"
-			    echo -e "\n#Capteur température DS18B20\ndtoverlay=w1-gpio,gpiopin=$BCM" >>/boot/config.txt
+			    echo -e "\n#Capteur température DS18B20\ndtoverlay=w1-gpio,gpiopin=$BCM" >> /boot/config.txt
 			fi
         	            boucle=false
                     else
@@ -856,14 +872,14 @@ if [[ $exitstatus = 0 ]]; then
 		    echo -e "${cyanclair}Le fichier /etc/modules a déjà été modifié ${neutre}"
 		    echo -e "${cyanclair}Poursuite de l'installation ${neutre}"
 		else
-		    echo -e "\nw1-therm\nw1-gpio" >>/etc/modules
+		    echo -e "\nw1-therm\nw1-gpio" >> /etc/modules
 
 		fi
 		echo -e "${vertclair}\nExécution des modules ${neutre}"
 		sudo modprobe w1-gpio
 		sudo modprobe w1-therm
 
-	        if [ -e /home/pi/script/dht22.py ] ; then
+	        if [ -f "/home/pi/script/dht22.py" ] ; then
         	     echo -e "${cyanclair}\nLe fichier /home/pi/script/ds18b20.py existe déjà ${neutre}"
 	             echo -e "${cyanclair}Effacement du fichier puis création du nouveau fichier ${neutre}"
         	     rm /home/pi/script/ds18b20.py*
@@ -907,7 +923,7 @@ if [[ $exitstatus = 0 ]]; then
         	        echo -e "${cyanclair}Le répertoire d'installation /home/pi/script/Adafruit_Python_SSD1306 existe déjà. Suppression du répertoire avant la nouvelle installation ${neutre}"
                 	rm -r /home/pi/script/Adafruit_Python_SSD1306
 		    fi
-		    if [ -e /usr/share/fonts/truetype/Minecraftia/Minecraftia-Regular.ttf ] ; then
+		    if [ -f "/usr/share/fonts/truetype/Minecraftia/Minecraftia-Regular.ttf" ] ; then
         	        echo -e "${cyanclair}\nLe répertoire /usr/share/fonts/truetype/Minecraftia existe déjà. Suppression du répertoire avant la nouvelle installation ${neutre}"
                 	rm -r /usr/share/fonts/truetype/Minecraftia
 		    fi
@@ -940,7 +956,7 @@ if [[ $exitstatus = 0 ]]; then
 		    apt install -y python-smbus i2c-tools
 
 		    if [[ $CHOIX_KUMAN =~ "1" ]]; then
-	                if [ -e /home/pi/script/Kuman.py ] ; then
+	                if [ -f "/home/pi/script/Kuman.py" ] ; then
                             echo -e "${cyanclair}\nLe fichier /home/pi/script/Kuman.py existe déjà${neutre}"
                             echo -e "${cyanclair}Effacement du fichier puis télechargement du nouveau fichier ${neutre}"
 	                    rm /home/pi/script/Kuman.py
@@ -950,7 +966,7 @@ if [[ $exitstatus = 0 ]]; then
 	                chown pi:pi /home/pi/script/Kuman.py
         	        chmod +x /home/pi/script/Kuman.py
 
-                	if [ -e /etc/systemd/system/interrupteur.service ] ; then
+                	if [ -f "/etc/systemd/system/interrupteur.service" ] ; then
         	            echo -e "${cyanclair}\nLe fichier /etc/systemd/system/interrupteur.service existe ${neutre}"
                 	    echo -e "${cyanclair}et n'est plus nécessaire. Suppression du service ${neutre}"
 			    systemctl disable interrupteur.service
@@ -978,7 +994,7 @@ if [[ $exitstatus = 0 ]]; then
 
 			echo -e "${vertclair}\nAjout du GPIO (BCM) dans le fichier interrupteur.py ${neutre}"
 
-                	if [ -e /etc/systemd/system/interrupteur.service ] ; then
+                	if [ -f "/etc/systemd/system/interrupteur.service" ] ; then
                             echo -e "${cyanclair}\nLe fichier /etc/systemd/system/interrupteur.service existe déjà ${neutre}"
                             echo -e "${cyanclair}Effacement du fichier puis téléchargement du nouveau fichier ${neutre}"
 	                    systemctl disable interrupteur.service
@@ -991,7 +1007,7 @@ if [[ $exitstatus = 0 ]]; then
  			    systemctl enable interrupteur.service
 			    systemctl start interrupteur.service
 
-	                if [ -e /home/pi/script/interrupteur.py ] ; then
+	                if [ -f "/home/pi/script/interrupteur.py" ] ; then
         	            echo -e "${cyanclair}Le fichier /home/pi/script/interrupteur.py existe déjà ${neutre}"
                 	    echo -e "${cyanclair}Effacement du fichier puis création du nouveau fichier ${neutre}"
                             rm /home/pi/script/interrupteur.py*
@@ -1020,7 +1036,7 @@ if [[ $exitstatus = 0 ]]; then
                 	echo -e "${vertclair}\nAjout du GPIO (BCM) dans le fichier interrupteur.py ${neutre}"
 
 			#Ajout du service interrupteur
-			if [ -e /home/pi/script/Kuman.py ] ; then
+			if [ -f "/home/pi/script/Kuman.py" ] ; then
         	            echo -e "${cyanclair}\nLe fichier /etc/systemd/system/interrupteur.service existe déjà${neutre}"
 			    echo -e "${cyanclair}Suppression du service puis téléchargement du nouveau fichier ${neutre}"
 			fi
@@ -1181,14 +1197,16 @@ if [[ $exitstatus = 0 ]]; then
     fi
 
     if (whiptail --title "Redémarrage du Raspberry" --yesno "Voulez-vous redémarrer le raspberry.\n\nIl est obligatoire de le faire pour que les installations soient pris en compte." 10 60) then
+        whiptail --title "Copyright" --msgbox "Script réalisé par KELLER Stéphane - Lycée Agricole Louis Pasteur\net José De Castro.\nhttps://github.com/KELLERStephane/KELLER-Stephane-Tests2maths\nCliquer sur Ok pour continuer." 10 70
 	reboot
     else
 	echo -e "${bleuclair}\nBonne utilisation. ${neutre}"
+        whiptail --title "Copyright" --msgbox "Script réalisé par KELLER Stéphane - Lycée Agricole Louis Pasteur\net José De Castro.\nhttps://github.com/KELLERStephane/KELLER-Stephane-Tests2maths\nCliquer sur Ok pour continuer." 10 70
+
+
     fi
 
-    whiptail --title "Copyright" --msgbox "Script réalisé par KELLER Stéphane - Lycée Agricole Louis Pasteur\net José De Castro.\nhttps://github.com/KELLERStephane/KELLER-Stephane-Tests2maths\nCliquer sur Ok pour continuer." 10 70
-
 else
-     echo -e "${rougeclair}\nnAnnulation des installations. ${neutre}"
+     echo -e "${rougeclair}\nAnnulation des installations. ${neutre}"
 fi
 
