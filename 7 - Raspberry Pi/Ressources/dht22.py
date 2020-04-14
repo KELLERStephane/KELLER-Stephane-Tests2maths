@@ -18,7 +18,7 @@ import time
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 domoticz_ip = 
-domoticz_port = 
+domoticz_port = '8080'
 user = 
 password = 
 domoticz_idx = 
