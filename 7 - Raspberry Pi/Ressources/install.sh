@@ -77,10 +77,10 @@ whiptail --title "Menu d'installation du Raspberry" --checklist \
 exitstatus=$?
 
 if [[ $exitstatus = 0 ]]; then
-    echo -e -n "${jauneclair} ======================================= \n ${neutre}"
-    echo -e -n "${jauneclair} Les logiciels suivants seront installés \n ${neutre}"
-    echo -e -n "${jauneclair} $CHOIX \n ${neutre}"
-    echo -e -n "${jauneclair} ======================================= \n ${neutre}"
+    echo -e -n "${jauneclair} =======================================  \n ${neutre}"
+    echo -e -n "${jauneclair} Les logiciels suivants seront installés  \n ${neutre}"
+    echo -e -n "${jauneclair} $CHOIX                                   \n ${neutre}"
+    echo -e -n "${jauneclair} =======================================  \n ${neutre}"
 
 ### ===============================================================
 ### Mise à jour du système
@@ -613,13 +613,17 @@ if [[ $exitstatus = 0 ]]; then
                 echo -e "${cyanclair}Le fichier /etc/fail2ban/jail.d/custom.conf a déjà été modifié ${neutre}"
 		echo -e "${cyanclair}Poursuite de l'installation ${neutre}"
         else
-		echo -e "${cyanclair}\nCréation de la prison domoticz dans le fichier /etc/fail2ban/jail.d/custom.conf ${neutre}"
-    		L1='[domoticz]'
-	    	L2='\nenabled  = true'
-	    	L3='\nport = 8080,443'
-	    	L4='\nfilter  = domoticz'
-	    	L5='\nlogpath = /var/log/domoticz.log'
-	    	echo -e $L1 $L2 $L3 $L4 $L5 >>/etc/fail2ban/jail.d/custom.conf
+                if [ -d "/etc/fail2ban/jail.d/custom.conf" ]; then
+                    echo -e "${cyanclair}\nCréation de la prison domoticz dans le fichier /etc/fail2ban/jail.d/custom.conf ${neutre}"
+                    L1='[domoticz]'
+                    L2='\nenabled  = true'
+                    L3='\nport = 8080,443'
+                    L4='\nfilter  = domoticz'
+                    L5='\nlogpath = /var/log/domoticz.log'
+                    echo -e $L1 $L2 $L3 $L4 $L5 >>/etc/fail2ban/jail.d/custom.conf
+                else
+                    echo -e "${cyanclair}\nFail2ban n'est pas installé ! ${neutre}"
+                fi
 	fi
 
     	if [[ $CHOIX =~ "Debug" ]]; then
@@ -651,10 +655,10 @@ if [[ $exitstatus = 0 ]]; then
 	exitstatus=$?
 
 	if [[ $exitstatus = 0 ]]; then
-	    echo -e -n "${jauneclair} ======================================= \n ${neutre}"
-	    echo -e -n "${jauneclair} Les capteurs suivants seront installés \n ${neutre}"
-	    echo -e -n "${jauneclair} $CHOIX \n ${neutre}"
-	    echo -e -n "${jauneclair} ======================================= \n ${neutre}"
+	    echo -e -n "${jauneclair} =======================================  \n ${neutre}"
+	    echo -e -n "${jauneclair} Les capteurs suivants seront installés   \n ${neutre}"
+	    echo -e -n "${jauneclair} $CHOIX                                   \n ${neutre}"
+	    echo -e -n "${jauneclair} =======================================  \n ${neutre}"
 
             if [[ $CHOIX_CAPTEUR =~ "GrovePi" ]]; then
                 echo -e "${bleuclair}\nInstallation des capteurs GrovePi ${neutre}"
@@ -663,11 +667,7 @@ if [[ $exitstatus = 0 ]]; then
                 echo -e "${rougeclair}Ne pas oublier d'activer i2C avec sudo raspi-config ${neutre}"
                 echo -e "${rougeclair}Ne pas oublier d'activer les GPIO avec sudo raspi-config ${neutre}"
 
-#                if [ -e /home/pi/Dexter ] ; then
-#                    echo -e "${cyanclair}\nLe répertoire /home/pi/Dexter existe déjà ${neutre}"
-#                    echo -e "${cyanclair}Suppresion du répertoire puis nouvelle installation ${neutre}"
-#                    rm -r /home/pi/Dexter*
-#                fi
+                #Téléchargement et installation du Grovepi
                 curl -kL dexterindustries.com/update_grovepi | sudo -u pi bash
             fi
 
@@ -890,10 +890,10 @@ if [[ $exitstatus = 0 ]]; then
 		exitstatus=$?
 
 		if [[ $exitstatus = 0 ]]; then
-	    	    echo -e -n "${jauneclair} ======================================= \n ${neutre}"
+	    	    echo -e -n "${jauneclair} =======================================  \n ${neutre}"
 		    echo -e -n "${jauneclair} L'affichage sera le suivant              \n ${neutre}"
-		    echo -e -n "${jauneclair} $CHOIX \n ${neutre}"
-	    	    echo -e -n "${jauneclair} ======================================= \n ${neutre}"
+		    echo -e -n "${jauneclair} $CHOIX                                   \n ${neutre}"
+	    	    echo -e -n "${jauneclair} =======================================  \n ${neutre}"
 
 		    echo -e "${bleuclair}\nInstallation de l'écran Kuman ${neutre}"
 		    echo -e "${rougeclair}Domoticz, GPIO et DHT22 doivent être installés. ${neutre}"
@@ -1082,10 +1082,10 @@ if [[ $exitstatus = 0 ]]; then
 		exitstatus=$?
 
 		if [[ $exitstatus = 0 ]]; then
-		    echo -e -n "${jauneclair} ======================================= \n ${neutre}"
-		    echo -e -n "${jauneclair} Les capteurs suivants seront testés     \n ${neutre}"
-		    echo -e -n "${jauneclair} $CHOIX_TEST \n ${neutre}"
-		    echo -e -n "${jauneclair} ======================================= \n ${neutre}"
+		    echo -e -n "${jauneclair} =======================================  \n ${neutre}"
+		    echo -e -n "${jauneclair} Les capteurs suivants seront testés      \n ${neutre}"
+		    echo -e -n "${jauneclair} $CHOIX_TEST                              \n ${neutre}"
+		    echo -e -n "${jauneclair} =======================================  \n ${neutre}"
 		fi
 
                 if [[ $CHOIX_TEST =~ "GrovePi" ]]; then
@@ -1168,25 +1168,23 @@ if [[ $exitstatus = 0 ]]; then
   	    echo "Annulation des installations."
 	fi
     fi
-### ===============================================================
-### Copyright
-### ===============================================================
-
-    echo -e "${jauneclair}\nScript d'installation automatique de Webmin, Motioneye, Apache2, fail2ban et Fail2map pour le Raspberry"
-    echo -e "Script réalisé par KELLER Stéphane - Lycée Agricole Louis Pasteur"
-    echo -e "et José De Castro"
-    echo -e "https://github.com/KELLERStephane/KELLER-Stephane-Tests2maths ${neutre}"
 
 ### ===============================================================
 ### Fin de l'installation
 ### ===============================================================
 
-    echo -e "${vertclair}Redémarrage du service Apache2 ${neutre}"
-    /etc/init.d/apache2 restart
+    if [ -d "/etc/apache2" ]; then
+        echo -e "${vertclair}Redémarrage du service Apache2 ${neutre}"
+        /etc/init.d/apache2 restart
+    fi
 
-    echo -e "${jauneclair}Appuyer une touche pour redémarrer le Raspberry ${neutre}"
-    read
-#    reboot
+    if (whiptail --title "Redémarrage du Raspberry" --yesno "Voulez-vous redémarrer le raspberry.\nIl est obligatoire de le faire pour que les installations soient pris en compte." 10 60) then
+	reboot
+    else
+	echo "Bonne utilisation."
+    fi
+
+    whiptail --title "Copyright" --msgbox "Script réalisé par KELLER Stéphane - Lycée Agricole Louis Pasteur\net José De Castro.\nhttps://github.com/KELLERStephane/KELLER-Stephane-Tests2maths\nCliquer sur Ok pour continuer." 10 70
 
 else
     echo "Annulation des installations."
