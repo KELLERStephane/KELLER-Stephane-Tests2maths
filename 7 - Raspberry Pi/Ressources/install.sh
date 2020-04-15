@@ -197,7 +197,7 @@ while $boucle_principale;do
             L9='\nmaxretry = 3'
             L10='\naction = %(action_mw)s'
             L11='\n         fail2map-action'
-            L12='\n\ndestmail ='
+            L12='\n\ndestemail ='
             L13='\n\n[recidive]'
             L14='\nenabled = true'
             L15="\n#Nombre maxi d'essais de login ; 5  par défaut"
@@ -622,7 +622,7 @@ while $boucle_principale;do
                     L2='\nenabled = true'
                     L3='\n\n[apache-badbots]'
                     L4='\nenabled = true'
-                    L5='\n\n[apache-badbots]'
+                    L5='\n\n[apache-noscript]'
                     L6='\nenabled = true'
                     L7='\n\n[apache-overflows]]'
                     L8='\nenabled = true'
