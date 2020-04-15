@@ -67,9 +67,9 @@ while $boucle_principale;do
     "\nScript réalisé par :\n- KELLER Stéphane (Lycée Agricole Louis Pasteur)\n- José De Castro\nhttps://github.com/KELLERStephane/KELLER-Stephane-Tests2maths\n\nQue soutaitez-vous installer ?" 23 72 10 \
     "Debug" "Interruption à la fin de chaque installation " OFF \
     "MAJ" "Mise a jour du systeme " OFF \
-    "Webmin" "Administration du système en mode WEB " OFF \
     "Fail2ban" "Protection du systeme via auto-bannissement " OFF \
     "Fail2map" "Affichage des ip sur une carte " OFF \
+    "Webmin" "Administration du système en mode WEB " OFF \
     "Motioneye" "Logiciel de vidéosurveillance " OFF \
     "Apache2" "Serveur web Apache2 " OFF \
     "GPIO" "Wiringpi pour l'utilisation des GPIO " OFF \
@@ -157,47 +157,6 @@ while $boucle_principale;do
         fi
 
         ### ===============================================================
-        ### Installation de Webmin
-        ### ===============================================================
-
-        if [[ $CHOIX =~ "Webmin" ]]; then
-            if [ -d "/etc/webmin2" ]; then
-                echo -e "${cyanclair}Webmin est déja installé. Désinstallation de Webmin avant la nouvelle installation ${neutre}"
-                apt -y purge webmin
-            fi
-            ### Installation de l interface WEB du gestionnaire systeme si nécessaire
-            echo -e -n "${bleuclair}\nInstallation/MAJ de la dernière version de WEBMIN.${neutre}"
-            ### installer les dépendances
-            aptitude -y install libnet-ssleay-perl openssl libauthen-pam-perl libio-pty-perl apt-show-versions
-            ### telecharger la derniere version de Webmin
-            wget -q --show-progress http://www.webmin.com/download/deb/webmin-current.deb --no-check-certificate
-            ### installer le paquet puis le supprimer
-            dpkg --install webmin-current.deb && rm -f webmin-current.deb*
-
-            if [ ! -d "/etc/fail2ban" ]; then
-                echo -e "${cyanclair}\nFail2ban n'est pas installé ${neutre}"
-                echo -e "${cyanclair}Poursuite de l'installation ${neutre}"
-            else
-                echo -e "${cyanclair}\nFail2ban existe ${neutre}"
-                if [ -f "/etc/fail2ban/jail.d/webmin.conf" ]; then
-                    echo -e "${cyanclair}\nLe fichier /etc/fail2ban/jail.d/webmin.conf existe déjà ${neutre}"
-                    echo -e "${cyanclair}Poursuite de l'installation ${neutre}"
-                else
-                    echo -e "${cyanclair}Création de la prison dans /etc/fail2ban/jail.d/webmin.conf ${neutre}"
-                    L1='[webmin-auth]'
-                    L2='\nenabled = true'
-                    echo -e $L1 $L2 >/etc/fail2ban/jail.d/webmin.conf
-                    chown pi:pi /etc/fail2ban/jail.d/webmin.conf
-                fi
-            fi
-
-            if [[ $CHOIX =~ "Debug" ]]; then
-                echo -e "${violetclair}\nFin de l'installation de Webmin. Appuyer sur Entrée pour poursuivre l'Installation ${neutre}"
-                read
-            fi
-        fi
-
-        ### ===============================================================
         ### Installation de Fail2ban
         ### ===============================================================
 
@@ -234,18 +193,18 @@ while $boucle_principale;do
             L5='\nbantime = -1'
             L6='\n#intervalle de scrutation en s dans les fichiers de log ; 600 par défaut'
             L7='\nfindtime = 3600'
-            L8='\n#Nombre maxi d'essais de login ; 6 par défaut'
+            L8="\n#Nombre maxi d'essais de login ; 6 par défaut"
             L9='\nmaxretry = 3'
             L10='\naction = %(action_mw)s'
             L11='\n         fail2map-action'
             L12='\n\ndestmail ='
             L13='\n\n[recidive]'
             L14='\nenabled = true'
-            L15='\n#Nombre maxi d'essais de login ; 5  par défaut'
+            L15="\n#Nombre maxi d'essais de login ; 5  par défaut"
             L16='\nmaxretry = 1'
             L17='\n#intervalle de scrutation en s dans les fichiers de log ; 604800 : 1 semaine'
             L18='\nfindtime = 604800'
-            L19='\n#temps en s de bannissement ; -1 pour infini ; 86400  : 1 jour par défaut)'
+            L19='\n#temps en s de bannissement ; -1 pour infini ; 86400  : 1 jour par défaut'
             L20='\nbantime = -1'
             echo -e $L1 $L2  $L3 $L4 $L5 $L6 $L7 $L8 $L9 $L10 $L11 $L12 $L13 $L14 $L15 $L16 $L17 $L18 $L19 $L20>/etc/fail2ban/jail.d/custom.conf
             chown pi:pi /etc/fail2ban/jail.d/custom.conf
@@ -468,6 +427,47 @@ while $boucle_principale;do
         fi
 
         ### ===============================================================
+        ### Installation de Webmin
+        ### ===============================================================
+
+        if [[ $CHOIX =~ "Webmin" ]]; then
+            if [ -d "/etc/webmin2" ]; then
+                echo -e "${cyanclair}Webmin est déja installé. Désinstallation de Webmin avant la nouvelle installation ${neutre}"
+                apt -y purge webmin
+            fi
+            ### Installation de l interface WEB du gestionnaire systeme si nécessaire
+            echo -e -n "${bleuclair}\nInstallation/MAJ de la dernière version de WEBMIN.${neutre}"
+            ### installer les dépendances
+            aptitude -y install libnet-ssleay-perl openssl libauthen-pam-perl libio-pty-perl apt-show-versions
+            ### telecharger la derniere version de Webmin
+            wget -q --show-progress http://www.webmin.com/download/deb/webmin-current.deb --no-check-certificate
+            ### installer le paquet puis le supprimer
+            dpkg --install webmin-current.deb && rm -f webmin-current.deb*
+
+            if [ ! -d "/etc/fail2ban" ]; then
+                echo -e "${cyanclair}\nFail2ban n'est pas installé ${neutre}"
+                echo -e "${cyanclair}Poursuite de l'installation ${neutre}"
+            else
+                echo -e "${cyanclair}\nFail2ban existe ${neutre}"
+                if [ -f "/etc/fail2ban/jail.d/webmin.conf" ]; then
+                    echo -e "${cyanclair}\nLe fichier /etc/fail2ban/jail.d/webmin.conf existe déjà ${neutre}"
+                    echo -e "${cyanclair}Poursuite de l'installation ${neutre}"
+                else
+                    echo -e "${cyanclair}Création de la prison dans /etc/fail2ban/jail.d/webmin.conf ${neutre}"
+                    L1='[webmin-auth]'
+                    L2='\nenabled = true'
+                    echo -e $L1 $L2 >/etc/fail2ban/jail.d/webmin.conf
+                    chown pi:pi /etc/fail2ban/jail.d/webmin.conf
+                fi
+            fi
+
+            if [[ $CHOIX =~ "Debug" ]]; then
+                echo -e "${violetclair}\nFin de l'installation de Webmin. Appuyer sur Entrée pour poursuivre l'Installation ${neutre}"
+                read
+            fi
+        fi
+
+        ### ===============================================================
         ### Installation de Motioneye
         ### ===============================================================
 
@@ -557,7 +557,7 @@ while $boucle_principale;do
 
             boucle1=true
             while $boucle1;do
-                echo -e "${vertclair}\nSécuristion d'Apache2. ${neutre}"
+                echo -e "${vertclair}\nSécurisation d'Apache2. ${neutre}"
                 echo -e "${vertclair}\nCréation du répertoire de mot de passe sécurisé /var/wwww/passwd ${neutre}"
                 cd /var/www/
                 mkdir passwd
@@ -1290,9 +1290,11 @@ while $boucle_principale;do
                         fi
                     fi
                 fi
+                boucle_principale=false
             else
                 echo "Annulation du test des capteurs."
             fi
+            boucle_principale=false
         else
             echo "Annulation de l'installation des capteurs."
         fi
