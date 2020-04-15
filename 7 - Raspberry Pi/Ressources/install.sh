@@ -84,9 +84,9 @@ while $boucle_principale;do
         echo -e -n "${jauneclair}\t $CHOIX                                   \n ${neutre}"
         echo -e -n "${jauneclair}\t =======================================  \n ${neutre}"
 
-                ### ===============================================================
-            ### Mise à jour du système
-            ### ===============================================================
+        ### ===============================================================
+        ### Mise à jour du système
+        ### ===============================================================
 
         if [[ $CHOIX =~ "MAJ" ]]; then
             echo -e "${bleuclair}\nMise à jour des paquets si nécessaire ${neutre}"
@@ -156,9 +156,9 @@ while $boucle_principale;do
             fi
         fi
 
-                ### ===============================================================
-                ### Installation de Webmin
-                ### ===============================================================
+        ### ===============================================================
+        ### Installation de Webmin
+        ### ===============================================================
 
         if [[ $CHOIX =~ "Webmin" ]]; then
             if [ -d "/etc/webmin2" ]; then
@@ -197,58 +197,83 @@ while $boucle_principale;do
             fi
         fi
 
-                ### ===============================================================
-                ### Installation de Fail2ban
-                ### ===============================================================
+        ### ===============================================================
+        ### Installation de Fail2ban
+        ### ===============================================================
 
-                if [[ $CHOIX =~ "Fail2ban" ]]; then
-                    echo -e "${bleuclair}\nInstallation de Fail2ban ${neutre}"
+        if [[ $CHOIX =~ "Fail2ban" ]]; then
+            echo -e "${bleuclair}\nInstallation de Fail2ban ${neutre}"
 
-                    if [ -d "/etc/fail2ban" ]; then
-                        echo -e "${cyanclair}Le répertoire d'installation de Fail2ban /etc/fail2ban existe déjà. ${neutre}"
-                        echo -e "${cyanclair}Désinstallation du logiciel avant la nouvelle installation  ${neutre}"
-                        rm -r /etc/fail2ban
-                        apt -y --purge remove fail2ban
+            if [ -d "/etc/fail2ban" ]; then
+                echo -e "${cyanclair}Le répertoire d'installation de Fail2ban /etc/fail2ban existe déjà. ${neutre}"
+                echo -e "${cyanclair}Désinstallation du logiciel avant la nouvelle installation  ${neutre}"
+                rm -r /etc/fail2ban
+                apt -y --purge remove fail2ban
+            fi
+            apt -y install fail2ban
+
+            echo -e "${vertclair}Sauvegarde des fichiers de configuration des prisons de Fail2ban${neutre}"
+            echo -e "${vertclair}/etc/fail2ban/jail.conf -> /etc/fail2ban/jail.copy ${neutre}"
+            echo -e "${vertclair}/etc/fail2ban/fail2ban.conf -> /etc/fail2ban/fail2ban.copy ${neutre}"
+            cp /etc/fail2ban/jail.conf /etc/fail2ban/jail.copy
+            cp /etc/fail2ban/fail2ban.conf /etc/fail2ban/fail2ban.copy
+
+####################################################################################################################
+
+            #Création du fichier personnalisable de configuration des prisons
+            echo -e "${vertclair}\nCréation du fichier personnalisable de configuration des prisons ${neutre}"
+            if [ -f /etc/fail2ban/jail.d/custom.conf ]; then
+                echo -e "${cyanclair}\nLe fichier /etc/fail2ban/jail.d/custom.conf existe déjà ${neutre}"
+                echo -e "${cyanclair}Effacement du fichier puis création du nouveau fichier ${neutre}"
+                rm /etc/fail2ban/jail.d/custom.conf*
+            fi
+            L1='[DEFAULT]'
+            L2='\n#adresses non bannissables ; IP locales : 192.168.0.0/24'
+            L3='\nignoreip = 127.0.0.1/8 192.168.0.0/24'
+            L4='\n#temps en s de bannissement ; -1 pour infi ; 600 par défaut'
+            L5='\nbantime = -1'
+            L6='\n#intervalle de scrutation en s dans les fichiers de log ; 600 par défaut'
+            L7='\nfindtime = 3600'
+            L8='\n#Nombre maxi d'essais de login ; 6 par défaut'
+            L9='\nmaxretry = 3'
+            L10='\naction = %(action_mw)s'
+            L11='\n         fail2map-action'
+            L12='\n\ndestmail ='
+            L13='\n\n[recidive]'
+            L14='\nenabled = true'
+            L15='\n#Nombre maxi d'essais de login ; 5  par défaut'
+            L16='\nmaxretry = 1'
+            L17='\n#intervalle de scrutation en s dans les fichiers de log ; 604800 : 1 semaine'
+            L18='\nfindtime = 604800'
+            L19='\n#temps en s de bannissement ; -1 pour infini ; 86400  : 1 jour par défaut)'
+            L20='\nbantime = -1'
+            echo -e $L1 $L2  $L3 $L4 $L5 $L6 $L7 $L8 $L9 $L10 $L11 $L12 $L13 $L14 $L15 $L16 $L17 $L18 $L19 $L20>/etc/fail2ban/jail.d/custom.conf
+            chown pi:pi /etc/fail2ban/jail.d/custom.conf
+
+#######################################################################################################################
+
+            #installation de Postfix pour envoi des mails d'alerte
+            echo -e "${vertclair}\nInstallation de Postfix si nécessaire pour l'envoi des mails d'alerte ${neutre} ${neutre}"
+            apt install postfix
+
+            #Saisis adresse mail pour envoi des mails d'alerte
+            boucle=true
+            while $boucle;do
+                mail_a=$(whiptail --title "Adresse mail" --inputbox "Saisir l'adresse mail pour les messages de Fail2ban : ?" 10 60 3>&1 1>&2 2>&3)
+                exitstatus=$?
+                if [ $exitstatus = 0 ]; then
+                    mail_b=$(whiptail --title "Mail" --inputbox "Resaisir l'adresse mail : ?" 10 60 3>&1 1>&2 2>&3)
+                    exitstatus=$?
+                    if [ "$mail_a" = "$mail_b" ]; then
+                        echo -e "${rougelclair}Adresse mail correcte ${neutre}"
+                        boucle=false
+                    else
+                        whiptail --title "Erreur" --msgbox "Adresses mail différente. Recommencer" 8 78
                     fi
-                    apt -y install fail2ban
-
-                    echo -e "${vertclair}Sauvegarde des fichiers de configuration des prisons de Fail2ban${neutre}"
-                    echo -e "${vertclair}/etc/fail2ban/jail.conf -> /etc/fail2ban/jail.copy ${neutre}"
-                    echo -e "${vertclair}/etc/fail2ban/fail2ban.conf -> /etc/fail2ban/fail2ban.copy ${neutre}"
-                    cp /etc/fail2ban/jail.conf /etc/fail2ban/jail.copy
-                    cp /etc/fail2ban/fail2ban.conf /etc/fail2ban/fail2ban.copy
-
-                    #Création du fichier personnalisable de configuration des prisons
-                    echo -e "${vertclair}\nCréation du fichier personnalisable de configuration des prisons ${neutre}"
-                    if [ -f /etc/fail2ban/jail.d/custom.conf ]; then
-                        echo -e "${cyanclair}\nLe fichier /etc/fail2ban/jail.d/custom.conf existe déjà ${neutre}"
-                        echo -e "${cyanclair}Effacement du fichier puis création du nouveau fichier ${neutre}"
-                        rm /etc/fail2ban/jail.d/custom.conf*
-                    fi
-                    wget -P /etc/fail2ban/jail.d/ $lien_github_raw/custom.conf
-                    chown pi:pi /etc/fail2ban/jail.d/custom.conf
-                    #installation de Postfix pour envoi des mails d'alerte
-                    echo -e "${vertclair}\nInstallation de Postfix si nécessaire pour l'envoi des mails d'alerte ${neutre} ${neutre}"
-                    apt install postfix
-
-                    #Saisis adresse mail pour envoi des mails d'alerte
-                    boucle=true
-                    while $boucle;do
-                        mail1=$(whiptail --title "Adresse mail" --inputbox "Saisir l'adresse mail pour les messages de Fail2ban : ?" 10 60 3>&1 1>&2 2>&3)
-                        exitstatus=$?
-                        if [ $exitstatus = 0 ]; then
-                            mail2=$(whiptail --title "Mail" --inputbox "Resaisir l'adresse mail : ?" 10 60 3>&1 1>&2 2>&3)
-                            exitstatus=$?
-                            if [ "$mail1" = "$mail2" ]; then
-                                echo -e "${rougelclair}Adresse mail correcte ${neutre}"
-                                boucle=false
-                            else
-                                whiptail --title "Erreur" --msgbox "Adresses mail différente. Recommencer" 8 78
-                            fi
-                        else
-                            echo -e "${rougeclair}Erreur ${neutre}"
-                        fi
-                    done
+                else
+                    echo -e "${rougeclair}Erreur ${neutre}"
+                fi
+            done
 
             if [ ! -d "/etc/fail2ban" ]; then
                 echo -e "${cyanclair}\nFail2ban n'est pas installé ${neutre}"
@@ -269,13 +294,14 @@ while $boucle_principale;do
                     chown pi:pi /etc/fail2ban/jail.d/postfix.conf
                 fi
 
+		#Ajout de l'adresse mail dans le fichier de configuration personnalisable de Fail2ban
                 echo -e "${vertclair}Sauvegarde du fichier de configuration personnalisable de Fail2ban ${neutre}"
                 echo -e "${vertclair}/etc/fail2ban/jail.d/custom.conf -> /etc/fail2ban/jail.d/custom.copy ${neutre}"
                 cp /etc/fail2ban/jail.d/custom.conf /etc/fail2ban/jail.d/custom.copy
                 echo -e "${vertclair}Ajout de l'adresse dans le fichier de configuration personnalisable de Fail2ban ${neutre}"
                 L1='destemail ='
                 L2='destemail = '
-                sed -i '/'"$L1"'/ c\'"$L2"''"$mail1"'' /etc/fail2ban/jail.d/custom.conf
+                sed -i '/'"$L1"'/ c\'"$L2"''"$mail_a"'' /etc/fail2ban/jail.d/custom.conf
             fi
 
             #Démarrage du service Postfix
@@ -356,9 +382,9 @@ while $boucle_principale;do
             fi
         fi
 
-                ### ===============================================================
-                ### Installation de Fail2map
-                ### ===============================================================
+        ### ===============================================================
+        ### Installation de Fail2map
+        ### ===============================================================
 
         if [[ $CHOIX =~ "Fail2map" ]]; then
             echo -e "${bleuclair}\nInstallation de Fail2map (nécessite Fail2ban) ${neutre}"
@@ -441,9 +467,9 @@ while $boucle_principale;do
             fi
         fi
 
-                ### ===============================================================
-                ### Installation de Motioneye
-                ### ===============================================================
+        ### ===============================================================
+        ### Installation de Motioneye
+        ### ===============================================================
 
         if [[ $CHOIX =~ "Motioneye" ]]; then
             echo -e "${bleuclair}\nInstallation de Motioneye avec le module de caméra CSI OV5647 pour le Rapsberry Pi ${neutre}"
@@ -507,9 +533,9 @@ while $boucle_principale;do
             fi
         fi
 
-                ### ===============================================================
-                ### Installation d'Apache
-                ### ===============================================================
+        ### ===============================================================
+        ### Installation d'Apache
+        ### ===============================================================
 
         if [[ $CHOIX =~ "Apache2" ]]; then
             echo -e "${bleuclair}\nInstallation d'Apache ${neutre}"
@@ -580,15 +606,53 @@ while $boucle_principale;do
                 sed -i '/'"$L1"'/ c\'"$L2"''"$L3"''"$L4"''"$L5"''"$L6"''"$L7"''"$L8"''"$L9"''"$L10"''"$L11"''"$L12"'' /etc/apache2/apache2.conf
             fi
 
+###########################################################################################################################
+
+            if [ ! -d "/etc/fail2ban" ]; then
+                echo -e "${cyanclair}\nFail2ban n'est pas installé ${neutre}"
+                echo -e "${cyanclair}Poursuite de l'installation ${neutre}"
+            else
+                echo -e "${cyanclair}\nFail2ban existe ${neutre}"
+                if [ -f "/etc/fail2ban/jail.d/apache.conf" ]; then
+                    echo -e "${cyanclair}\nLe fichier /etc/fail2ban/jail.d/apache.conf existe déjà ${neutre}"
+                    echo -e "${cyanclair}Poursuite de l'installation ${neutre}"
+                else
+                    echo -e "${cyanclair}Création de la prison dans /etc/fail2ban/jail.d/apache.conf ${neutre}"
+                    L1='[apache-auth]'
+                    L2='\nenabled = true'
+                    L3='\n\n[apache-badbots]'
+                    L4='\nenabled = true'
+                    L5='\n\n[apache-badbots]'
+                    L6='\nenabled = true'
+                    L7='\n\n[apache-overflows]]'
+                    L8='\nenabled = true'
+                    L9='\n\n[apache-nohome]'
+                    L10='\nenabled = true'
+                    L11='\n\n[apache-botsearch]'
+                    L12='\nenabled = true'
+                    L13='\n\n[apache-fakegooglebot]'
+                    L14='\nenabled = true'
+                    L15='\n\n[apache-modsecurity]'
+                    L16='\nenabled = true'
+                    L17='\n\n[apache-shellshock]'
+                    L18='\nenabled = true'
+                    echo -e $L1 $L2  $L3 $L4 $L5 $L6 $L7 $L8 $L9 $L10 $L11 $L12 $L13 $L14 $L15 $L16 $L17 $L18 >/etc/fail2ban/jail.d/apache.conf
+                    chown pi:pi /etc/fail2ban/jail.d/apache.conf
+                fi
+            fi
+
+############################################################################################################################
+
+
             if [[ $CHOIX =~ "Debug" ]]; then
                 echo -e "${violetclair}\nFin de l'installation d'Apache2. Appuyer sur Entrée pour poursuivre l'Installation ${neutre}"
                 read
             fi
         fi
 
-                ### ===============================================================
-                ### GPIO
-                ### ===============================================================
+        ### ===============================================================
+        ### GPIO
+        ### ===============================================================
 
         if [[ $CHOIX =~ "GPIO" ]]; then
             echo -e "${bleuclair}\nInstallation de wiringpi pour l'utilisation des GPIO (nécessite Fail2ban) ${neutre}"
@@ -616,9 +680,9 @@ while $boucle_principale;do
             fi
         fi
 
-                ### ===============================================================
-                ### Installation de Domoticz
-                ### ===============================================================
+        ### ===============================================================
+        ### Installation de Domoticz
+        ### ===============================================================
 
         if [[ $CHOIX =~ "Domoticz" ]]; then
             echo -e "${bleuclair}\nInstallation de Domoticz ${neutre}"
@@ -667,9 +731,9 @@ while $boucle_principale;do
             fi
         fi
 
-                ### ===============================================================
-                ### INSTALLATION DES CAPTEURS
-                ### ===============================================================
+        ### ===============================================================
+        ### INSTALLATION DES CAPTEURS
+        ### ===============================================================
 
         if [[ $CHOIX =~ "Capteurs" ]]; then
             CHOIX_CAPTEUR=$(NEWT_COLORS='
@@ -695,9 +759,9 @@ while $boucle_principale;do
                 echo -e -n "${jauneclair}\t $CHOIX                                   \n ${neutre}"
                 echo -e -n "${jauneclair}\t =======================================  \n ${neutre}"
 
-                                ### ===============================================================
-                                ### SHIELD GROVEPI
-                                ### ===============================================================
+                ### ===============================================================
+                ### SHIELD GROVEPI
+                ### ===============================================================
 
                 if [[ $CHOIX_CAPTEUR =~ "GrovePi" ]]; then
                     echo -e "${bleuclair}\nInstallation des capteurs GrovePi ${neutre}"
@@ -710,11 +774,11 @@ while $boucle_principale;do
                     curl -kL dexterindustries.com/update_grovepi | sudo -u pi bash
                 fi
 
-                                ### ===============================================================
-                                ### CAPTEUR DE TEMPERATURE DHT22
-                                ### ===============================================================
+                ### ===============================================================
+                ### CAPTEUR DE TEMPERATURE DHT22
+                ### ===============================================================
 
-                                if [[ $CHOIX_CAPTEUR =~ "DHT22" ]]; then
+                if [[ $CHOIX_CAPTEUR =~ "DHT22" ]]; then
                     echo -e "${bleuclair}\nInstallation du capteur de température et d'humidité DHT22 ${neutre}"
                     echo -e "${rougeclair}Domoticz et GPIO doivent être installés et le capteur relié au Raspberry ${neutre}"
                     echo -e "${rougeclair}Il faut connaître et renseigner : ${neutre}"
@@ -1238,9 +1302,9 @@ while $boucle_principale;do
     fi
 done
 
-    ### ===============================================================
-    ### Fin de l'installation
-    ### ===============================================================
+### ===============================================================
+### Fin de l'installation
+### ===============================================================
 
 if [ -d "/etc/apache2" ]; then
     echo -e "${vertclair}Redémarrage du service Apache2 ${neutre}"
@@ -1251,7 +1315,7 @@ if (whiptail --title "Redémarrage du Raspberry" --yesno "Voulez-vous redémarre
     whiptail --title "Copyright" --msgbox "Script réalisé par KELLER Stéphane - Lycée Agricole Louis Pasteur\net José De Castro.\nhttps://github.com/KELLERStephane/KELLER-Stephane-Tests2maths\nCliquer sur Ok pour continuer." 10 70
     reboot
 else
-    echo -e "${bleuclair}\nBonne utilisation. ${neutre}"
+    echo -e "${bleuclair}\nAmusez vous bien. ${neutre}"
     whiptail --title "Copyright" --msgbox "Script réalisé par KELLER Stéphane - Lycée Agricole Louis Pasteur\net José De Castro.\nhttps://github.com/KELLERStephane/KELLER-Stephane-Tests2maths\nCliquer sur Ok pour continuer." 10 70
 fi
 
