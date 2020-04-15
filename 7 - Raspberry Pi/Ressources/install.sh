@@ -549,7 +549,7 @@ while $boucle_principale;do
 			    echo -e "${vertclair}Saisi du mot de passe pour Apache2 ${neutre}"
 				htpasswd -c /var/www/passwd/passwords "$username"
 			    erreur=$?
-	#		    echo -e "L'erreur est $erreur"
+#		        echo -e "L'erreur est $erreur"
 			    if [ "$erreur" = 0 ]; then
 				    boucle1=false
 			    else
@@ -922,9 +922,9 @@ while $boucle_principale;do
 					fi
 				fi
 
-		### ===============================================================
-		### Ecran Kuman pour affichage données DHT22
-		### ===============================================================
+				### ===============================================================
+				### Ecran Kuman pour affichage données DHT22
+				### ===============================================================
 
 				if [[ $CHOIX_CAPTEUR =~ "Kuman" ]]; then
 					CHOIX_KUMAN=$(whiptail --title "Menu d'installation de l'écran Kuman" --menu \
@@ -1230,11 +1230,13 @@ while $boucle_principale;do
 					fi
 				fi
 			else
-				echo "Annulation des tests."
+				echo "Annulation du test des capteurs."
 			fi
+		else
+			echo "Annulation de l'installation des capteurs."
 	    fi
 	else
-	    echo "Annulation des installations."
+	    echo "Annulation de l'installation des logiciels."
 		boucle_principale=false
 	fi
 done
