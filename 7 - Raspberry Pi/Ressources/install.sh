@@ -742,12 +742,13 @@ while $boucle_principale;do
             shadow=,blue
             ' \
             whiptail --title "Menu d'installation des capteurs Raspberry" --checklist \
-            "\nScript réalisé par :\n- KELLER Stéphane (Lycée Agricole Louis Pasteur)\n- José De Castro\nhttps://github.com/KELLERStephane/KELLER-Stephane-Tests2maths\n\nQuels capteurs soutaitez-vous installer ?" 21 72 7 \
+            "\nScript réalisé par :\n- KELLER Stéphane (Lycée Agricole Louis Pasteur)\n- José De Castro\nhttps://github.com/KELLERStephane/KELLER-Stephane-Tests2maths\n\nQuels capteurs soutaitez-vous installer ?" 22 72 8 \
             "Debug" "Interruption à la fin de chaque installation " OFF \
             "GrovePi" "GrovePI de Dexter Industries " OFF \
             "DHT22" "Capteur de température et d'humidité DHT22 " OFF \
             "DS18B20" "Capteur de température DS18B20 " OFF \
             "Kuman" "Affichage données DHT22 sur écran Kuman " OFF \
+            "LCD" "Affichage données DHT22 sur écran LCD RGB Backlight" OFF \
             "SPI" "Affichage données DHT22 sur écran bus SPI " OFF \
             "Tests" "Tests des capteurs" OFF 3>&1 1>&2 2>&3)
 
@@ -1158,6 +1159,148 @@ while $boucle_principale;do
                 fi
 
                 ### ===============================================================
+                ### Ecran LCD RGB Backlight pour affichage données DHT22
+                ### ===============================================================
+
+                if [[ $CHOIX_CAPTEUR =~ "LCD" ]]; then
+                    CHOIX_LCD=$(whiptail --title "Menu d'installation de l'écran LCD RGB Backlight" --menu \
+                    "\nScript réalisé par :\n- KELLER Stéphane (Lycée Agricole Louis Pasteur)\n- José De Castro\nhttps://github.com/KELLERStephane/KELLER-Stephane-Tests2maths\n\nAffichage de la température et de l'humidité sur l'écran\n\nQue soutaitez-vous installer ?" 18 72 2 \
+                    "1" "Affichage permanent  "\
+                    "2" "Affichage ponctuel via un interrupteur " 3>&1 1>&2 2>&3)
+
+                    exitstatus=$?
+
+                    if [[ $exitstatus = 0 ]]; then
+                        echo -e -n "${jauneclair}\t =======================================  \n ${neutre}"
+                        echo -e -n "${jauneclair}\t L'affichage sera le suivant              \n ${neutre}"
+                        echo -e -n "${jauneclair}\t $CHOIX                                   \n ${neutre}"
+                        echo -e -n "${jauneclair}\t =======================================  \n ${neutre}"
+
+                        echo -e "${bleuclair}\nInstallation de l'écran LCD RGB Backlight ${neutre}"
+                        echo -e "${rougeclair}Domoticz, GPIO et DHT22 doivent être installés. ${neutre}"
+                        echo -e "${rougeclair}Le capteur DHT22 et l'écran LCD, doivent être reliés correctement au Raspberry : ${neutre}"
+                        echo -e "${rougeclair}Ne pas oublier d'activer les GPIO avec sudo raspi-config ${neutre}"
+                        echo -e "${rougeclair}Ne pas oublier d'activer I2C avec sudo raspi-config ${neutre}"
+
+                        #Téléchargement des bibliothèques et des fichiers
+                        cd /home/pi/script
+                        apt install -y python-smbus i2c-tools
+
+                        if [[ $CHOIX_LCD =~ "1" ]]; then
+                            if [ -f "/home/pi/script/lcd.py" ] ; then
+                                echo -e "${cyanclair}\nLe fichier /home/pi/script/lcd.py existe déjà${neutre}"
+                                echo -e "${cyanclair}Effacement du fichier puis télechargement du nouveau fichier ${neutre}"
+                                rm /home/pi/script/lcd.py
+                            fi
+                            echo -e "${vertclair}\nTéléchargement du fichier lcd.py ${neutre}"
+                            wget -P /home/pi/script $lien_github_raw/lcd.py
+                            chown pi:pi /home/pi/script/lcd.py
+                            chmod +x /home/pi/script/lcd.py
+
+                            if [ -f "/etc/systemd/system/interrupteur.service" ] ; then
+                                echo -e "${cyanclair}\nLe fichier /etc/systemd/system/interrupteur.service existe ${neutre}"
+                                echo -e "${cyanclair}et n'est plus nécessaire. Suppression du service ${neutre}"
+                                systemctl disable interrupteur.service
+                                rm /etc/systemd/system/interrupteur.service*
+                            fi
+
+                            #Modification de la crontab pour Affichage de la température et humidité toutes les 10 minutes
+                            crontab -u root -l > /tmp/toto.txt # export de la crontab
+                            grep -i "lcd.py" "/tmp/toto.txt" >/dev/null
+                            if [ $? = 0 ];then
+                                echo -e "${vertclair}\nLa crontab a déja été modifiée ${neutre}"
+                             else
+                                echo -e "${vertclair}\nModification de la crontab ${neutre}"
+                                echo -e "\n#Affichage permanent de la température et de l'humidité" >> /tmp/toto.txt # ajout de la ligne dans le fichier temporaire
+                                echo -e "*/10 * * * * cd /home/pi/script && python lcd.py" >> /tmp/toto.txt # ajout de la ligne dans le fichier temporaire
+                                crontab /tmp/toto.txt # import de la crontab
+                                rm /tmp/toto.txt* # le fichier temporaire ne sert plus à rien
+                            fi
+                        fi
+
+                        if [[ $CHOIX_LCD =~ "2" ]]; then
+                            echo -e "${rougeclair}DHT22 et GPIO doivent être installés et l'interrupteur relié au Raspberry ${neutre}"
+                            echo -e "${rougeclair}Il faut connaître et renseigner le numéro GPIO BCM ${neutre}"
+                            echo -e "${rougeclair}sur lequel est relié l'interrupteur.. ${neutre}"
+
+                            echo -e "${vertclair}\nAjout du GPIO (BCM) dans le fichier interrupteur.py ${neutre}"
+
+                            if [ -f "/etc/systemd/system/interrupteur.service" ] ; then
+                                echo -e "${cyanclair}\nLe fichier /etc/systemd/system/interrupteur.service existe déjà ${neutre}"
+                                echo -e "${cyanclair}Effacement du fichier puis téléchargement du nouveau fichier ${neutre}"
+                                systemctl disable interrupteur.service
+                                rm /etc/systemd/system/interrupteur.service*
+                            fi
+                            echo -e "${vertclair}\nTéléchargement du fichier interrupteur.service ${neutre}"
+                            wget -P /etc/systemd/system $lien_github_raw/interrupteur.service
+                            chown pi:pi /etc/systemd/system/interrupteur.service
+                            echo -e "${vertclair}\nActivation et démarrage du servie interrupteur.service ${neutre}"
+                            systemctl enable interrupteur.service
+                            systemctl start interrupteur.service
+
+                            if [ -f "/home/pi/script/interrupteur.py" ] ; then
+                                echo -e "${cyanclair}Le fichier /home/pi/script/interrupteur.py existe déjà ${neutre}"
+                                echo -e "${cyanclair}Effacement du fichier puis création du nouveau fichier ${neutre}"
+                                rm /home/pi/script/interrupteur.py*
+                            fi
+                            echo -e "${vertclair}\nTéléchargement du fichier interrupteur.py ${neutre}"
+                            wget -P /home/pi/script $lien_github_raw/interrupteur.py
+                            chown pi:pi /home/pi/script/interrupteur.py
+                            chmod +x /home/pi/script/interrupteur.py
+
+                            #Modification du fichier interrupteur.py en renseignant le numéro de GPIO BCM
+                            boucle=true
+                            while $boucle;do
+                                BCM=$(whiptail --title "Paramètres pour l'interupteur" --inputbox "\nSaisir le GPIO (BCM) de l'interrupteur : " 10 60 3>&1 1>&2 2>&3)
+                                exitstatus=$?
+                                if [ $exitstatus = 0 ]; then
+                                    echo -e "${vertclair}Modification du fichier interrupteur.py en ajoutant le numéro de GPIO (BCM) ${neutre}"
+                                    L1="BCM ="
+                                    L2="BCM = "
+                                    L3=$BCM
+                                    sed -i '/'"$L1"'/ c\'"$L2"''"$L3"'' /home/pi/script/interrupteur.py
+                                    boucle=false
+                                else
+                                    echo "Tu as annulé... Recommence :-("
+                                fi
+                            done
+                            echo -e "${vertclair}\nAjout du GPIO (BCM) dans le fichier interrupteur.py ${neutre}"
+
+                            #Ajout du service interrupteur
+                            if [ -f "/home/pi/script/lcd.py" ] ; then
+                                echo -e "${cyanclair}\nLe fichier /etc/systemd/system/interrupteur.service existe déjà${neutre}"
+                                echo -e "${cyanclair}Suppression du service puis téléchargement du nouveau fichier ${neutre}"
+                            fi
+                            wget -P /etc/systemd/system/ $lien_github_raw/interrupteur.service
+                            echo -e "${cyanclair}Activation et démarrage du service /etc/systemd/system/interrupteur.service ${neutre}"
+                            systemctl enable interrupteur.service
+                            systemctl start interrupteur.service
+
+                            #Modification de la crontab pour supprimer affichage permanent de la température et humidité
+                            crontab -u root -l > /tmp/toto.txt # export de la crontab
+                            grep -i "lcd.py" "/tmp/toto.txt" >/dev/null
+                            if [ $? = 0 ];then
+                                echo -e "${vertclair}\nSuppression de l'affichage permanent dans la crontab ${neutre}"
+                                L1="#Affichage permanent de la température et de l'humidité"
+                                L2=''
+                                sed -i '/'"$L1"'/ c\'"$L2"'' /tmp/toto.txt
+                                L3='lcd.py'
+                                L4=''
+                                sed -i '/'"$L3"'/ c\'"$L4"'' /tmp/toto.txt
+                                crontab /tmp/toto.txt # import de la crontab
+                                rm /tmp/toto.txt* # le fichier temporaire ne sert plus à rien
+                            fi
+                        fi
+
+                        if [[ $CHOIX_CAPTEUR =~ "Debug" ]]; then
+                                echo -e "${violetclair}\nFin de l'installation de l'écran LCD RGB Backlight. Appuyer sur Entrée pour poursuivre l'Installation ${neutre}"
+                            read
+                        fi
+
+                    fi
+                fi
+
+                ### ===============================================================
                 ### TEST DES CAPTEURS
                 ### ===============================================================
 
@@ -1174,12 +1317,13 @@ while $boucle_principale;do
                     checkbox=white,black
                     ' \
                     whiptail --title "Menu de tests des capteurs" --checklist \
-                    "\nScript réalisé par :\n- KELLER Stéphane (Lycée Agricole Louis Pasteur)\n- José De Castro\nhttps://github.com/KELLERStephane/KELLER-Stephane-Tests2maths\n\nQuel capteur soutaitez-vous tester ?" 21 72 7 \
+                    "\nScript réalisé par :\n- KELLER Stéphane (Lycée Agricole Louis Pasteur)\n- José De Castro\nhttps://github.com/KELLERStephane/KELLER-Stephane-Tests2maths\n\nQuel capteur soutaitez-vous tester ?" 22 72 8 \
                     "Debug" "Interruption à la fin de chaque installation " OFF \
                     "GrovePi" "Test du GrovePi de Dexter Industries " OFF \
                     "DHT22" "Test du capteur de température et d'humidité DHT22 " OFF \
                     "DS18B20" "Test du capteur de température DS18B20 " OFF \
                     "Kuman" "Test de l'écran Kuman " OFF \
+                    "LCD" "Test de l'écran LCD RGB Backlight " OFF \
                     "SPI" "Test de l'écran bus SPI " OFF \
                     "Int" "Test de l'interrupteur " OFF 3>&1 1>&2 2>&3)
 
@@ -1268,6 +1412,30 @@ while $boucle_principale;do
                         /home/pi/script/Kuman.py
                         if [[ $CHOIX_TEST =~ "Debug" ]]; then
                             echo -e "${violetclair}\nFin du test de l'écran Kuman. Appuyer sur Entrée pour poursuivre les tests ${neutre}"
+                            read
+                        fi
+                    fi
+
+                    ### ===============================================================
+                    ### TEST DE L'ECRAN LCD RGB Blacklight
+                    ### ===============================================================
+
+                    if [[ $CHOIX_TEST =~ "LCD" ]]; then
+                        echo -e "${vertclair}\nTest module i2c : ${neutre}"
+                        lsmod | grep i2c_
+                        echo -e "${vertclair}\nAffichage de l'adresse du (des) périphériques i2c : ${neutre}"
+                        i2cdetect -y 1
+                        if [ ! -e /home/pi/script/lcd.py ]; then
+                            echo -e "${vertclair}\nLe fichier lcd.py n'existe pas ${neutre}"
+                            echo -e "${vertclair}\nTéléchargement du fichier lcd.py ${neutre}"
+                            wget -P /home/pi/script $lien_github_raw/lcd.py
+                            chown pi:pi /home/pi/script/lcd.py
+                            chmod +x /home/pi/script/lcd.py
+                        fi
+                        echo -e "${vertclair}\nTest de l'écran LCD RGB Blacklight ${neutre}"
+                        /home/pi/script/lcd.py
+                        if [[ $CHOIX_TEST =~ "Debug" ]]; then
+                            echo -e "${violetclair}\nFin du test de l'écran LCD RGB Blacklight. Appuyer sur Entrée pour poursuivre les tests ${neutre}"
                             read
                         fi
                     fi
