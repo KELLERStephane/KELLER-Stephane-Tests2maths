@@ -750,7 +750,7 @@ while $boucle_principale;do
                 if [[ $exitstatus = 0 ]]; then
                     echo -e -n "${jauneclair}\t =======================================  \n ${neutre}"
                     echo -e -n "${jauneclair}\t Les capteurs suivants seront installés   \n ${neutre}"
-                    echo -e -n "${jauneclair}\t $CHOIX                                   \n ${neutre}"
+                    echo -e -n "${jauneclair}\t $CHOIX_CAPTEUR                           \n ${neutre}"
                     echo -e -n "${jauneclair}\t =======================================  \n ${neutre}"
 
                     ### ===============================================================
