@@ -726,9 +726,10 @@ while $boucle_principale;do
         ### INSTALLATION DES CAPTEURS
         ### ===============================================================
 
-        boucle_capteur=true
-        while $boucle_capteur;do
-            if [[ $CHOIX =~ "Capteurs" ]]; then
+        if [[ $CHOIX =~ "Capteurs" ]]; then
+            boucle_capteur=true
+            while $boucle_capteur;do
+
                 CHOIX_CAPTEUR=$(NEWT_COLORS='
                 root=,black
                 checkbox=white,black
@@ -1324,147 +1325,145 @@ while $boucle_principale;do
                                 echo -e -n "${jauneclair}\t $CHOIX_TEST                              \n ${neutre}"
                                 echo -e -n "${jauneclair}\t =======================================  \n ${neutre}"
 
-                            ### ===============================================================
-                            ### TEST DU SHILED GROVEPI
-                            ### ===============================================================
+                                ### ===============================================================
+                                ### TEST DU SHILED GROVEPI
+                                ### ===============================================================
 
-                            if [[ $CHOIX_TEST =~ "GrovePi" ]]; then
-                                if [ ! -e /home/pi//Dexter/GrovePi/Troubleshooting ]; then
-                                    echo -e "${vertclair}\nLe répertoire /home/pi/.........../GrovePi n'existe pas ${neutre}"
-                                    echo -e "${vertclair}\nPoursuite des tests ${neutre}"
-                                else
-                                    echo -e "${vertclair}\nTest de shield GrovePi ${neutre}"
-                                    mkdir /home/pi/Desktop >/dev/null
-                                    cd /home/pi/Dexter/GrovePi/Troubleshooting
-                                    bash all_tests.sh
+                                if [[ $CHOIX_TEST =~ "GrovePi" ]]; then
+                                    if [ ! -e /home/pi//Dexter/GrovePi/Troubleshooting ]; then
+                                        echo -e "${vertclair}\nLe répertoire /home/pi/.........../GrovePi n'existe pas ${neutre}"
+                                        echo -e "${vertclair}\nPoursuite des tests ${neutre}"
+                                    else
+                                        echo -e "${vertclair}\nTest de shield GrovePi ${neutre}"
+                                        mkdir /home/pi/Desktop >/dev/null
+                                        cd /home/pi/Dexter/GrovePi/Troubleshooting
+                                        bash all_tests.sh
+                                    fi
+                                    if [[ $CHOIX_TEST =~ "Debug" ]]; then
+                                        echo -e "${violetclair}\nFin du test du shield GrovePi. Appuyer sur Entrée pour poursuivre les tests ${neutre}"
+                                        read
+                                    fi
                                 fi
-                                if [[ $CHOIX_TEST =~ "Debug" ]]; then
-                                    echo -e "${violetclair}\nFin du test du shield GrovePi. Appuyer sur Entrée pour poursuivre les tests ${neutre}"
-                                    read
+
+                                ### ===============================================================
+                                ### TEST DU DHT22
+                                ### ===============================================================
+
+                                if [[ $CHOIX_TEST =~ "DHT22" ]]; then
+                                    if [ ! -e /home/pi/script/dht22.py ]; then
+                                        echo -e "${vertclair}\nLe fichier dht22.py n'existe pas ${neutre}"
+                                        echo -e "${vertclair}\nPoursuite des tests ${neutre}"
+                                    else
+                                        echo -e "${vertclair}\nTest du capteur de température et d'humidité DHT22 ${neutre}"
+                                        /home/pi/script/dht22.py
+                                     fi
+                                    if [[ $CHOIX_TEST =~ "Debug" ]]; then
+                                        echo -e "${violetclair}\nFin du test du capteur de température et d'humidité DHT22. Appuyer sur Entrée pour poursuivre les tests ${neutre}"
+                                        read
+                                    fi
                                 fi
-                            fi
 
-                            ### ===============================================================
-                            ### TEST DU DHT22
-                            ### ===============================================================
+                                ### ===============================================================
+                                ### TEST DU DS18B20
+                                ### ===============================================================
 
-                            if [[ $CHOIX_TEST =~ "DHT22" ]]; then
-                                if [ ! -e /home/pi/script/dht22.py ]; then
-                                    echo -e "${vertclair}\nLe fichier dht22.py n'existe pas ${neutre}"
-                                    echo -e "${vertclair}\nPoursuite des tests ${neutre}"
-                                else
-                                    echo -e "${vertclair}\nTest du capteur de température et d'humidité DHT22 ${neutre}"
-                                    /home/pi/script/dht22.py
-                                 fi
-                                if [[ $CHOIX_TEST =~ "Debug" ]]; then
-                                    echo -e "${violetclair}\nFin du test du capteur de température et d'humidité DHT22. Appuyer sur Entrée pour poursuivre les tests ${neutre}"
-                                    read
+                                if [[ $CHOIX_TEST =~ "DS18B20" ]]; then
+                                    if [ ! -e /home/pi/script/ds18b20.py ]; then
+                                        echo -e "${vertclair}\nLe fichier ds18b20.py n'existe pas ${neutre}"
+                                        echo -e "${vertclair}\nTéléchargement du fichier ds18b20.py ${neutre}"
+                                    else
+                                        echo -e "${vertclair}\nTest du capteur de température DS18B20 ${neutre}"
+                                        /home/pi/script/ds18b20.py
+                                    fi
+                                    if [[ $CHOIX_TEST =~ "Debug" ]]; then
+                                        echo -e "${violetclair}\nFin du test du capteur DS18B20. Appuyer sur Entrée pour poursuivre les tests ${neutre}"
+                                        read
+                                    fi
                                 fi
-                            fi
 
-                            ### ===============================================================
-                            ### TEST DU DS18B20
-                            ### ===============================================================
+                                ### ===============================================================
+                                ### TEST DE L'ECRAN KUMAN
+                                ### ===============================================================
 
-                            if [[ $CHOIX_TEST =~ "DS18B20" ]]; then
-                                if [ ! -e /home/pi/script/ds18b20.py ]; then
-                                    echo -e "${vertclair}\nLe fichier ds18b20.py n'existe pas ${neutre}"
-                                    echo -e "${vertclair}\nTéléchargement du fichier ds18b20.py ${neutre}"
-                                else
-                                    echo -e "${vertclair}\nTest du capteur de température DS18B20 ${neutre}"
-                                    /home/pi/script/ds18b20.py
+                                if [[ $CHOIX_TEST =~ "Kuman" ]]; then
+                                    echo -e "${vertclair}\nTest module i2c : ${neutre}"
+                                    lsmod | grep i2c_
+                                    echo -e "${vertclair}\nAffichage de l'adresse du (des) périphériques i2c : ${neutre}"
+                                    i2cdetect -y 1
+                                    if [ ! -e /home/pi/script/Kuman.py ]; then
+                                        echo -e "${vertclair}\nLe fichier Kuman.py n'existe pas ${neutre}"
+                                        echo -e "${vertclair}\nTéléchargement du fichier kuman.py ${neutre}"
+                                        wget -P /home/pi/script $lien_github_raw/Kuman.py
+                                        chown pi:pi /home/pi/script/Kuman.py
+                                        chmod +x /home/pi/script/Kuman.py
+                                    fi
+                                    echo -e "${vertclair}\nTest de l'écran Kuman ${neutre}"
+                                    /home/pi/script/Kuman.py
+                                    if [[ $CHOIX_TEST =~ "Debug" ]]; then
+                                        echo -e "${violetclair}\nFin du test de l'écran Kuman. Appuyer sur Entrée pour poursuivre les tests ${neutre}"
+                                        read
+                                    fi
                                 fi
-                                if [[ $CHOIX_TEST =~ "Debug" ]]; then
-                                    echo -e "${violetclair}\nFin du test du capteur DS18B20. Appuyer sur Entrée pour poursuivre les tests ${neutre}"
-                                    read
-                                fi
-                            fi
 
-                            ### ===============================================================
-                            ### TEST DE L'ECRAN KUMAN
-                            ### ===============================================================
+                                ### ===============================================================
+                                ### TEST DE L'ECRAN LCD RGB Blacklight
+                                ### ===============================================================
 
-                            if [[ $CHOIX_TEST =~ "Kuman" ]]; then
-                                echo -e "${vertclair}\nTest module i2c : ${neutre}"
-                                lsmod | grep i2c_
-                                echo -e "${vertclair}\nAffichage de l'adresse du (des) périphériques i2c : ${neutre}"
-                                i2cdetect -y 1
-                                if [ ! -e /home/pi/script/Kuman.py ]; then
-                                    echo -e "${vertclair}\nLe fichier Kuman.py n'existe pas ${neutre}"
-                                    echo -e "${vertclair}\nTéléchargement du fichier kuman.py ${neutre}"
-                                    wget -P /home/pi/script $lien_github_raw/Kuman.py
-                                    chown pi:pi /home/pi/script/Kuman.py
-                                    chmod +x /home/pi/script/Kuman.py
+                                if [[ $CHOIX_TEST =~ "LCD" ]]; then
+                                    echo -e "${vertclair}\nTest module i2c : ${neutre}"
+                                    lsmod | grep i2c_
+                                    echo -e "${vertclair}\nAffichage de l'adresse du (des) périphériques i2c : ${neutre}"
+                                    i2cdetect -y 1
+                                    if [ ! -e /home/pi/script/lcd.py ]; then
+                                        echo -e "${vertclair}\nLe fichier lcd.py n'existe pas ${neutre}"
+                                        echo -e "${vertclair}\nTéléchargement du fichier lcd.py ${neutre}"
+                                        wget -P /home/pi/script $lien_github_raw/lcd.py
+                                        chown pi:pi /home/pi/script/lcd.py
+                                        chmod +x /home/pi/script/lcd.py
+                                    fi
+                                    echo -e "${vertclair}\nTest de l'écran LCD RGB Blacklight ${neutre}"
+                                    /home/pi/script/lcd.py
+                                    if [[ $CHOIX_TEST =~ "Debug" ]]; then
+                                        echo -e "${violetclair}\nFin du test de l'écran LCD RGB Blacklight. Appuyer sur Entrée pour poursuivre les tests ${neutre}"
+                                        read
+                                    fi
                                 fi
-                                echo -e "${vertclair}\nTest de l'écran Kuman ${neutre}"
-                                /home/pi/script/Kuman.py
-                                if [[ $CHOIX_TEST =~ "Debug" ]]; then
-                                    echo -e "${violetclair}\nFin du test de l'écran Kuman. Appuyer sur Entrée pour poursuivre les tests ${neutre}"
-                                    read
-                                fi
-                            fi
 
-                            ### ===============================================================
-                            ### TEST DE L'ECRAN LCD RGB Blacklight
-                            ### ===============================================================
+                                ### ===============================================================
+                                ### TEST DE L'INTERRUPTEUR AVEC ECRAN KUMAN
+                                ### ===============================================================
 
-                            if [[ $CHOIX_TEST =~ "LCD" ]]; then
-                                echo -e "${vertclair}\nTest module i2c : ${neutre}"
-                                lsmod | grep i2c_
-                                echo -e "${vertclair}\nAffichage de l'adresse du (des) périphériques i2c : ${neutre}"
-                                i2cdetect -y 1
-                                if [ ! -e /home/pi/script/lcd.py ]; then
-                                    echo -e "${vertclair}\nLe fichier lcd.py n'existe pas ${neutre}"
-                                    echo -e "${vertclair}\nTéléchargement du fichier lcd.py ${neutre}"
-                                    wget -P /home/pi/script $lien_github_raw/lcd.py
-                                    chown pi:pi /home/pi/script/lcd.py
-                                    chmod +x /home/pi/script/lcd.py
+                                if [[ $CHOIX_TEST =~ "IntKuman" ]]; then
+                                    if [ ! -e /home/pi/script/interrupteur_kuman.py ]; then
+                                        echo -e "${vertclair}\nLe fichier interrupteur_kuman.py n'existe pas ${neutre}"
+                                        echo -e "${vertclair}\nPoursuite des tests ${neutre}"
+                                    else
+                                        echo -e "${vertclair}\nTest de l'interrupteur ${neutre}"
+                                        /home/pi/script/interrupteur_kuman.py
+                                    fi
+                                    if [[ $CHOIX_TEST =~ "Debug" ]]; then
+                                        echo -e "${violetclair}\nFin du test de l'interrupteur. Appuyer sur Entrée pour les tests ${neutre}"
+                                        read
+                                    fi
                                 fi
-                                echo -e "${vertclair}\nTest de l'écran LCD RGB Blacklight ${neutre}"
-                                /home/pi/script/lcd.py
-                                if [[ $CHOIX_TEST =~ "Debug" ]]; then
-                                    echo -e "${violetclair}\nFin du test de l'écran LCD RGB Blacklight. Appuyer sur Entrée pour poursuivre les tests ${neutre}"
-                                    read
-                                fi
-                            fi
 
-                            ### ===============================================================
-                            ### TEST DE L'INTERRUPTEUR AVEC ECRAN KUMAN
-                            ### ===============================================================
+                                ### ===============================================================
+                                ### TEST DE L'INTERRUPTEUR AVEC ECRAN LCD RGB Blacklight
+                                ### ===============================================================
 
-                            if [[ $CHOIX_TEST =~ "IntKuman" ]]; then
-                                if [ ! -e /home/pi/script/interrupteur_kuman.py ]; then
-                                    echo -e "${vertclair}\nLe fichier interrupteur_kuman.py n'existe pas ${neutre}"
-                                    echo -e "${vertclair}\nPoursuite des tests ${neutre}"
-                                else
-                                    echo -e "${vertclair}\nTest de l'interrupteur ${neutre}"
-                                    /home/pi/script/interrupteur_kuman.py
-                                fi
-                                if [[ $CHOIX_TEST =~ "Debug" ]]; then
-                                    echo -e "${violetclair}\nFin du test de l'interrupteur. Appuyer sur Entrée pour les tests ${neutre}"
-                                    read
-                                fi
-                            fi
-
-                            ### ===============================================================
-                            ### TEST DE L'INTERRUPTEUR AVEC ECRAN LCD RGB Blacklight
-                            ### ===============================================================
-
-                            if [[ $CHOIX_TEST =~ "IntLCD" ]]; then
-                                if [ ! -e /home/pi/script/interrupteur_lcd.py ]; then
-                                    echo -e "${vertclair}\nLe fichier interrupteur_lcd.py n'existe pas ${neutre}"
-                                    echo -e "${vertclair}\nPoursuite des tests ${neutre}"
-                                else
-                                    echo -e "${vertclair}\nTest de l'interrupteur ${neutre}"
-                                    /home/pi/script/interrupteur_lcd.py
-                                fi
-                                if [[ $CHOIX_TEST =~ "Debug" ]]; then
-                                    echo -e "${violetclair}\nFin du test de l'interrupteur. Appuyer sur Entrée pour les tests ${neutre}"
-                                    read
-                                fi
-                            fi
-
-                        
+                                if [[ $CHOIX_TEST =~ "IntLCD" ]]; then
+                                    if [ ! -e /home/pi/script/interrupteur_lcd.py ]; then
+                                        echo -e "${vertclair}\nLe fichier interrupteur_lcd.py n'existe pas ${neutre}"
+                                        echo -e "${vertclair}\nPoursuite des tests ${neutre}"
+                                    else
+                                        echo -e "${vertclair}\nTest de l'interrupteur ${neutre}"
+                                        /home/pi/script/interrupteur_lcd.py
+                                    fi
+                                    if [[ $CHOIX_TEST =~ "Debug" ]]; then
+                                        echo -e "${violetclair}\nFin du test de l'interrupteur. Appuyer sur Entrée pour les tests ${neutre}"
+                                        read
+                                    fi
+                                fi                      
                             else
                                 echo -e "${violetclair}\nAnnulation du test des capteurs. ${neutre}"
                                 boucle_test=false
@@ -1475,10 +1474,10 @@ while $boucle_principale;do
                     echo -e "${violetclair}\nAnnulation de l'installation des capteurs. ${neutre}"
                     boucle_capteur=false
                 fi
-            fi
-        done
+            done
+        fi
     else
-        echo -e "${violetclair}\nnnulation de l'installation des logiciels. ${neutre}"
+        echo -e "${violetclair}\Annnulation de l'installation des logiciels. ${neutre}"
         boucle_principale=false
     fi
 done
