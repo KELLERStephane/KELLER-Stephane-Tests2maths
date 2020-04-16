@@ -1055,11 +1055,11 @@ while $boucle_principale;do
                             chown pi:pi /home/pi/script/Kuman.py
                             chmod +x /home/pi/script/Kuman.py
 
-                            if [ -f "/etc/systemd/system/interrupteur.service" ] ; then
-                                echo -e "${cyanclair}\nLe fichier /etc/systemd/system/interrupteur.service existe ${neutre}"
+                            if [ -f "/etc/systemd/system/interrupteur_kuman.service" ] ; then
+                                echo -e "${cyanclair}\nLe fichier /etc/systemd/system/interrupteur_kuman.service existe ${neutre}"
                                 echo -e "${cyanclair}et n'est plus nécessaire. Suppression du service ${neutre}"
-                                systemctl disable interrupteur.service
-                                rm /etc/systemd/system/interrupteur.service*
+                                systemctl disable interrupteur_kuman.service
+                                rm /etc/systemd/system/interrupteur_kuman.service*
                             fi
 
                             #Modification de la crontab pour Affichage de la température et humidité toutes les 10 minutes
@@ -1079,60 +1079,60 @@ while $boucle_principale;do
                         if [[ $CHOIX_KUMAN =~ "2" ]]; then
                             echo -e "${rougeclair}DHT22 et GPIO doivent être installés et l'interrupteur relié au Raspberry ${neutre}"
                             echo -e "${rougeclair}Il faut connaître et renseigner le numéro GPIO BCM ${neutre}"
-                            echo -e "${rougeclair}sur lequel est relié l'interrupteur.. ${neutre}"
+                            echo -e "${rougeclair}sur lequel est relié l'interrupteur. ${neutre}"
 
                             echo -e "${vertclair}\nAjout du GPIO (BCM) dans le fichier interrupteur.py ${neutre}"
 
-                            if [ -f "/etc/systemd/system/interrupteur.service" ] ; then
-                                echo -e "${cyanclair}\nLe fichier /etc/systemd/system/interrupteur.service existe déjà ${neutre}"
+                            if [ -f "/etc/systemd/system/interrupteur_kuman.service" ] ; then
+                                echo -e "${cyanclair}\nLe fichier /etc/systemd/system/interrupteur_kuman.service existe déjà ${neutre}"
                                 echo -e "${cyanclair}Effacement du fichier puis téléchargement du nouveau fichier ${neutre}"
-                                systemctl disable interrupteur.service
-                                rm /etc/systemd/system/interrupteur.service*
+                                systemctl disable interrupteur_kuman.service
+                                rm /etc/systemd/system/interrupteur_kuman.service*
                             fi
                             echo -e "${vertclair}\nTéléchargement du fichier interrupteur.service ${neutre}"
-                            wget -P /etc/systemd/system $lien_github_raw/interrupteur.service
-                            chown pi:pi /etc/systemd/system/interrupteur.service
-                            echo -e "${vertclair}\nActivation et démarrage du servie interrupteur.service ${neutre}"
-                            systemctl enable interrupteur.service
-                            systemctl start interrupteur.service
+                            wget -P /etc/systemd/system $lien_github_raw/interrupteur_kuman.service
+                            chown pi:pi /etc/systemd/system/interrupteur_kuman.service
+                            echo -e "${vertclair}\nActivation et démarrage du service interrupteur.service ${neutre}"
+                            systemctl enable interrupteur_kuman.service
+                            systemctl start interrupteur_kuman.service
 
-                            if [ -f "/home/pi/script/interrupteur.py" ] ; then
-                                echo -e "${cyanclair}Le fichier /home/pi/script/interrupteur.py existe déjà ${neutre}"
+                            if [ -f "/home/pi/script/interrupteur_kuman.py" ] ; then
+                                echo -e "${cyanclair}Le fichier /home/pi/script/interrupteur_kuman.py existe déjà ${neutre}"
                                 echo -e "${cyanclair}Effacement du fichier puis création du nouveau fichier ${neutre}"
-                                rm /home/pi/script/interrupteur.py*
+                                rm /home/pi/script/interrupteur_kuman.py*
                             fi
-                            echo -e "${vertclair}\nTéléchargement du fichier interrupteur.py ${neutre}"
-                            wget -P /home/pi/script $lien_github_raw/interrupteur.py
-                            chown pi:pi /home/pi/script/interrupteur.py
-                            chmod +x /home/pi/script/interrupteur.py
+                            echo -e "${vertclair}\nTéléchargement du fichier interrupteur_kuman.py ${neutre}"
+                            wget -P /home/pi/script $lien_github_raw/interrupteur_kuman.py
+                            chown pi:pi /home/pi/script/interrupteur_kuman.py
+                            chmod +x /home/pi/script/interrupteur_kuman.py
 
-                            #Modification du fichier interrupteur.py en renseignant le numéro de GPIO BCM
+                            #Modification du fichier interrupteur_kuman.py en renseignant le numéro de GPIO BCM
                             boucle=true
                             while $boucle;do
                                 BCM=$(whiptail --title "Paramètres pour l'interupteur" --inputbox "\nSaisir le GPIO (BCM) de l'interrupteur : " 10 60 3>&1 1>&2 2>&3)
                                 exitstatus=$?
                                 if [ $exitstatus = 0 ]; then
-                                    echo -e "${vertclair}Modification du fichier interrupteur.py en ajoutant le numéro de GPIO (BCM) ${neutre}"
+                                    echo -e "${vertclair}Modification du fichier interrupteur_kuman.py en ajoutant le numéro de GPIO (BCM) ${neutre}"
                                     L1="BCM ="
                                     L2="BCM = "
                                     L3=$BCM
-                                    sed -i '/'"$L1"'/ c\'"$L2"''"$L3"'' /home/pi/script/interrupteur.py
+                                    sed -i '/'"$L1"'/ c\'"$L2"''"$L3"'' /home/pi/script/interrupteur_kuman.py
                                     boucle=false
                                 else
                                     echo "Tu as annulé... Recommence :-("
                                 fi
                             done
-                            echo -e "${vertclair}\nAjout du GPIO (BCM) dans le fichier interrupteur.py ${neutre}"
+                            echo -e "${vertclair}\nAjout du GPIO (BCM) dans le fichier interrupteur_kuman.py ${neutre}"
 
-                            #Ajout du service interrupteur
+                            #Ajout du service interrupteur_kuman
                             if [ -f "/home/pi/script/Kuman.py" ] ; then
-                                echo -e "${cyanclair}\nLe fichier /etc/systemd/system/interrupteur.service existe déjà${neutre}"
+                                echo -e "${cyanclair}\nLe fichier /etc/systemd/system/interrupteur_kuman.service existe déjà${neutre}"
                                 echo -e "${cyanclair}Suppression du service puis téléchargement du nouveau fichier ${neutre}"
                             fi
-                            wget -P /etc/systemd/system/ $lien_github_raw/interrupteur.service
-                            echo -e "${cyanclair}Activation et démarrage du service /etc/systemd/system/interrupteur.service ${neutre}"
-                            systemctl enable interrupteur.service
-                            systemctl start interrupteur.service
+                            wget -P /etc/systemd/system/ $lien_github_raw/interrupteur_kuman.service
+                            echo -e "${cyanclair}Activation et démarrage du service /etc/systemd/system/interrupteur_kuman.service ${neutre}"
+                            systemctl enable interrupteur_kuman.service
+                            systemctl start interrupteur_kuman.service
 
                             #Modification de la crontab pour supprimer affichage permanent de la température et humidité
                             crontab -u root -l > /tmp/toto.txt # export de la crontab
@@ -1197,11 +1197,11 @@ while $boucle_principale;do
                             chown pi:pi /home/pi/script/lcd.py
                             chmod +x /home/pi/script/lcd.py
 
-                            if [ -f "/etc/systemd/system/interrupteur.service" ] ; then
-                                echo -e "${cyanclair}\nLe fichier /etc/systemd/system/interrupteur.service existe ${neutre}"
+                            if [ -f "/etc/systemd/system/interrupteur_lcd.service" ] ; then
+                                echo -e "${cyanclair}\nLe fichier /etc/systemd/system/interrupteur_lcd.service existe ${neutre}"
                                 echo -e "${cyanclair}et n'est plus nécessaire. Suppression du service ${neutre}"
-                                systemctl disable interrupteur.service
-                                rm /etc/systemd/system/interrupteur.service*
+                                systemctl disable interrupteur_lcd.service
+                                rm /etc/systemd/system/interrupteur_lcd.service*
                             fi
 
                             #Modification de la crontab pour Affichage de la température et humidité toutes les 10 minutes
@@ -1221,60 +1221,60 @@ while $boucle_principale;do
                         if [[ $CHOIX_LCD =~ "2" ]]; then
                             echo -e "${rougeclair}DHT22 et GPIO doivent être installés et l'interrupteur relié au Raspberry ${neutre}"
                             echo -e "${rougeclair}Il faut connaître et renseigner le numéro GPIO BCM ${neutre}"
-                            echo -e "${rougeclair}sur lequel est relié l'interrupteur.. ${neutre}"
+                            echo -e "${rougeclair}sur lequel est relié l'interrupteur. ${neutre}"
 
-                            echo -e "${vertclair}\nAjout du GPIO (BCM) dans le fichier interrupteur.py ${neutre}"
+                            echo -e "${vertclair}\nAjout du GPIO (BCM) dans le fichier interrupteur_lcd.py ${neutre}"
 
-                            if [ -f "/etc/systemd/system/interrupteur.service" ] ; then
-                                echo -e "${cyanclair}\nLe fichier /etc/systemd/system/interrupteur.service existe déjà ${neutre}"
+                            if [ -f "/etc/systemd/system/interrupteur_lcd.service" ] ; then
+                                echo -e "${cyanclair}\nLe fichier /etc/systemd/system/interrupteur_lcd.service existe déjà ${neutre}"
                                 echo -e "${cyanclair}Effacement du fichier puis téléchargement du nouveau fichier ${neutre}"
-                                systemctl disable interrupteur.service
-                                rm /etc/systemd/system/interrupteur.service*
+                                systemctl disable interrupteur_lcd.service
+                                rm /etc/systemd/system/interrupteur_lcd.service*
                             fi
-                            echo -e "${vertclair}\nTéléchargement du fichier interrupteur.service ${neutre}"
-                            wget -P /etc/systemd/system $lien_github_raw/interrupteur.service
-                            chown pi:pi /etc/systemd/system/interrupteur.service
-                            echo -e "${vertclair}\nActivation et démarrage du servie interrupteur.service ${neutre}"
-                            systemctl enable interrupteur.service
-                            systemctl start interrupteur.service
+                            echo -e "${vertclair}\nTéléchargement du fichier interrupteur_lcd.service ${neutre}"
+                            wget -P /etc/systemd/system $lien_github_raw/interrupteur_lcd.service
+                            chown pi:pi /etc/systemd/system/interrupteur_lcd.service
+                            echo -e "${vertclair}\nActivation et démarrage du service interrupteur_lcd.service ${neutre}"
+                            systemctl enable interrupteur_lcd.service
+                            systemctl start interrupteur_lcd.service
 
-                            if [ -f "/home/pi/script/interrupteur.py" ] ; then
-                                echo -e "${cyanclair}Le fichier /home/pi/script/interrupteur.py existe déjà ${neutre}"
+                            if [ -f "/home/pi/script/interrupteur_lcd.py" ] ; then
+                                echo -e "${cyanclair}Le fichier /home/pi/script/interrupteur_lcd.py existe déjà ${neutre}"
                                 echo -e "${cyanclair}Effacement du fichier puis création du nouveau fichier ${neutre}"
-                                rm /home/pi/script/interrupteur.py*
+                                rm /home/pi/script/interrupteur_lcd.py*
                             fi
-                            echo -e "${vertclair}\nTéléchargement du fichier interrupteur.py ${neutre}"
-                            wget -P /home/pi/script $lien_github_raw/interrupteur.py
-                            chown pi:pi /home/pi/script/interrupteur.py
-                            chmod +x /home/pi/script/interrupteur.py
+                            echo -e "${vertclair}\nTéléchargement du fichier interrupteur_lcd.py ${neutre}"
+                            wget -P /home/pi/script $lien_github_raw/interrupteur_lcd.py
+                            chown pi:pi /home/pi/script/interrupteur_lcd.py
+                            chmod +x /home/pi/script/interrupteur_lcd.py
 
-                            #Modification du fichier interrupteur.py en renseignant le numéro de GPIO BCM
+                            #Modification du fichier interrupteur_lcd.py en renseignant le numéro de GPIO BCM
                             boucle=true
                             while $boucle;do
                                 BCM=$(whiptail --title "Paramètres pour l'interupteur" --inputbox "\nSaisir le GPIO (BCM) de l'interrupteur : " 10 60 3>&1 1>&2 2>&3)
                                 exitstatus=$?
                                 if [ $exitstatus = 0 ]; then
-                                    echo -e "${vertclair}Modification du fichier interrupteur.py en ajoutant le numéro de GPIO (BCM) ${neutre}"
+                                    echo -e "${vertclair}Modification du fichier interrupteur_lcd.py en ajoutant le numéro de GPIO (BCM) ${neutre}"
                                     L1="BCM ="
                                     L2="BCM = "
                                     L3=$BCM
-                                    sed -i '/'"$L1"'/ c\'"$L2"''"$L3"'' /home/pi/script/interrupteur.py
+                                    sed -i '/'"$L1"'/ c\'"$L2"''"$L3"'' /home/pi/script/interrupteur_lcd.py
                                     boucle=false
                                 else
                                     echo "Tu as annulé... Recommence :-("
                                 fi
                             done
-                            echo -e "${vertclair}\nAjout du GPIO (BCM) dans le fichier interrupteur.py ${neutre}"
+                            echo -e "${vertclair}\nAjout du GPIO (BCM) dans le fichier interrupteur_lcd.py ${neutre}"
 
-                            #Ajout du service interrupteur
+                            #Ajout du service interrupteur_lcd
                             if [ -f "/home/pi/script/lcd.py" ] ; then
-                                echo -e "${cyanclair}\nLe fichier /etc/systemd/system/interrupteur.service existe déjà${neutre}"
+                                echo -e "${cyanclair}\nLe fichier /etc/systemd/system/interrupteur_lcd.service existe déjà${neutre}"
                                 echo -e "${cyanclair}Suppression du service puis téléchargement du nouveau fichier ${neutre}"
                             fi
-                            wget -P /etc/systemd/system/ $lien_github_raw/interrupteur.service
-                            echo -e "${cyanclair}Activation et démarrage du service /etc/systemd/system/interrupteur.service ${neutre}"
-                            systemctl enable interrupteur.service
-                            systemctl start interrupteur.service
+                            wget -P /etc/systemd/system/ $lien_github_raw/interrupteur_lcd.service
+                            echo -e "${cyanclair}Activation et démarrage du service /etc/systemd/system/interrupteur_lcd.service ${neutre}"
+                            systemctl enable interrupteur_lcd.service
+                            systemctl start interrupteur_lcd.service
 
                             #Modification de la crontab pour supprimer affichage permanent de la température et humidité
                             crontab -u root -l > /tmp/toto.txt # export de la crontab
@@ -1317,7 +1317,7 @@ while $boucle_principale;do
                     checkbox=white,black
                     ' \
                     whiptail --title "Menu de tests des capteurs" --checklist \
-                    "\nScript réalisé par :\n- KELLER Stéphane (Lycée Agricole Louis Pasteur)\n- José De Castro\nhttps://github.com/KELLERStephane/KELLER-Stephane-Tests2maths\n\nQuel capteur soutaitez-vous tester ?" 22 72 8 \
+                    "\nScript réalisé par :\n- KELLER Stéphane (Lycée Agricole Louis Pasteur)\n- José De Castro\nhttps://github.com/KELLERStephane/KELLER-Stephane-Tests2maths\n\nQuel capteur soutaitez-vous tester ?" 23 72 9 \
                     "Debug" "Interruption à la fin de chaque installation " OFF \
                     "GrovePi" "Test du GrovePi de Dexter Industries " OFF \
                     "DHT22" "Test du capteur de température et d'humidité DHT22 " OFF \
@@ -1325,7 +1325,8 @@ while $boucle_principale;do
                     "Kuman" "Test de l'écran Kuman " OFF \
                     "LCD" "Test de l'écran LCD RGB Backlight " OFF \
                     "SPI" "Test de l'écran bus SPI " OFF \
-                    "Int" "Test de l'interrupteur " OFF 3>&1 1>&2 2>&3)
+                    "IntKuman" "Test de l'interrupteur avec écran Kuman " OFF \
+                    "IntLCD" "Test de l'interrupteur avec écran LCD" OFF 3>&1 1>&2 2>&3)
 
                     exitstatus=$?
 
@@ -1441,22 +1442,41 @@ while $boucle_principale;do
                     fi
 
                     ### ===============================================================
-                    ### TEST DE L'INTERRUPTEUR
+                    ### TEST DE L'INTERRUPTEUR AVEC ECRAN KUMAN
                     ### ===============================================================
 
-                    if [[ $CHOIX_TEST =~ "Int" ]]; then
-                        if [ ! -e /home/pi/script/interrupteur.py ]; then
-                            echo -e "${vertclair}\nLe fichier interrupteur.py n'existe pas ${neutre}"
+                    if [[ $CHOIX_TEST =~ "IntKuman" ]]; then
+                        if [ ! -e /home/pi/script/interrupteur_kuman.py ]; then
+                            echo -e "${vertclair}\nLe fichier interrupteur_kuman.py n'existe pas ${neutre}"
                             echo -e "${vertclair}\nPoursuite des tests ${neutre}"
                         else
                             echo -e "${vertclair}\nTest de l'interrupteur ${neutre}"
-                            /home/pi/script/interrupteur.py
+                            /home/pi/script/interrupteur_kuman.py
                         fi
                         if [[ $CHOIX_TEST =~ "Debug" ]]; then
                             echo -e "${violetclair}\nFin du test de l'interrupteur. Appuyer sur Entrée pour les tests ${neutre}"
                             read
                         fi
                     fi
+
+                    ### ===============================================================
+                    ### TEST DE L'INTERRUPTEUR AVEC ECRAN LCD RGB Blacklight
+                    ### ===============================================================
+
+                    if [[ $CHOIX_TEST =~ "IntLCD" ]]; then
+                        if [ ! -e /home/pi/script/interrupteur_lcd.py ]; then
+                            echo -e "${vertclair}\nLe fichier interrupteur_lcd.py n'existe pas ${neutre}"
+                            echo -e "${vertclair}\nPoursuite des tests ${neutre}"
+                        else
+                            echo -e "${vertclair}\nTest de l'interrupteur ${neutre}"
+                            /home/pi/script/interrupteur_lcd.py
+                        fi
+                        if [[ $CHOIX_TEST =~ "Debug" ]]; then
+                            echo -e "${violetclair}\nFin du test de l'interrupteur. Appuyer sur Entrée pour les tests ${neutre}"
+                            read
+                        fi
+                    fi
+
                 fi
                 boucle_principale=false
             else
@@ -1488,5 +1508,3 @@ else
     echo -e "${bleuclair}\nAmusez vous bien. ${neutre}"
     whiptail --title "Copyright" --msgbox "Script réalisé par KELLER Stéphane - Lycée Agricole Louis Pasteur\net José De Castro.\nhttps://github.com/KELLERStephane/KELLER-Stephane-Tests2maths\nCliquer sur Ok pour continuer." 10 70
 fi
-
-

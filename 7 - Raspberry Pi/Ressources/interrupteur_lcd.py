@@ -44,37 +44,43 @@ def setRGB(r,g,b):
 def textCommand(cmd):
     bus.write_byte_data(DISPLAY_TEXT_ADDR,0x80,cmd)
 
+# set display text \n for second line(or auto wrap)
+def setText(text):
+    textCommand(0x01) # clear display
+    time.sleep(.05)
+    textCommand(0x08 | 0x04) # display on, no cursor
+    textCommand(0x28) # 2 lines
+    time.sleep(.05)
+    count = 0
+    row = 0
+    for c in text:
+        if c == '\n' or count == 16:
+            count = 0
+            row += 1
+            if row == 2:
+                break
+            textCommand(0xc0)
+            if c == '\n':
+                continue
+        count += 1
+        bus.write_byte_data(DISPLAY_TEXT_ADDR,0x40,ord(c))
+
 # configuration de la broche BCM en entrée
 GPIO.setmode(GPIO.BCM)
 # GPIO (BCM) set up as input. It is pulled up to stop false signals
 GPIO.setup(BCM, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
 if version[0] == '2':
-	print "Attente de l'appui sur l'interrupteur"
+    print "Attente de l'appui sur l'interrupteur"
 else:
-	print("Attente de l'appui sur l'interrupteur")
+    print("Attente de l'appui sur l'interrupteur")
 # maintenant, le programme ne fera rien jusqu'au front descendant sur le GPIO BCM
 #C'est pourquoi nous avons utilisé le pullup pour maintenir le signal haut et éviter une fausse interruption
 #Pendant ce temps d'attente, votre ordinateur ne gaspille pas de ressources en interrogeant une touche
 #Appuyez sur votre bouton lorsque vous êtes prêt à déclencher une interruption sur front descendant
 
 try:
-	GPIO.wait_for_edge(BCM, GPIO.FALLING)
-	### Ouverture et affichage du fichier data.txt pour récupérer la température et l'humidité
-	chdir("/home/pi/script")
-	with open('data.txt','r') as fichier:
-		li = fichier.readlines()	# lecture dans le fichier avec la méthode readlines()
-		ind_temp_deb = li[0].index("rature :")
-		ind_temp_fin = li[0].index("\n")
-		temp = li[0][ind_temp_deb+9:ind_temp_fin]
-		ind_humid_deb = li[1].index("\xc3\xa9 :")
-		humid = li[1][ind_humid_deb+5:ind_humid_deb+7]
-	if version[0] == '2':
-		print 'Température = {0:0.1f}°C  Humidité = {1:0.1f}%'.format(float(temp), float(humid))
-	else:
-		print('Température = {0:0.1f}°C  Humidité = {1:0.1f}%'.format(float(temp), float(humid)))
-
-	#Affichage des valeurs sur l'écran
+    GPIO.wait_for_edge(BCM, GPIO.FALLING)
     ### Ouverture et affichage du fichier data.txt pour récupérer la température et l'humidité
     chdir("/home/pi/script")
     with open('data.txt','r') as fichier:
@@ -84,7 +90,6 @@ try:
         temp = li[0][ind_temp_deb+9:ind_temp_fin]
         ind_humid_deb = li[1].index("\xc3\xa9 :")
         humid = li[1][ind_humid_deb+5:ind_humid_deb+7]
-
     if version[0] == '2':
         print 'Température = {0:0.1f}°C  Humidité = {1:0.1f}%'.format(float(temp), float(humid))
     else:
@@ -100,12 +105,11 @@ try:
 
 except KeyboardInterrupt:
         if version[0] == '2':
-                print "Fin de l'interruption"
+            print "Fin de l'interruption"
         else:
-                print("Fin de l'interruption")
-	GPIO.cleanup()       # nettoie GPIO à la sortie CTRL + C
+            print("Fin de l'interruption")
 
-
-setRGB(0,0,0)
+setRGB(0, 0, 0)
+setText("")
 GPIO.cleanup()           # nettoie GPIO à la sortie normale
 #system("/home/pi/script/interrupteur.py &")
