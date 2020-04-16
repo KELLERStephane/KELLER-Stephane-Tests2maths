@@ -1,0 +1,24 @@
+[Unit]
+Description=Appui sur interrupteur affiche la temperature et humidite sur ecran LCD RGB Backlight
+
+[Service]
+ExecStart=/usr/bin/python /home/pi/script/lcd.py
+Type=simple
+#Configure si le service doit être redémarré une fois le processus de service terminé, tué ou si le délai d'attente est atteint.
+#                            *Restart=*    no    always    on-success    on-failure    on-abnormal    on-abort    on-watchdog
+# *Choix redémarrage*                  +_______+_________+____________+_____________+______________+___________+_______________+
+#           Fin normale ou par signal  |       |    X    |      X     |             |              |           |               |
+#                                      +_______+_________+____________+_____________+______________+___________+_______________+
+#        Fin d’exécution avec erreurs  |       |    X    |            |      X      |              |           |               |
+#                                      +_______+_________+____________+_____________+______________+___________+_______________+
+#                       Processus tué  |       |    X    |            |      X      |      X       |     X     |               |
+#                                      +_______+_________+____________+_____________+______________+___________+_______________+
+#             délai d'attente atteint  |       |    X    |            |      X      |      X       |           |               |
+#                                      +_______+_________+____________+_____________+______________+___________+_______________+
+#                            Watchdog  |       |    X    |            |      X      |      X       |           |       X       |
+#                                      +_______+_________+____________+_____________+______________+___________+_______________+
+Restart=always
+
+[Install] 
+WantedBy=multi-user.target
+
