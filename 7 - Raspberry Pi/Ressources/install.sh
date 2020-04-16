@@ -999,7 +999,7 @@ while $boucle_principale;do
                     if [[ $exitstatus = 0 ]]; then
                         echo -e -n "${jauneclair}\t =======================================  \n ${neutre}"
                         echo -e -n "${jauneclair}\t L'affichage sera le suivant              \n ${neutre}"
-                        echo -e -n "${jauneclair}\t $CHOIX                                   \n ${neutre}"
+                        echo -e -n "${jauneclair}\t $CHOIX_CAPTEUR                           \n ${neutre}"
                         echo -e -n "${jauneclair}\t =======================================  \n ${neutre}"
 
                         echo -e "${bleuclair}\nInstallation de l'écran Kuman ${neutre}"
@@ -1080,22 +1080,23 @@ while $boucle_principale;do
                             echo -e "${rougeclair}DHT22 et GPIO doivent être installés et l'interrupteur relié au Raspberry ${neutre}"
                             echo -e "${rougeclair}Il faut connaître et renseigner le numéro GPIO BCM ${neutre}"
                             echo -e "${rougeclair}sur lequel est relié l'interrupteur. ${neutre}"
-
-                            echo -e "${vertclair}\nAjout du GPIO (BCM) dans le fichier interrupteur.py ${neutre}"
-
+#####################################
+                            #Ajout du service interrupteur_kuman
                             if [ -f "/etc/systemd/system/interrupteur_kuman.service" ] ; then
                                 echo -e "${cyanclair}\nLe fichier /etc/systemd/system/interrupteur_kuman.service existe déjà ${neutre}"
                                 echo -e "${cyanclair}Effacement du fichier puis téléchargement du nouveau fichier ${neutre}"
+                                systemctl stop interrupteur_kuman.service
                                 systemctl disable interrupteur_kuman.service
-                                rm /etc/systemd/system/interrupteur_kuman.service*
+                                rm /etc/systemd/system/interrupteur_kuman.service
                             fi
-                            echo -e "${vertclair}\nTéléchargement du fichier interrupteur.service ${neutre}"
+                            echo -e "${vertclair}\nTéléchargement du fichier interrupteur_kuman.service ${neutre}"
                             wget -P /etc/systemd/system $lien_github_raw/interrupteur_kuman.service
                             chown pi:pi /etc/systemd/system/interrupteur_kuman.service
                             echo -e "${vertclair}\nActivation et démarrage du service interrupteur.service ${neutre}"
                             systemctl enable interrupteur_kuman.service
                             systemctl start interrupteur_kuman.service
 
+                            #Téléchargment du fichier interrupteur_kuman.py
                             if [ -f "/home/pi/script/interrupteur_kuman.py" ] ; then
                                 echo -e "${cyanclair}Le fichier /home/pi/script/interrupteur_kuman.py existe déjà ${neutre}"
                                 echo -e "${cyanclair}Effacement du fichier puis création du nouveau fichier ${neutre}"
@@ -1107,6 +1108,8 @@ while $boucle_principale;do
                             chmod +x /home/pi/script/interrupteur_kuman.py
 
                             #Modification du fichier interrupteur_kuman.py en renseignant le numéro de GPIO BCM
+                            echo -e "${vertclair}\nAjout du GPIO (BCM) dans le fichier interrupteur.py ${neutre}"
+
                             boucle=true
                             while $boucle;do
                                 BCM=$(whiptail --title "Paramètres pour l'interupteur" --inputbox "\nSaisir le GPIO (BCM) de l'interrupteur : " 10 60 3>&1 1>&2 2>&3)
@@ -1123,16 +1126,6 @@ while $boucle_principale;do
                                 fi
                             done
                             echo -e "${vertclair}\nAjout du GPIO (BCM) dans le fichier interrupteur_kuman.py ${neutre}"
-
-                            #Ajout du service interrupteur_kuman
-                            if [ -f "/home/pi/script/Kuman.py" ] ; then
-                                echo -e "${cyanclair}\nLe fichier /etc/systemd/system/interrupteur_kuman.service existe déjà${neutre}"
-                                echo -e "${cyanclair}Suppression du service puis téléchargement du nouveau fichier ${neutre}"
-                            fi
-                            wget -P /etc/systemd/system/ $lien_github_raw/interrupteur_kuman.service
-                            echo -e "${cyanclair}Activation et démarrage du service /etc/systemd/system/interrupteur_kuman.service ${neutre}"
-                            systemctl enable interrupteur_kuman.service
-                            systemctl start interrupteur_kuman.service
 
                             #Modification de la crontab pour supprimer affichage permanent de la température et humidité
                             crontab -u root -l > /tmp/toto.txt # export de la crontab
@@ -1173,7 +1166,7 @@ while $boucle_principale;do
                     if [[ $exitstatus = 0 ]]; then
                         echo -e -n "${jauneclair}\t =======================================  \n ${neutre}"
                         echo -e -n "${jauneclair}\t L'affichage sera le suivant              \n ${neutre}"
-                        echo -e -n "${jauneclair}\t $CHOIX                                   \n ${neutre}"
+                        echo -e -n "${jauneclair}\t $CHOIX_LCD                               \n ${neutre}"
                         echo -e -n "${jauneclair}\t =======================================  \n ${neutre}"
 
                         echo -e "${bleuclair}\nInstallation de l'écran LCD RGB Backlight ${neutre}"
@@ -1222,22 +1215,22 @@ while $boucle_principale;do
                             echo -e "${rougeclair}DHT22 et GPIO doivent être installés et l'interrupteur relié au Raspberry ${neutre}"
                             echo -e "${rougeclair}Il faut connaître et renseigner le numéro GPIO BCM ${neutre}"
                             echo -e "${rougeclair}sur lequel est relié l'interrupteur. ${neutre}"
-
-                            echo -e "${vertclair}\nAjout du GPIO (BCM) dans le fichier interrupteur_lcd.py ${neutre}"
-
-                            if [ -f "/etc/systemd/system/interrupteur_lcd.service" ] ; then
+########################################
+                            #Ajout du service interrupteur_lcd
+                            if [ -f "/home/pi/script/lcd.py" ] ; then
                                 echo -e "${cyanclair}\nLe fichier /etc/systemd/system/interrupteur_lcd.service existe déjà ${neutre}"
-                                echo -e "${cyanclair}Effacement du fichier puis téléchargement du nouveau fichier ${neutre}"
+                                echo -e "${cyanclair}Suppression du service puis téléchargement du nouveau fichier ${neutre}"
+                                systemctl stop interrupteur_lcd.service
                                 systemctl disable interrupteur_lcd.service
-                                rm /etc/systemd/system/interrupteur_lcd.service*
+                                rm /etc/systemd/system/interrupteur_lcd.service
                             fi
-                            echo -e "${vertclair}\nTéléchargement du fichier interrupteur_lcd.service ${neutre}"
-                            wget -P /etc/systemd/system $lien_github_raw/interrupteur_lcd.service
-                            chown pi:pi /etc/systemd/system/interrupteur_lcd.service
-                            echo -e "${vertclair}\nActivation et démarrage du service interrupteur_lcd.service ${neutre}"
+                            wget -P /etc/systemd/system/ $lien_github_raw/interrupteur_lcd.service
+                            echo -e "${cyanclair}Activation et démarrage du service /etc/systemd/system/interrupteur_lcd.service ${neutre}"
                             systemctl enable interrupteur_lcd.service
                             systemctl start interrupteur_lcd.service
 
+                            #Téléchargement du fichier interrupteur_lcd.py
+                            echo -e "${vertclair}\nTéléchargement du fichier interrupteur_lcd.py ${neutre}"
                             if [ -f "/home/pi/script/interrupteur_lcd.py" ] ; then
                                 echo -e "${cyanclair}Le fichier /home/pi/script/interrupteur_lcd.py existe déjà ${neutre}"
                                 echo -e "${cyanclair}Effacement du fichier puis création du nouveau fichier ${neutre}"
@@ -1249,6 +1242,8 @@ while $boucle_principale;do
                             chmod +x /home/pi/script/interrupteur_lcd.py
 
                             #Modification du fichier interrupteur_lcd.py en renseignant le numéro de GPIO BCM
+                            echo -e "${vertclair}\nAjout du GPIO (BCM) dans le fichier interrupteur_lcd.py ${neutre}"
+
                             boucle=true
                             while $boucle;do
                                 BCM=$(whiptail --title "Paramètres pour l'interupteur" --inputbox "\nSaisir le GPIO (BCM) de l'interrupteur : " 10 60 3>&1 1>&2 2>&3)
@@ -1265,16 +1260,6 @@ while $boucle_principale;do
                                 fi
                             done
                             echo -e "${vertclair}\nAjout du GPIO (BCM) dans le fichier interrupteur_lcd.py ${neutre}"
-
-                            #Ajout du service interrupteur_lcd
-                            if [ -f "/home/pi/script/lcd.py" ] ; then
-                                echo -e "${cyanclair}\nLe fichier /etc/systemd/system/interrupteur_lcd.service existe déjà${neutre}"
-                                echo -e "${cyanclair}Suppression du service puis téléchargement du nouveau fichier ${neutre}"
-                            fi
-                            wget -P /etc/systemd/system/ $lien_github_raw/interrupteur_lcd.service
-                            echo -e "${cyanclair}Activation et démarrage du service /etc/systemd/system/interrupteur_lcd.service ${neutre}"
-                            systemctl enable interrupteur_lcd.service
-                            systemctl start interrupteur_lcd.service
 
                             #Modification de la crontab pour supprimer affichage permanent de la température et humidité
                             crontab -u root -l > /tmp/toto.txt # export de la crontab
