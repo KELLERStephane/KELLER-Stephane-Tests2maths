@@ -602,8 +602,6 @@ while $boucle_principale;do
                 sed -i '/'"$L1"'/ c\'"$L2"''"$L3"''"$L4"''"$L5"''"$L6"''"$L7"''"$L8"''"$L9"''"$L10"''"$L11"''"$L12"'' /etc/apache2/apache2.conf
             fi
 
-###########################################################################################################################
-
             if [ ! -d "/etc/fail2ban" ]; then
                 echo -e "${cyanclair}\nFail2ban n'est pas installé ${neutre}"
                 echo -e "${cyanclair}Poursuite de l'installation ${neutre}"
@@ -1075,7 +1073,7 @@ while $boucle_principale;do
                                 echo -e "${rougeclair}DHT22 et GPIO doivent être installés et l'interrupteur relié au Raspberry ${neutre}"
                                 echo -e "${rougeclair}Il faut connaître et renseigner le numéro GPIO BCM ${neutre}"
                                 echo -e "${rougeclair}sur lequel est relié l'interrupteur. ${neutre}"
-    #####################################
+
                                 #Ajout du service interrupteur_kuman
                                 if [ -f "/etc/systemd/system/interrupteur_kuman.service" ] ; then
                                     echo -e "${cyanclair}\nLe fichier /etc/systemd/system/interrupteur_kuman.service existe déjà ${neutre}"
@@ -1174,6 +1172,10 @@ while $boucle_principale;do
                             cd /home/pi/script
                             apt install -y python-smbus i2c-tools
 
+                            ### ===============================================================
+                            ### Affichage permanent données DHT22 sur écran LCD RGB Backlight
+                            ### ===============================================================
+
                             if [[ $CHOIX_LCD =~ "1" ]]; then
                                 if [ -f "/home/pi/script/lcd.py" ] ; then
                                     echo -e "${cyanclair}\nLe fichier /home/pi/script/lcd.py existe déjà${neutre}"
@@ -1206,11 +1208,15 @@ while $boucle_principale;do
                                 fi
                             fi
 
+                            ### ===============================================================
+                            ### Affichage ponctuel données DHT22 sur écran LCD RGB Backlight
+                            ### ===============================================================
+
                             if [[ $CHOIX_LCD =~ "2" ]]; then
                                 echo -e "${rougeclair}DHT22 et GPIO doivent être installés et l'interrupteur relié au Raspberry ${neutre}"
                                 echo -e "${rougeclair}Il faut connaître et renseigner le numéro GPIO BCM ${neutre}"
                                 echo -e "${rougeclair}sur lequel est relié l'interrupteur. ${neutre}"
-    ########################################
+                                
                                 #Ajout du service interrupteur_lcd
                                 if [ -f "/home/pi/script/lcd.py" ] ; then
                                     echo -e "${cyanclair}\nLe fichier /etc/systemd/system/interrupteur_lcd.service existe déjà ${neutre}"
@@ -1284,9 +1290,9 @@ while $boucle_principale;do
                     ### TEST DES CAPTEURS
                     ### ===============================================================
 
-                    boucle_test=true
-                    while $boucle_test;do
-                        if [[ $CHOIX_CAPTEUR =~ "Tests" ]]; then
+                    if [[ $CHOIX_CAPTEUR =~ "Tests" ]]; then
+                        boucle_test=true
+                        while $boucle_test;do
                             echo -e "${bleuclair}\nTests des capteurs : ${neutre}"
                             echo -e "${rougeclair}Les capteurs doivent être installés et reliés correctement au Raspberry ${neutre}"
                             echo -e "${rougeclair}Le Raspberry a été redémarré : ${neutre}"
@@ -1317,7 +1323,6 @@ while $boucle_principale;do
                                 echo -e -n "${jauneclair}\t Les capteurs suivants seront testés      \n ${neutre}"
                                 echo -e -n "${jauneclair}\t $CHOIX_TEST                              \n ${neutre}"
                                 echo -e -n "${jauneclair}\t =======================================  \n ${neutre}"
-                            fi
 
                             ### ===============================================================
                             ### TEST DU SHILED GROVEPI
@@ -1459,19 +1464,21 @@ while $boucle_principale;do
                                 fi
                             fi
 
-                        fi
-                    else
-                        echo "Annulation du test des capteurs."
-                        boucle_test=false
-                    fi
-                done        
-            else
-                echo "Annulation de l'installation des capteurs."
-                boucle_capteur=false
+                        
+                            else
+                                echo -e "${violetclair}\nAnnulation du test des capteurs. ${neutre}"
+                                boucle_test=false
+                            fi
+                        done
+                    fi        
+                else
+                    echo -e "${violetclair}\nAnnulation de l'installation des capteurs. ${neutre}"
+                    boucle_capteur=false
+                fi
             fi
         done
     else
-        echo "Annulation de l'installation des logiciels."
+        echo -e "${violetclair}\nnnulation de l'installation des logiciels. ${neutre}"
         boucle_principale=false
     fi
 done
