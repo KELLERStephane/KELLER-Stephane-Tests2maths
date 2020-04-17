@@ -25,7 +25,7 @@ else:
         bus = smbus.SMBus(0)
 
 #Numéro de GPIO (BCM)
-BCM = 
+BCM = 13
 
 # this device has two I2C addresses
 DISPLAY_RGB_ADDR = 0x62
@@ -95,11 +95,40 @@ try:
     else:
         print('Température = {0:0.1f}°C  Humidité = {1:0.1f}%'.format(float(temp), float(humid)))
 
+    temperature = float(temp)
+    print(temperature, type(temperature), type(temp))
+    if temperature >= 33:
+	print("Extrêmement chaud")
+        r, g, b = 255, 0, 0
+    elif 30 <= temperature < 33:
+ 	print("Très chaud")
+        r, g, b = 255, 128, 0
+    elif 27 <= temperature < 30:
+	print("Chaud")
+        r, g, b = 255, 153, 0
+    elif 24 <= temperature < 27:
+	print("Assez chaud")
+        r, g, b = 76, 153, 0
+    elif 21 <= temperature < 24:
+	print("Normal")
+        r, g, b = 0, 153, 0
+    elif 18 <= temperature < 21:
+	print("Frais")
+        r, g, b = 51, 153, 255
+    elif 15 <= temperature < 18:
+	print("Froid")
+        r, g, b = 0, 0, 255
+    elif 12 <= temperature < 15:
+	print("Très froid")
+        r, g, b = 153, 51, 255
+    else:
+	print("Glacial")
+        r, g, b = 51, 0, 51
+
     temp, humid = str(temp), str(humid)
     if len(temp)==2:
         temp += '  '
-
-    setRGB(0,128,64)
+    setRGB(r, g, b)
     setText("TEMP : {}     HUMID : {}%".format(temp,humid))
     time.sleep(2)
 
@@ -112,4 +141,3 @@ except KeyboardInterrupt:
 setRGB(0, 0, 0)
 setText("")
 GPIO.cleanup()           # nettoie GPIO à la sortie normale
-#system("/home/pi/script/interrupteur.py &")
