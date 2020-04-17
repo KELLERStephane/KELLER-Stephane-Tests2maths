@@ -1078,7 +1078,7 @@ while $boucle_principale;do
                                 #Ajout du service interrupteur_kuman
                                 if [ -f "/etc/systemd/system/interrupteur_kuman.service" ] ; then
                                     echo -e "${cyanclair}\nLe fichier /etc/systemd/system/interrupteur_kuman.service existe déjà ${neutre}"
-                                    echo -e "${cyanclair}Effacement du fichier puis téléchargement du nouveau fichier ${neutre}"
+                                    echo -e "${cyanclair}Suppression du service puis téléchargement du nouveau fichier ${neutre}"
                                     systemctl stop interrupteur_kuman.service
                                     systemctl disable interrupteur_kuman.service
                                     rm /etc/systemd/system/interrupteur_kuman.service
@@ -1219,7 +1219,7 @@ while $boucle_principale;do
                                 echo -e "${rougeclair}sur lequel est relié l'interrupteur. ${neutre}"
                                 
                                 #Ajout du service interrupteur_lcd
-                                if [ -f "/home/pi/script/lcd.py" ] ; then
+                                if [ -f "/etc/systemd/system/interrupteur_lcd.service" ] ; then
                                     echo -e "${cyanclair}\nLe fichier /etc/systemd/system/interrupteur_lcd.service existe déjà ${neutre}"
                                     echo -e "${cyanclair}Suppression du service puis téléchargement du nouveau fichier ${neutre}"
                                     systemctl stop interrupteur_lcd.service
