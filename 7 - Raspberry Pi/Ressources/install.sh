@@ -1487,7 +1487,7 @@ while $boucle_principale;do
                     if [[ $CHOIX_CAPTEUR =~ "" ]]; then
                         echo -e "${violetclair}\nAucune installation des capteurs. ${neutre}"
                         exitstatus=1
-                        boucle_test=false
+                        boucle_capteur=false
                     fi
                 else
                     echo -e "${violetclair}\nAnnulation de l'installation des capteurs. ${neutre}"
