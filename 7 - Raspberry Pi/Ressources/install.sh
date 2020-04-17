@@ -1438,7 +1438,7 @@ while $boucle_principale;do
                                         echo -e "${vertclair}\nLe fichier interrupteur_kuman.py n'existe pas ${neutre}"
                                         echo -e "${vertclair}\nPoursuite des tests ${neutre}"
                                     else
-                                        echo -e "${vertclair}\nTest de l'interrupteur ${neutre}"
+                                        echo -e "${vertclair}\nTest de l'interrupteur avec l'écran Kuman ${neutre}"
                                         /home/pi/script/interrupteur_kuman.py
                                     fi
                                     if [[ $CHOIX_TEST =~ "Debug" ]]; then
@@ -1456,20 +1456,20 @@ while $boucle_principale;do
                                         echo -e "${vertclair}\nLe fichier interrupteur_lcd.py n'existe pas ${neutre}"
                                         echo -e "${vertclair}\nPoursuite des tests ${neutre}"
                                     else
-                                        echo -e "${vertclair}\nTest de l'interrupteur ${neutre}"
+                                        echo -e "${vertclair}\nTest de l'interrupteur avec l'écran LCD ${neutre}"
                                         /home/pi/script/interrupteur_lcd.py
                                     fi
                                     if [[ $CHOIX_TEST =~ "Debug" ]]; then
                                         echo -e "${violetclair}\nFin du test de l'interrupteur. Appuyer sur Entrée pour les tests ${neutre}"
                                         read
                                     fi
-                                fi                      
+                                fi
                             else
                                 echo -e "${violetclair}\nAnnulation du test des capteurs. ${neutre}"
                                 boucle_test=false
                             fi
                         done
-                    fi        
+                    fi
                 else
                     echo -e "${violetclair}\nAnnulation de l'installation des capteurs. ${neutre}"
                     boucle_capteur=false
