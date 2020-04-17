@@ -1466,11 +1466,12 @@ while $boucle_principale;do
                                 fi
                                 
                                 ### ===============================================================
-                                ### AUCUN CHOIX
+                                ### AUCUN CHOIX POUR LES TESTS
                                 ### ===============================================================
 
                                 if [[ $CHOIX_TEST =~ "" ]]; then
                                     echo -e "${violetclair}\nAucun test des capteurs. ${neutre}"
+                                    exitstatus=1
                                     boucle_test=false
                                 fi
                             else
@@ -1479,11 +1480,29 @@ while $boucle_principale;do
                             fi
                         done
                     fi
+                    ### ===============================================================
+                    ### AUCUN CHOIX POUR LES CAPTEURS
+                    ### ===============================================================
+
+                    if [[ $CHOIX_CAPTEUR =~ "" ]]; then
+                        echo -e "${violetclair}\nAucune installation des capteurs. ${neutre}"
+                        exitstatus=1
+                        boucle_test=false
+                    fi
                 else
                     echo -e "${violetclair}\nAnnulation de l'installation des capteurs. ${neutre}"
                     boucle_capteur=false
                 fi
             done
+        fi
+        ### ===============================================================
+        ### AUCUN CHOIX POUR LES CAPTEURS
+        ### ===============================================================
+
+        if [[ $CHOIX_CAPTEUR =~ "" ]]; then
+            echo -e "${violetclair}\nAucune installation des capteurs. ${neutre}"
+            exitstatus=1
+            boucle_test=false
         fi
     else
         echo -e "${violetclair}\Annnulation de l'installation des logiciels. ${neutre}"
