@@ -1,5 +1,5 @@
 [Unit]
-Description=Appui sur interrupteur affiche la temperature et humidite sur ecran Kuman 
+Description=Appui sur interrupteur affiche la temperature et humidite sur ecran LCD
 
 [Service]
 ExecStart=/usr/bin/python /home/pi/script/interrupteur_lcd.py
