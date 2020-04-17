@@ -96,7 +96,6 @@ try:
         print('Température = {0:0.1f}°C  Humidité = {1:0.1f}%'.format(float(temp), float(humid)))
 
     temperature = float(temp)
-    print(temperature, type(temperature), type(temp))
     if temperature >= 33:
 	print("Extrêmement chaud")
         r, g, b = 255, 0, 0
