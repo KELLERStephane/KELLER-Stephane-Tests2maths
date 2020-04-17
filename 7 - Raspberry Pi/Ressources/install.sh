@@ -209,7 +209,7 @@ while $boucle_principale;do
 
             #installation de Postfix pour envoi des mails d'alerte
             echo -e "${vertclair}\nInstallation de Postfix si nécessaire pour l'envoi des mails d'alerte ${neutre} ${neutre}"
-            apt install postfix
+            apt -y install postfix
 
             #Saisis adresse mail pour envoi des mails d'alerte
             boucle=true
@@ -249,7 +249,7 @@ while $boucle_principale;do
                     chown pi:pi /etc/fail2ban/jail.d/postfix.conf
                 fi
 
-		#Ajout de l'adresse mail dans le fichier de configuration personnalisable de Fail2ban
+                #Ajout de l'adresse mail dans le fichier de configuration personnalisable de Fail2ban
                 echo -e "${vertclair}Sauvegarde du fichier de configuration personnalisable de Fail2ban ${neutre}"
                 echo -e "${vertclair}/etc/fail2ban/jail.d/custom.conf -> /etc/fail2ban/jail.d/custom.copy ${neutre}"
                 cp /etc/fail2ban/jail.d/custom.conf /etc/fail2ban/jail.d/custom.copy
@@ -1463,6 +1463,15 @@ while $boucle_principale;do
                                         echo -e "${violetclair}\nFin du test de l'interrupteur. Appuyer sur Entrée pour les tests ${neutre}"
                                         read
                                     fi
+                                fi
+                                
+                                ### ===============================================================
+                                ### AUCUN CHOIX
+                                ### ===============================================================
+
+                                if [[ $CHOIX_TEST =~ "" ]]; then
+                                    echo -e "${violetclair}\nAucun test des capteurs. ${neutre}"
+                                    boucle_test=false
                                 fi
                             else
                                 echo -e "${violetclair}\nAnnulation du test des capteurs. ${neutre}"
