@@ -116,7 +116,8 @@ while $boucle_principale;do
                  rm /etc/ntp.com*
             fi
             echo -e "${vertclair}Création du fichier /etc/ntp.com ${neutre}"
-            echo "server 0.fr.pool.ntp.org" | sudo tee -a /etc/ntp.com
+            L1='server 0.fr.pool.ntp.org'
+            echo -e $L1>/etc/ntp.com
 
             echo -e "${bleuclair}\nInstallation de python et de ses modules si nécessaire ${neutre}"
             apt -y install python3
@@ -124,13 +125,14 @@ while $boucle_principale;do
             update-alternatives --install /usr/bin/python python /usr/bin/python2.7 1
             update-alternatives --install /usr/bin/python python /usr/bin/python3.7 2
             echo -e "${vertclair}\nChoix de la version de Python par défaut : ${neutre}"
-             echo 1 | sudo update-alternatives --config python
+            echo 1 | sudo update-alternatives --config python
             echo -e -n "${vertclair}\nLa version de Python par défaut est : ${neutre}"
             python --version
 
             if [[ $version =~ "Python 3" ]]; then
-            #installation si Python3
+            #installation des paquets pour Python selon la version de Python installée
             echo -e "${vertclair}\nInstallation de pip pour python3 si nécessaire ${neutre}"
+                #installation si Python3
                 apt -y install python3-pip
                 apt install -y python3-dev
                 apt install -y python3-pil
@@ -1191,6 +1193,7 @@ while $boucle_principale;do
                                 if [ -f "/etc/systemd/system/interrupteur_lcd.service" ] ; then
                                     echo -e "${cyanclair}\nLe fichier /etc/systemd/system/interrupteur_lcd.service existe ${neutre}"
                                     echo -e "${cyanclair}et n'est plus nécessaire. Suppression du service ${neutre}"
+                                    systemctl stop interrupteur_lcd.service
                                     systemctl disable interrupteur_lcd.service
                                     rm /etc/systemd/system/interrupteur_lcd.service*
                                 fi
@@ -1217,7 +1220,7 @@ while $boucle_principale;do
                                 echo -e "${rougeclair}DHT22 et GPIO doivent être installés et l'interrupteur relié au Raspberry ${neutre}"
                                 echo -e "${rougeclair}Il faut connaître et renseigner le numéro GPIO BCM ${neutre}"
                                 echo -e "${rougeclair}sur lequel est relié l'interrupteur. ${neutre}"
-                                
+
                                 #Ajout du service interrupteur_lcd
                                 if [ -f "/etc/systemd/system/interrupteur_lcd.service" ] ; then
                                     echo -e "${cyanclair}\nLe fichier /etc/systemd/system/interrupteur_lcd.service existe déjà ${neutre}"
