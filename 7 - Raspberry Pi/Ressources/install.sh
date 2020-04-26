@@ -125,31 +125,35 @@ while $boucle_principale;do
             update-alternatives --install /usr/bin/python python /usr/bin/python2.7 1
             update-alternatives --install /usr/bin/python python /usr/bin/python3.7 2
             echo -e "${vertclair}\nChoix de la version de Python par défaut : ${neutre}"
+            #echo 1 pour Python 2 par défaut et echo 2 pour Python 3 par défaut
             echo 1 | sudo update-alternatives --config python
             echo -e -n "${vertclair}\nLa version de Python par défaut est : ${neutre}"
-            python --version
+	    python --version
 
-            if [[ $version =~ "Python 3" ]]; then
-            #installation des paquets pour Python selon la version de Python installée
-            echo -e "${vertclair}\nInstallation de pip pour python3 si nécessaire ${neutre}"
-                #installation si Python3
+            ver=$(python -c"import sys; print(sys.version_info.major)")
+            if [ $ver -eq 3 ]; then
+                #installation des paquets pour Python3
+                echo -e "${vertclair}\nInstallation de pip, dev, pil, setuptools, wheel, requests pour python3 si nécessaire ${neutre}"
                 apt -y install python3-pip
                 apt install -y python3-dev
                 apt install -y python3-pil
-                apt install -y python3-pip
                 apt install -y python3-setuptools
                 python3 -m pip install --upgrade pip setuptools wheel
                 python3 -m pip install requests
-            else
-                #installation si Python2
-                echo -e "${vertclair}\nInstallation de pip pour python2 si nécessaire ${neutre}"
+            elif [ $ver -eq 2 ]; then
+                #installation des paquets pour Python2
+                echo -e "${vertclair}\nInstallation de pip, dev, pil, setuptools, wheel, requests pour python2 si nécessaire ${neutre}"
                 apt -y install python-pip
                 apt install -y python-dev
                 apt install -y python-pil
-                apt install -y python-pip
                 apt install -y python-setuptools
                 python -m pip install --upgrade pip setuptools wheel
                 python -m pip install requests
+#                apt install -y python3-venv
+#                pip install --user virtualenvwrapper
+#		PYV=`python -c "import sys;t='Python {v[0]}.{v[1]}'.format(v=list(sys.version_info[:2]));sys.stdout.write(t)";`
+            else
+                echo -e "${vertclair}\nVersion de Python inconnue ${neutre}"
             fi
 
             if [[ $CHOIX =~ "Debug" ]]; then
