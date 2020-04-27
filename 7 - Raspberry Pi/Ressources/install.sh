@@ -149,9 +149,51 @@ while $boucle_principale;do
                 apt install -y python-setuptools
                 python -m pip install --upgrade pip setuptools wheel
                 python -m pip install requests
-#                apt install -y python3-venv
-#                pip install --user virtualenvwrapper
-#		PYV=`python -c "import sys;t='Python {v[0]}.{v[1]}'.format(v=list(sys.version_info[:2]));sys.stdout.write(t)";`
+
+		####################################################################################
+                #installation des environnements virtuels Python2 et Python2
+		####################################################################################
+
+                pip install --user virtualenv virtualenvwrapper
+
+                grep -i "/usr/bin/python" "/home/pi/.profile" >/dev/null
+                if [ $? = 0 ];then
+                    echo -e "${vertclair}\nLe fichier /home/pi/.profile a déja été modifié ${neutre}"
+                else
+                    wget -P /home/pi/script $lien_github_raw/python_startup_script.py
+                    echo -e "${vertclair}\nModification du fichier /home/pi/.profile ${neutre}"
+                    PYV2=`python -c "import sys;t='python{v[0]}.{v[1]}'.format(v=list(sys.version_info[:2]));sys.stdout.write(t)";`
+                    path_python2=`echo "which $PYV2"`
+                    echo -e "${bleuclair}\nLe chemin de Python2 est `$path_python2` ${neutre}"
+                    PYV3=`python3 -c "import sys;t='python{v[0]}.{v[1]}'.format(v=list(sys.version_info[:2]));sys.stdout.write(t)";`
+                    path_python3=`echo "which $PYV3"`
+                    echo -e "${bleuclair}\nLe chemin de Python3 est `$path_python3` ${neutre}"
+
+                    L1='\nexport WORKON_HOME=/home/pi/.virtualenvs'
+                    L2='\nmkdir -p $WORKON_HOME'
+                    L3="\nexport VIRTUALENVWRAPPER_PYTHON=/usr/bin/$PYV2"
+                    L4='\nsource /usr/local/bin/virtualenvwrapper.sh'
+                    L5='\nexport VIRTUALENVWRAPPER_ENV_BIN_DIR=bin'
+                    L6='\nexport PYTHONSTARTUP=/home/pi/script/python_startup_script.py'
+                    echo -e $L1$L2$L3$L4$L5$L6>> /home/pi/.profile # ajout des lignes dans le fichier
+                    echo -e "${bleuclair}\nFichier /home/pi/.profile modifié ${neutre}"
+                    source /home/pi/.profile
+
+                    echo -e "${bleuclair}\nCréation environnement Python2 ${neutre}"
+                    mkvirtualenv python2env -p `$path_python2`
+                    echo -e "${bleuclair}\nCréation environnement Python3 ${neutre}"
+                    mkvirtualenv python3env -p `$path_python3`
+                    workon python3env
+
+                    echo -e "${rougeclair}\nPour activer un environnement Python, ${neutre}"
+                    echo -e "${rougeclair}dans n'importe quelle fenêtre de terminal, entrez : ${neutre}"
+                    echo -e "${rougeclair}workon python2env pour l'environnement pour Python2 ${neutre}"
+                    echo -e "${rougeclair}workon python3env pour l'environnement pour Python3 ${neutre}"
+
+                    echo -e "${rougeclair}\nPour désactiver l'environnment Python3, ${neutre}"
+                    echo -e "${rougeclair}dans n'importe quelle fenêtre de terminal, entrez : ${neutre}"
+                    echo -e "${rougeclair}deactivate ${neutre}"
+                fi
             else
                 echo -e "${vertclair}\nVersion de Python inconnue ${neutre}"
             fi
@@ -509,7 +551,7 @@ while $boucle_principale;do
             apt -y install python-pip python-dev libssl-dev libcurl4-openssl-dev libjpeg-dev libz-dev
             apt -y install ffmpeg libmariadb3 libpq5 libmicrohttpd12
 
-            echo -e "${vertclair}\ntéléchargement de Motioneye ${neutre}"
+            echo -e "${vertclair}\nTéléchargement de Motioneye ${neutre}"
             if [ -f /home/pi/pi_buster* ];  then
                 echo -e "${cyanclair}\nLe fichier de téléchargement pour Motioneye existe déjà ${neutre}"
                 echo -e "${cyanclair}Effacement du fichier puis téléchargement du nouveau fichier ${neutre}"
