@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # coding: utf-8
 
 ###################################################################
@@ -12,7 +12,6 @@ import subprocess
 import RPi.GPIO as GPIO
 
 from os import system, chdir
-from sys import version
 from PIL import Image
 from PIL import ImageDraw
 from PIL import ImageFont
@@ -104,10 +103,7 @@ GPIO.setmode(GPIO.BCM)
 # GPIO (BCM) set up as input. It is pulled up to stop false signals
 GPIO.setup(BCM, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
-if version[0] == '2':
-	print "Attente de l'appui sur l'interrupteur"
-else:
-	print("Attente de l'appui sur l'interrupteur")
+print("Attente de l'appui sur l'interrupteur")
 # maintenant, le programme ne fera rien jusqu'au front descendant sur le GPIO BCM
 #C'est pourquoi nous avons utilisé le pullup pour maintenir le signal haut et éviter une fausse interruption
 #Pendant ce temps d'attente, votre ordinateur ne gaspille pas de ressources en interrogeant une touche
@@ -124,9 +120,6 @@ try:
 		temp = li[0][ind_temp_deb+9:ind_temp_fin]
 		ind_humid_deb = li[1].index("\xc3\xa9 :")
 		humid = li[1][ind_humid_deb+5:ind_humid_deb+7]
-	if version[0] == '2':
-		print 'Température = {0:0.1f}°C  Humidité = {1:0.1f}%'.format(float(temp), float(humid))
-	else:
 		print('Température = {0:0.1f}°C  Humidité = {1:0.1f}%'.format(float(temp), float(humid)))
 	#Affichage des valeurs sur l'écran
 	ligne1, ligne2 = 0, 8
@@ -165,10 +158,7 @@ try:
 	disp.display()
 
 except KeyboardInterrupt:
-        if version[0] == '2':
-                print "Fin de l'interruption"
-        else:
-                print("Fin de l'interruption")
+    print("Fin de l'interruption")
 	GPIO.cleanup()       # nettoie GPIO à la sortie CTRL + C
 
 sleep(5) #Attente de 5 seconde
