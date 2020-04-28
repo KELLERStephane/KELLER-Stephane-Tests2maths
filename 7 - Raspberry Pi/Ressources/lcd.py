@@ -1,10 +1,8 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # coding: utf-8
 
 import time,sys
 from os import chdir, getcwd
-from sys import version
-
 
 if sys.platform == 'uwp':
     import winrt_smbus as smbus
@@ -90,38 +88,35 @@ if __name__=="__main__":
         ind_humid_deb = li[1].index("\xc3\xa9 :")
         humid = li[1][ind_humid_deb+5:ind_humid_deb+7]
 
-    if version[0] == '2':
-        print 'Température = {0:0.1f}°C  Humidité = {1:0.1f}%'.format(float(temp), float(humid))
-    else:
-        print('Température = {0:0.1f}°C  Humidité = {1:0.1f}%'.format(float(temp), float(humid)))
+    print('Température = {0:0.1f}°C  Humidité = {1:0.1f}%'.format(float(temp), float(humid)))
 
     temperature = float(temp)
     if temperature >= 33:
-	print("Extrêmement chaud")
+        print("Extrêmement chaud")
         r, g, b = 255, 0, 0
     elif 30 <= temperature < 33:
- 	print("Très chaud")
+        print("Très chaud")
         r, g, b = 255, 128, 0
     elif 27 <= temperature < 30:
-	print("Chaud")
+        print("Chaud")
         r, g, b = 255, 153, 0
     elif 24 <= temperature < 27:
-	print("Assez chaud")
+        print("Assez chaud")
         r, g, b = 76, 153, 0
     elif 21 <= temperature < 24:
-	print("Normal")
+        print("Normal")
         r, g, b = 0, 153, 0
     elif 18 <= temperature < 21:
-	print("Frais")
+        print("Frais")
         r, g, b = 51, 153, 255
     elif 15 <= temperature < 18:
-	print("Froid")
+        print("Froid")
         r, g, b = 0, 0, 255
     elif 12 <= temperature < 15:
-	print("Très froid")
+        print("Très froid")
         r, g, b = 153, 51, 255
     else:
-	print("Glacial")
+        print("Glacial")
         r, g, b = 51, 0, 51
 
     temp, humid = str(temp), str(humid)
