@@ -83,8 +83,7 @@ try:
         ind_temp_deb = li[0].index("rature :")
         ind_temp_fin = li[0].index("\n")
         temp = li[0][ind_temp_deb+9:ind_temp_fin]
-        ind_humid_deb = li[1].index("\xc3\xa9 :")
-        humid = li[1][ind_humid_deb+5:ind_humid_deb+7]
+        humid = li[1][-2:]
 
     print('Température = {0:0.1f}°C  Humidité = {1:0.1f}%'.format(float(temp), float(humid)))
 
