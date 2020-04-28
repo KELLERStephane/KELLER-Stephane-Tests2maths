@@ -9,8 +9,6 @@
 import RPi.GPIO as GPIO
 import time,sys
 from os import chdir, getcwd
-from sys import version
-
 
 if sys.platform == 'uwp':
     import winrt_smbus as smbus
