@@ -1,17 +1,16 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
 import glob, os, sys
 from datetime import datetime
-from sys import version
 
 #Fonction qui renvoie la température
 def get_temp(device_file):
     temp_c = 0
     if os.path.isfile(device_file):
-	# ouverture du fichier en mode read 'r' (lecture en mode texte)
-	with open(device_file,'r') as fichier:
-		lines = fichier.readlines()
+        # ouverture du fichier en mode read 'r' (lecture en mode texte)
+        with open(device_file,'r') as fichier:
+            lines = fichier.readlines()
         if lines[0].strip()[-3:] == 'YES':
             equals_pos = lines[1].find('t=')
             if equals_pos != -1:
@@ -30,10 +29,6 @@ for device_dir in devices_folder:
 
 #Affichage de la température selon la version de python
 message = 'Température : '+str(temp) + '°C'
-if version[0] == '2':
-	print "id capteur :", device
-	print message
-else:
-	print("id capteur :", device)
-	print(message)
+print("id capteur :", device)
+print(message)
 
