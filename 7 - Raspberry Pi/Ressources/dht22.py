@@ -28,7 +28,7 @@ domoticz_idx =
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 #sensor est 11,22,ou 2302
-# pin est le numero de GPIO BCM que vous avez cablée
+# pin est le numero de GPIO BCM que vous avez cablé
 
 sensor = 22
 pin = 
