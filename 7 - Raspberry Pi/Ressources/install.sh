@@ -119,7 +119,8 @@ while $boucle_principale;do
             L1='server 0.fr.pool.ntp.org'
             echo -e $L1>/etc/ntp.com
 
-            echo -e "${bleuclair}\nInstallation de python et de ses modules si nécessaire ${neutre}"
+            echo -e "${bleuclair}\nInstallation de Python2 et de Python3 et de ses modules si nécessaire ${neutre}"
+            apt·-y·install·python2
             apt -y install python3
             echo -e "${vertclair}\nModification da la version par défaut de python en python3 si nécessaire ${neutre}"
             update-alternatives --install /usr/bin/python python /usr/bin/python2.7 1
@@ -128,7 +129,7 @@ while $boucle_principale;do
             #echo 1 pour Python 2 par défaut et echo 2 pour Python 3 par défaut
             echo 1 | sudo update-alternatives --config python
             echo -e -n "${vertclair}\nLa version de Python par défaut est : ${neutre}"
-	    python --version
+            python --version
 
             ver=$(python -c"import sys; print(sys.version_info.major)")
             if [ $ver -eq 3 ]; then
@@ -150,9 +151,9 @@ while $boucle_principale;do
                 python -m pip install --upgrade pip setuptools wheel
                 python -m pip install requests
 
-		####################################################################################
-                #installation des environnements virtuels Python2 et Python2
-		####################################################################################
+                ####################################################################################
+                # Installation des environnements virtuels Python2 et Python2
+                ####################################################################################
 
                 pip install --user virtualenv virtualenvwrapper
 
@@ -160,7 +161,14 @@ while $boucle_principale;do
                 if [ $? = 0 ];then
                     echo -e "${vertclair}\nLe fichier /home/pi/.profile a déja été modifié ${neutre}"
                 else
+                    if [ -f /home/pi/script/python_startup_script.py ] ; then
+                        echo -e "${cyanclair}\nLe fichier /home/pi/script/python_startup_script.py existe déjà ${neutre}"
+                        echo -e "${cyanclair}Effacement du fichier puis téléchargement du nouveau fichier ${neutre}"
+                        rm /home/pi/script/python_startup_script.py*
+                    fi
                     wget -P /home/pi/script $lien_github_raw/python_startup_script.py
+                    chown pi:pi /home/pi/script $lien_github_raw/python_startup_script.py
+
                     echo -e "${vertclair}\nModification du fichier /home/pi/.profile ${neutre}"
                     PYV2=`python -c "import sys;t='python{v[0]}.{v[1]}'.format(v=list(sys.version_info[:2]));sys.stdout.write(t)";`
                     path_python2=`echo "which $PYV2"`
@@ -183,13 +191,11 @@ while $boucle_principale;do
                     mkvirtualenv python2env -p `$path_python2`
                     echo -e "${bleuclair}\nCréation environnement Python3 ${neutre}"
                     mkvirtualenv python3env -p `$path_python3`
-                    workon python3env
 
                     echo -e "${rougeclair}\nPour activer un environnement Python, ${neutre}"
                     echo -e "${rougeclair}dans n'importe quelle fenêtre de terminal, entrez : ${neutre}"
                     echo -e "${rougeclair}workon python2env pour l'environnement pour Python2 ${neutre}"
                     echo -e "${rougeclair}workon python3env pour l'environnement pour Python3 ${neutre}"
-
                     echo -e "${rougeclair}\nPour désactiver l'environnment Python3, ${neutre}"
                     echo -e "${rougeclair}dans n'importe quelle fenêtre de terminal, entrez : ${neutre}"
                     echo -e "${rougeclair}deactivate ${neutre}"
@@ -336,7 +342,7 @@ while $boucle_principale;do
 
             #Démarrage automatique de Fail2ban
             echo -e "${vertclair}\nDémarrage automatique du service Fail2ban lors du démarrage du système ${neutre}"
-            sudo systemctl enable fail2ban
+            systemctl enable fail2ban
 
             #Téléchargement si nécessaire du script jails.sh
             echo -e "${vertclair}\nTéléchargment si nécessaire du script jails.sh pour l'affichage ${neutre}"
@@ -457,7 +463,7 @@ while $boucle_principale;do
 
             #Modification de la carte par défaut pour Fail2map
             echo -e "${vertclair}Changement de la carte par défaut en modifiant le fichier /var/www/html/fail2map/js/map.js ${neutre}"
-            sudo sed '/'"$L1"'/ c\'"$L2"''"$L3"'' /var/www/html/fail2map/js/maps.js>/home/pi/maps.js
+            sed '/'"$L1"'/ c\'"$L2"''"$L3"'' /var/www/html/fail2map/js/maps.js>/home/pi/maps.js
             L1="baseLayer = *"
             L2="//    baseLayer = L.tileLayer.provider('Thunderforest.Landscape', {"
             L3="\n\tbaseLayer = L.tileLayer.provider('Esri.NatGeoWorldMap', {"
@@ -819,6 +825,12 @@ while $boucle_principale;do
 
                     ### ===============================================================
                     ### CAPTEUR DE TEMPERATURE DHT22
+                    ### Récupération des paramètres suivants :
+                    ###     => adresse IP du Raspberry
+                    ###·····=>·identifiant Domoticz
+                    ###    ·=>·mot de passe de Domoticz
+                    ###     =>·idx du capteur DHT22 pour Domoticz
+                    ###    ·=>·numéro de GPIO sur lequel est relié le·capteur·DHT22
                     ### ===============================================================
 
                     if [[ $CHOIX_CAPTEUR =~ "DHT22" ]]; then
@@ -843,7 +855,7 @@ while $boucle_principale;do
                         #Téléchargement des bibliothèques et des fichiers
                         echo -e "${bleuclair}\nInstallation des bilbiothèques AdaFruit pour le capteur DHT22 (nécessite Domoticz) ${neutre}"
                         git clone https://github.com/adafruit/Adafruit_Python_DHT.git
-                        sudo chown pi:pi /home/pi/script/Adafruit_Python_DHT
+                        chown pi:pi /home/pi/script/Adafruit_Python_DHT
 
                         version=$(python --version 2>&1 | cut -c1-8)
                         echo -e -n "${vertclair}\nVersion de Python par défaut : ${neutre}"
@@ -1007,8 +1019,8 @@ while $boucle_principale;do
                             echo -e "\nw1-therm\nw1-gpio" >> /etc/modules
                         fi
                         echo -e "${vertclair}\nExécution des modules ${neutre}"
-                        sudo modprobe w1-gpio
-                        sudo modprobe w1-therm
+                        modprobe w1-gpio
+                        modprobe w1-therm
 
                         if [ -f "/home/pi/script/dht22.py" ] ; then
                             echo -e "${cyanclair}\nLe fichier /home/pi/script/ds18b20.py existe déjà ${neutre}"
@@ -1046,7 +1058,7 @@ while $boucle_principale;do
 
                             echo -e "${bleuclair}\nInstallation de l'écran Kuman ${neutre}"
                             echo -e "${rougeclair}Domoticz, GPIO et DHT22 doivent être installés. ${neutre}"
-                            echo -e "${rougeclair}Le capteur DHT22 et l'écran Kuman, doivent être reliés correctement au Raspberry : ${neutre}"
+                            echo -e "${rougeclair}Le capteur DHT22 et l'écran Kuman doivent être reliés correctement au Raspberry : ${neutre}"
                             echo -e "${rougeclair}Ne pas oublier d'activer les GPIO avec sudo raspi-config ${neutre}"
                             echo -e "${rougeclair}Ne pas oublier d'activer I2C avec sudo raspi-config ${neutre}"
 
@@ -1072,19 +1084,19 @@ while $boucle_principale;do
                             git clone https://github.com/adafruit/Adafruit_Python_SSD1306.git
                             chown pi:pi /home/pi/script/Adafruit_Python_SSD1306
 
+                            apt·install·-y·python-smbus·i2c-tools
                             version=$(python --version 2>&1 | cut -c1-8)
                             echo -e -n "${vertclair}\nVersion de Python par défaut : ${neutre}"
                             echo -e $version
                             if [[ $version =~ "Python 3" ]]; then
                                 #installation si Python3
                                 cd /home/pi/script/Adafruit_Python_SSD1306
-                                    sudo python3 setup.py install
+                                python3 setup.py install
                             else
                                 #installation si Python2
                                 cd /home/pi/script/Adafruit_Python_SSD1306
                                 python setup.py install
                             fi
-                            apt install -y python-smbus i2c-tools
 
                             if [[ $CHOIX_KUMAN =~ "1" ]]; then
                                 if [ -f "/home/pi/script/Kuman.py" ] ; then
@@ -1213,7 +1225,7 @@ while $boucle_principale;do
 
                             echo -e "${bleuclair}\nInstallation de l'écran LCD RGB Backlight ${neutre}"
                             echo -e "${rougeclair}Domoticz, GPIO et DHT22 doivent être installés. ${neutre}"
-                            echo -e "${rougeclair}Le capteur DHT22 et l'écran LCD, doivent être reliés correctement au Raspberry : ${neutre}"
+                            echo -e "${rougeclair}Le capteur DHT22 et l'écran LCD doivent être reliés correctement au Raspberry : ${neutre}"
                             echo -e "${rougeclair}Ne pas oublier d'activer les GPIO avec sudo raspi-config ${neutre}"
                             echo -e "${rougeclair}Ne pas oublier d'activer I2C avec sudo raspi-config ${neutre}"
 
@@ -1332,7 +1344,91 @@ while $boucle_principale;do
                                     echo -e "${violetclair}\nFin de l'installation de l'écran LCD RGB Backlight. Appuyer sur Entrée pour poursuivre l'Installation ${neutre}"
                                 read
                             fi
+                        fi
+                    fi
 
+                    ### ===============================================================
+                    ### Ecran SPI pour affichage données DHT22
+                    ### ===============================================================
+
+                    if [[ $CHOIX_CAPTEUR =~ "SPI" ]]; then
+                        CHOIX_SPI=$(whiptail --title "Menu d'installation de l'écran SPI" --menu \
+                        "\nScript réalisé par :\n- KELLER Stéphane (Lycée Agricole Louis Pasteur)\n- José De Castro\nhttps://github.com/KELLERStephane/KELLER-Stephane-Tests2maths\n\nAffichage de la température et de l'humidité sur l'écran\n\nQue soutaitez-vous installer ?" 18 72 2 \
+                        "1" "Affichage permanent  "\
+                        "2" "Affichage ponctuel via un interrupteur " 3>&1 1>&2 2>&3)
+
+                        exitstatus=$?
+
+                        if [[ $exitstatus = 0 ]]; then
+                            echo -e -n "${jauneclair}\t =======================================  \n ${neutre}"
+                            echo -e -n "${jauneclair}\t L'affichage sera le suivant              \n ${neutre}"
+                            echo -e -n "${jauneclair}\t $CHOIX_CAPTEUR                           \n ${neutre}"
+                            echo -e -n "${jauneclair}\t =======================================  \n ${neutre}"
+
+                            echo -e "${bleuclair}\nInstallation de l'écran SPI ${neutre}"
+                            echo -e "${rougeclair}Domoticz, GPIO et DHT22 doivent être installés. ${neutre}"
+                            echo -e "${rougeclair}Le capteur DHT22 et l'écran SPI doivent être reliés correctement au Raspberry : ${neutre}"
+                            echo -e "${rougeclair}Ne pas oublier d'activer les GPIO avec sudo raspi-config ${neutre}"
+                            echo -e "${rougeclair}Ne pas oublier d'activer SPI avec sudo raspi-config ${neutre}"
+
+                            if [ -f "/home/pi/script/pywws_grzanka.zip" ] ; then
+                                echo -e "${cyanclair}\nLe répertoire /home/pi/script/pywws_grzanka existe déjà. Suppression du répertoire avant la nouvelle installation ${neutre}"
+                                rm -r /home/pi/script/pywws_grzanka.zip*
+                            fi
+                            #Téléchargement et décompactage des images pour l'écran
+                            echo -e "${cyanclair}\nTéléchargement du fichier /home/pi/script/pywws_grzanka.zip ${neutre}"
+                            cd /home/pi/script/
+                            wget -P /home/pi/script/ $lien_github_zip/pywws_grzanka.zip
+                            chown pi:pi /home/pi/script/pywws_grzanka.zip
+                            unzip -u pywws_grzanka.zip
+                            rm -r /home/pi/script/pywws_grzanka.zip*
+
+                            #Téléchargement des bibliothèques et des fichiers
+                            if [ -d "/home/pi/script/Python_ST7735" ]; then
+                                echo -e "${cyanclair}Le répertoire d'installation /home/pi/script/Python_ST7735 existe déjà. Suppression du répertoire avant la nouvelle installation ${neutre}"
+                                rm -r /home/pi/script/Python_ST7735
+                            fi
+                            cd /home/pi/script/
+                            echo -e "${bleuclair}\nInstallation des bilbiothèques pour l'écran SPI (nécessite Domoticz et DHT22) ${neutre}"
+                            git clone https://github.com/cskau/Python_ST7735
+                            cd /home/pi/script/Python_ST7735
+
+                            if [ -f "/usr/share/fonts/truetype/Minecraftia/Minecraftia-Regular.ttf" ] ; then
+                                echo -e "${cyanclair}\nLe répertoire /usr/share/fonts/truetype/Minecraftia existe déjà. Suppression du répertoire avant la nouvelle installation ${neutre}"
+                                rm -r /usr/share/fonts/truetype/Minecraftia
+                            fi
+                            #Téléchargement et décompactage de la police pour l'écran
+                            echo -e "${cyanclair}\nTéléchargement du fichier /usr/share/fonts/truetype/Minecraftia/Minecraftia-Regular.ttf ${neutre}"
+                            mkdir /usr/share/fonts/truetype/Minecraftia >/dev/null
+                            wget -P /usr/share/fonts/truetype/Minecraftia/ $lien_github_zip/minecraftia.zip
+                            cd /usr/share/fonts/truetype/Minecraftia/
+                            unzip -u minecraftia.zip
+                            rm /usr/share/fonts/truetype/Minecraftia/minecraftia.zip*
+
+                            apt -y install build-essential python-dev python-smbus
+
+                            version=$(python --version 2>&1 | cut -c1-8)
+                            echo -e -n "${vertclair}\nVersion de Python par défaut : ${neutre}"
+                            echo -e $version
+                            if [[ $version =~ "Python 3" ]]; then
+                                #installation si Python3
+                                sudo pip3 install Adafruit_GPIO
+                                cd /home/pi/script/Python_ST7735
+                                python3 setup.py install
+                            else
+                                #installation si Python2
+                                sudo pip install Adafruit_GPIO
+                                cd /home/pi/script/Python_ST7735
+                                python setup.py install
+                            fi
+
+#########################################################
+
+
+                            if [[ $CHOIX_CAPTEUR =~ "Debug" ]]; then
+                                    echo -e "${violetclair}\nFin de l'installation de l'écran Kuman. Appuyer sur Entrée pour poursuivre l'Installation ${neutre}"
+                                read
+                            fi
                         fi
                     fi
 
@@ -1390,6 +1486,11 @@ while $boucle_principale;do
                                     fi
                                     if [[ $CHOIX_TEST =~ "Debug" ]]; then
                                         echo -e "${violetclair}\nFin du test du shield GrovePi. Appuyer sur Entrée pour poursuivre les tests ${neutre}"
+                                        read
+                                    fi
+
+                                    if [[ $CHOIX_CAPTEUR =~ "Debug" ]]; then
+                                        echo -e "${violetclair}\nFin de l'installation de GrovePi. Appuyer sur Entrée pour poursuivre l'Installation ${neutre}"
                                         read
                                     fi
                                 fi
@@ -1513,7 +1614,7 @@ while $boucle_principale;do
                                         read
                                     fi
                                 fi
-                                
+
                                 ### ===============================================================
                                 ### AUCUN CHOIX POUR LES TESTS
                                 ### ===============================================================
@@ -1534,7 +1635,7 @@ while $boucle_principale;do
                     ### ===============================================================
 
                     if [[ $CHOIX_CAPTEUR =~ "" ]]; then
-                        echo -e "${violetclair}\nAucune installation des capteurs. ${neutre}"
+                        echo -e "${violetclair}\nFin de l'installation des capteurs. ${neutre}"
                         exitstatus=1
                         boucle_capteur=false
                     fi
