@@ -25,7 +25,7 @@ else:
         bus = smbus.SMBus(0)
 
 #Numéro de GPIO (BCM)
-BCM = 
+BCM = 13
 
 # this device has two I2C addresses
 DISPLAY_RGB_ADDR = 0x62
@@ -70,10 +70,7 @@ GPIO.setmode(GPIO.BCM)
 # GPIO (BCM) set up as input. It is pulled up to stop false signals
 GPIO.setup(BCM, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
-if version[0] == '2':
-    print "Attente de l'appui sur l'interrupteur"
-else:
-    print("Attente de l'appui sur l'interrupteur")
+print("Attente de l'appui sur l'interrupteur")
 # maintenant, le programme ne fera rien jusqu'au front descendant sur le GPIO BCM
 #C'est pourquoi nous avons utilisé le pullup pour maintenir le signal haut et éviter une fausse interruption
 #Pendant ce temps d'attente, votre ordinateur ne gaspille pas de ressources en interrogeant une touche
@@ -90,38 +87,36 @@ try:
         temp = li[0][ind_temp_deb+9:ind_temp_fin]
         ind_humid_deb = li[1].index("\xc3\xa9 :")
         humid = li[1][ind_humid_deb+5:ind_humid_deb+7]
-    if version[0] == '2':
-        print 'Température = {0:0.1f}°C  Humidité = {1:0.1f}%'.format(float(temp), float(humid))
-    else:
-        print('Température = {0:0.1f}°C  Humidité = {1:0.1f}%'.format(float(temp), float(humid)))
+
+    print('Température = {0:0.1f}°C  Humidité = {1:0.1f}%'.format(float(temp), float(humid)))
 
     temperature = float(temp)
     if temperature >= 33:
-	print("Extrêmement chaud")
+        print("Extrêmement chaud")
         r, g, b = 255, 0, 0
     elif 30 <= temperature < 33:
- 	print("Très chaud")
+        print("Très chaud")
         r, g, b = 255, 128, 0
     elif 27 <= temperature < 30:
-	print("Chaud")
+        print("Chaud")
         r, g, b = 255, 153, 0
     elif 24 <= temperature < 27:
-	print("Assez chaud")
+        print("Assez chaud")
         r, g, b = 76, 153, 0
     elif 21 <= temperature < 24:
-	print("Normal")
+        print("Normal")
         r, g, b = 0, 153, 0
     elif 18 <= temperature < 21:
-	print("Frais")
+        print("Frais")
         r, g, b = 51, 153, 255
     elif 15 <= temperature < 18:
-	print("Froid")
+        print("Froid")
         r, g, b = 0, 0, 255
     elif 12 <= temperature < 15:
-	print("Très froid")
+        print("Très froid")
         r, g, b = 153, 51, 255
     else:
-	print("Glacial")
+        print("Glacial")
         r, g, b = 51, 0, 51
 
     temp, humid = str(temp), str(humid)
@@ -132,10 +127,7 @@ try:
     time.sleep(2)
 
 except KeyboardInterrupt:
-        if version[0] == '2':
-            print "Fin de l'interruption"
-        else:
-            print("Fin de l'interruption")
+    print("Fin de l'interruption")
 
 setRGB(0, 0, 0)
 setText("")
