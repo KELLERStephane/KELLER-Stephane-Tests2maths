@@ -78,9 +78,9 @@ def setText_norefresh(text):
         bus.write_byte_data(DISPLAY_TEXT_ADDR,0x40,ord(c))
 
 if __name__=="__main__":
-    ### Ouverture et affichage du fichier data.txt pour récupérer la température et l'humidité
+    ### Ouverture et affichage du fichier data_dht22.txt pour récupérer la température et l'humidité
     chdir("/home/pi/script")
-    with open('data.txt','r') as fichier:
+    with open('/home/pi/script/data_dht22.txt','r') as fichier:
         li = fichier.readlines()    # lecture dans le fichier avec la méthode readlines()
         ind_temp_deb = li[0].index("rature :")
         ind_temp_fin = li[0].index("\n")

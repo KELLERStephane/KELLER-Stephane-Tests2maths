@@ -827,10 +827,10 @@ while $boucle_principale;do
                     ### CAPTEUR DE TEMPERATURE DHT22
                     ### Récupération des paramètres suivants :
                     ###     => adresse IP du Raspberry
-                    ###·····=>·identifiant Domoticz
-                    ###    ·=>·mot de passe de Domoticz
+                    ###     =>·identifiant Domoticz
+                    ###     =>·mot de passe de Domoticz
                     ###     =>·idx du capteur DHT22 pour Domoticz
-                    ###    ·=>·numéro de GPIO sur lequel est relié le·capteur·DHT22
+                    ###     =>·numéro de GPIO sur lequel est relié le·capteur·DHT22
                     ### ===============================================================
 
                     if [[ $CHOIX_CAPTEUR =~ "DHT22" ]]; then
@@ -974,6 +974,8 @@ while $boucle_principale;do
 
                     ### ===============================================================
                     ### CAPTEUR DE TEMPERATURE DS18B20
+                    ###·Récupération·des·paramètres·suivants·:
+                    ###·····=>·numéro·de·GPIO·sur·lequel·est·relié·le·capteur·DS18B20
                     ### ===============================================================
 
                     if [[ $CHOIX_CAPTEUR =~ "DS18B20" ]]; then
@@ -1371,18 +1373,6 @@ while $boucle_principale;do
                             echo -e "${rougeclair}Ne pas oublier d'activer les GPIO avec sudo raspi-config ${neutre}"
                             echo -e "${rougeclair}Ne pas oublier d'activer SPI avec sudo raspi-config ${neutre}"
 
-                            if [ -f "/home/pi/script/pywws_grzanka.zip" ] ; then
-                                echo -e "${cyanclair}\nLe répertoire /home/pi/script/pywws_grzanka existe déjà. Suppression du répertoire avant la nouvelle installation ${neutre}"
-                                rm -r /home/pi/script/pywws_grzanka.zip*
-                            fi
-                            #Téléchargement et décompactage des images pour l'écran
-                            echo -e "${cyanclair}\nTéléchargement du fichier /home/pi/script/pywws_grzanka.zip ${neutre}"
-                            cd /home/pi/script/
-                            wget -P /home/pi/script/ $lien_github_zip/pywws_grzanka.zip
-                            chown pi:pi /home/pi/script/pywws_grzanka.zip
-                            unzip -u pywws_grzanka.zip
-                            rm -r /home/pi/script/pywws_grzanka.zip*
-
                             #Téléchargement des bibliothèques et des fichiers
                             if [ -d "/home/pi/script/Python_ST7735" ]; then
                                 echo -e "${cyanclair}Le répertoire d'installation /home/pi/script/Python_ST7735 existe déjà. Suppression du répertoire avant la nouvelle installation ${neutre}"
@@ -1397,6 +1387,7 @@ while $boucle_principale;do
                                 echo -e "${cyanclair}\nLe répertoire /usr/share/fonts/truetype/Minecraftia existe déjà. Suppression du répertoire avant la nouvelle installation ${neutre}"
                                 rm -r /usr/share/fonts/truetype/Minecraftia
                             fi
+
                             #Téléchargement et décompactage de la police pour l'écran
                             echo -e "${cyanclair}\nTéléchargement du fichier /usr/share/fonts/truetype/Minecraftia/Minecraftia-Regular.ttf ${neutre}"
                             mkdir /usr/share/fonts/truetype/Minecraftia >/dev/null
@@ -1405,8 +1396,20 @@ while $boucle_principale;do
                             unzip -u minecraftia.zip
                             rm /usr/share/fonts/truetype/Minecraftia/minecraftia.zip*
 
-                            apt -y install build-essential python-dev python-smbus
+                            #Téléchargement et décompactage des images météo pour l'écran
+                            if [ -f "/home/pi/script/Python_ST7735/img_meteo/" ] ; then
+                                echo -e "${cyanclair}\nLe·répertoire·/home/pi/script/Python_ST7735/img_meteo·existe·déjà.·Suppression·du·répertoire·avant·la·nouvelle·installation·${neutre}"
+                                rm -r /home/pi/script/Python_ST7735/img_meteo/
+                            fi
+                            #Téléchargement et décompactage des images pour l'écran
+                            echo -e "${cyanclair}\nTéléchargement des images météos ${neutre}"
+                            cd /home/pi/script/Python_ST7735/
+                            wget -P /home/pi/script/Python_ST7735/ $lien_github_zip/pywws_grzanka.zip
+                            unzip -u pywws_grzanka.zip
+                            rm -r /home/pi/script/Python_ST7735/pywws_grzanka.zip*
+                            mv /home/pi/script/Python_ST7735/pywws_grzanka /home/pi/script/Python_ST7735/img_meteo/
 
+                            apt -y install build-essential python-dev python-smbus
                             version=$(python --version 2>&1 | cut -c1-8)
                             echo -e -n "${vertclair}\nVersion de Python par défaut : ${neutre}"
                             echo -e $version
