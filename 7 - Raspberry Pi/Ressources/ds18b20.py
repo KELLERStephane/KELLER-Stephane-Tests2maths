@@ -27,8 +27,14 @@ for device_dir in devices_folder:
     device = os.path.basename(device_dir)
     temp = round(get_temp(device_dir+'/w1_slave'), 1)
 
-#Affichage de la température selon la version de python
+#Affichage de la température
 message = 'Température : '+str(temp) + '°C'
 print("id capteur :", device)
 print(message)
+
+print("Ecriture des données dans le fichier /home/pi/script/data_ds18b20.txt")
+ch = "Température : " + str(temp)
+with open('/home/pi/script/data_ds18b20.txt','w') as fichier:
+    fichier.write(ch)
+os.system("chown pi:pi /home/pi/script/data_ds18b20.txt")
 

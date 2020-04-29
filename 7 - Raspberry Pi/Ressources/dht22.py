@@ -14,7 +14,8 @@ import time
 ###################################################################
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# les parametres de Domoticz
+# les parametres de Domoticz à compléter :
+# domoticz_ip ; user ; password ; domoticz_idx
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 domoticz_ip = 
@@ -24,7 +25,8 @@ password =
 domoticz_idx = 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# les paramètres du DHT
+# les paramètres du DHT à compléter :
+# pin
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 #sensor est 11,22,ou 2302
@@ -59,16 +61,15 @@ if humidity is not None and temperature is not None:
     else:
         temp = str(temp1)
     humid = str(int(humidity))
-    #Sauvegarde température et humidité dans un fichier data.txt
+    #Sauvegarde température et humidité dans le fichier data_dht22.txt
     system("cd /home/pi/script")
-    # Ecriture du fichier data.txt en mode write 'w'
-
-    print("Ecriture des données dans le fichier /home/pi/script/data.txt")
+    # Ecriture du fichier dht.txt en mode write 'w'
+    print("Ecriture des données dans le fichier /home/pi/script/data_dht22.txt")
     li = ["Température : ", temp, "\n", "Humidité : ", humid]
-    with open('data.txt','w') as fichier:
+    with open('/home/pi/script/data_dht22.txt','w') as fichier:
         for el in li:
             fichier.write(el)
-    system("chown pi:pi data.txt")
+    system("chown pi:pi data_dht22.txt")
 
     # l URL Domoticz pour le widget virtuel
     url='/json.htm?type=command&param=udevice&idx='+str(domoticz_idx)
