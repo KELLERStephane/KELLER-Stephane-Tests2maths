@@ -790,11 +790,12 @@ while $boucle_principale;do
                 shadow=,blue
                 ' \
                 whiptail --title "Menu d'installation des capteurs Raspberry" --checklist \
-                "\nScript réalisé par :\n- KELLER Stéphane (Lycée Agricole Louis Pasteur)\n- José De Castro\nhttps://github.com/KELLERStephane/KELLER-Stephane-Tests2maths\n\nQuels capteurs soutaitez-vous installer ?" 22 72 8 \
+                "\nScript réalisé par :\n- KELLER Stéphane (Lycée Agricole Louis Pasteur)\n- José De Castro\nhttps://github.com/KELLERStephane/KELLER-Stephane-Tests2maths\n\nQuels capteurs soutaitez-vous installer ?" 23 72 9 \
                 "Debug" "Interruption à la fin de chaque installation " OFF \
                 "GrovePi" "GrovePI de Dexter Industries " OFF \
                 "DHT22" "Capteur de température et d'humidité DHT22 " OFF \
                 "DS18B20" "Capteur de température DS18B20 " OFF \
+                "AM2315" "Capteur de température et d'humidité AM2315 " OFF \
                 "Kuman" "Affichage données DHT22 sur écran Kuman " OFF \
                 "LCD" "Affichage données DHT22 sur écran LCD RGB Backlight" OFF \
                 "SPI" "Affichage données DHT22 sur écran bus SPI " OFF \
@@ -974,8 +975,8 @@ while $boucle_principale;do
 
                     ### ===============================================================
                     ### CAPTEUR DE TEMPERATURE DS18B20
-                    ###·Récupération·des·paramètres·suivants·:
-                    ###·····=>·numéro·de·GPIO·sur·lequel·est·relié·le·capteur·DS18B20
+                    ### Récupération·des·paramètres·suivants :
+                    ###    => numéro de GPIO sur lequel est relié le capteur DS18B20
                     ### ===============================================================
 
                     if [[ $CHOIX_CAPTEUR =~ "DS18B20" ]]; then
@@ -1036,6 +1037,123 @@ while $boucle_principale;do
 
                         if [[ $CHOIX_CAPTEUR =~ "Debug" ]]; then
                             echo -e "${violetclair}\nFin de l'installation du capteur DS18B20. Appuyer sur Entrée pour poursuivre l'Installation ${neutre}"
+                            read
+                        fi
+                    fi
+
+                    ### ===============================================================
+                    ### CAPTEUR DE TEMPERATURE AM2315
+                    ### Récupération des paramètres suivants :
+                    ###     => adresse IP du Raspberry
+                    ###     =>·identifiant Domoticz
+                    ###     =>·mot de passe de Domoticz
+                    ###     =>·idx du capteur AM2315 pour Domoticz
+                    ### ===============================================================
+
+                    if [[ $CHOIX_CAPTEUR =~ "AM2315" ]]; then
+                        echo -e "${bleuclair}\nInstallation du capteur de température et d'humidité AM2315 ${neutre}"
+                        echo -e "${rougeclair}Domoticz et GPIO doivent être installés et le capteur relié au Raspberry ${neutre}"
+                        echo -e "${rougeclair}Il faut connaître et renseigner : ${neutre}"
+                        echo -e "${rougeclair}- l'IDX du capteur dht22 dans domoticz ; ${neutre}"
+                        echo -e "${rougeclair}Ne pas oublier d'activer les GPIO avec sudo raspi-config ${neutre}" 
+                        echo -e "${rougeclair}Ne pas oublier d'activer I2C avec sudo raspi-config ${neutre}"
+
+                        version=$(python --version 2>&1 | cut -c1-8)
+                        echo -e -n "${vertclair}\nVersion de Python par défaut : ${neutre}"
+                        echo -e $version
+                        if [[ $version =~ "Python 3" ]]; then
+                            #installation si Python3
+                            cd /home/pi/script/Adafruit_Python_DHT
+                            pip install adafruit-circuitpython-am2320
+
+                            echo -e "${vertclair}\nTéléchargement du fichier am2315.py ${neutre}"
+                            wget -P /home/pi/script $lien_github_raw/am2315.py
+                            chown pi:pi /home/pi/script/am2315.py
+                            chmod +x /home/pi/script/am2315.py
+
+                            #Saisie des paramètres pour le fichier am2315.py
+                            adresse=$(hostname -I | cut -d' ' -f1)
+                            echo -e -n "${vertclair}Adresse IP = ${neutre}"
+                            echo -e $adresse
+                            echo -e "${vertclair}Ajout de l'adresse IP dans le fichier am2315.py ${neutre}"
+                            L1="domoticz_ip ="
+                            L2="domoticz_ip = '"
+                            L3=$adresse
+                            L4="'"
+                            sed -i '/'"$L1"'/ c\'"$L2"''"$L3"''"$L4"'' /home/pi/script/dht22.py
+
+                            #Saisi des paramètres de domoticz pour affichage température et humidité sur domoticz
+                            boucle=true
+                            while $boucle;do
+                                USER=$(whiptail --title "Paramètres pour am2315.py" --inputbox "\nSaisir l'identifiant domoticz : " 10 60 3>&1 1>&2 2>&3)
+                                exitstatus=$?
+                                if [ $exitstatus = 0 ]; then
+                                    L1="user ="
+                                    L2="user = '"
+                                    L3=$USER
+                                    L4="'"
+                                    sed -i '/'"$L1"'/ c\'"$L2"''"$L3"''"$L4"'' /home/pi/script/dht22.py
+                                    boucle=false
+                                else
+                                    echo "Tu as annulé... Recommence :-("
+                                fi
+                            done
+                            echo -e "${vertclair}Ajout de l'identifiant dans le fichier am2315.py ${neutre}"
+
+                            boucle=true
+                            while $boucle;do
+                                MDP=$(whiptail --title "Paramètres pour am2315.py" --passwordbox "\nSaisir votre mot de passe pour domoticz" 10 60 3>&1 1>&2 2>&3)
+                                exitstatus=$?
+                                if [ $exitstatus = 0 ]; then
+                                    L1="password ="
+                                    L2="password = '"
+                                    L3=$MDP
+                                    L4="'"
+                                    sed -i '/'"$L1"'/ c\'"$L2"''"$L3"''"$L4"'' /home/pi/script/dht22.py
+                                    boucle=false
+                                else
+                                    echo "Vous avez annulez"
+                                fi
+                            done
+                            echo -e "${vertclair}Ajout du mot de passe dans le fichier am2315.py ${neutre}"
+
+                            boucle=true
+                            while $boucle;do
+                                IDX=$(whiptail --title "Paramètres pour am2315.py" --inputbox "\nSaisir l'IDX du dispositif am2315 : " 10 60 3>&1 1>&2 2>&3)
+                                exitstatus=$?
+                                if [ $exitstatus = 0 ]; then
+                                    L1="domoticz_idx ="
+                                    L2="domoticz_idx = "
+                                    L3=$IDX
+                                    sed -i '/'"$L1"'/ c\'"$L2"''"$L3"'' /home/pi/script/dht22.py
+                                    boucle=false
+                                else
+                                    echo "Tu as annulé... Recommence :-("
+                                fi
+                            done
+                            echo -e "${vertclair}Ajout de l'IDX dans le fichier dht22.py ${neutre}"
+
+                            #Modification de la crontab pour mise à jour de température et humidité toutes les 10 minutes
+                            crontab -u root -l > /tmp/toto.txt # export de la crontab
+                            grep -i "am2315.py" "/tmp/toto.txt" >/dev/null
+                            if [ $? = 0 ];then
+                                echo -e "${vertclair}\nLa crontab a déja été modifiée ${neutre}"
+                            else
+                                echo -e "${vertclair}\nModification de la crontab ${neutre}"
+                                echo -e "#Affichage de la température et de l'humidité toutes les 10 mn chaque jour" >> /tmp/toto.txt # ajout de la ligne dans le fichier temporaire
+                                echo -e "*/10 * * * * cd /home/pi/script && python am2315.py" >> /tmp/toto.txt # ajout de la ligne dans le fichier temporaire
+                                crontab /tmp/toto.txt # import de la crontab
+                                rm /tmp/toto.txt* # le fichier temporaire ne sert plus à rien
+                            fi
+
+                        else
+                            #installation si Python2
+                            echo -e "${rougeclair}Ne fonctionne pas avec Python 2 ! ${neutre}"
+                            exit
+                        fi
+
+                        if [[ $CHOIX_CAPTEUR =~ "Debug" ]]; then
+                            echo -e "${violetclair}\nFin de l'installation du capteur DHT22. Appuyer sur Entrée pour poursuivre l'Installation ${neutre}"
                             read
                         fi
                     fi
@@ -1401,13 +1519,27 @@ while $boucle_principale;do
                                 echo -e "${cyanclair}\nLe·répertoire·/home/pi/script/Python_ST7735/img_meteo·existe·déjà.·Suppression·du·répertoire·avant·la·nouvelle·installation·${neutre}"
                                 rm -r /home/pi/script/Python_ST7735/img_meteo/
                             fi
-                            #Téléchargement et décompactage des images pour l'écran
                             echo -e "${cyanclair}\nTéléchargement des images météos ${neutre}"
                             cd /home/pi/script/Python_ST7735/
                             wget -P /home/pi/script/Python_ST7735/ $lien_github_zip/pywws_grzanka.zip
                             unzip -u pywws_grzanka.zip
                             rm -r /home/pi/script/Python_ST7735/pywws_grzanka.zip*
                             mv /home/pi/script/Python_ST7735/pywws_grzanka /home/pi/script/Python_ST7735/img_meteo/
+
+                            #Téléchargement du programme du calcul de phase lunaire
+                            echo -e "${cyanclair}\nTéléchargement du programme pylunar ${neutre}"
+                            python -m pip install pylunar
+
+                            #Téléchargement et décompactage des images lunaires pour l'écran
+                            if [ -f "/home/pi/script/Python_ST7735/moons/" ] ; then
+                                echo -e "${cyanclair}\nLe répertoire /home/pi/script/Python_ST7735/moons existe déjà. Suppression du répertoire avant la nouvelle installation ${neutre}"
+                                rm -r /home/pi/script/Python_ST7735/moons/
+                            fi
+                            echo -e "${cyanclair}\nTéléchargement des images lunaires ${neutre}"
+                            cd /home/pi/script/Python_ST7735/
+                            wget -P /home/pi/script/Python_ST7735/ $lien_github_zip/moons.tar.gz
+                            tar xzvf moons.tar.gz
+                            rm -r /home/pi/script/Python_ST7735/moons.tar.gz*
 
                             apt -y install build-essential python-dev python-smbus
                             version=$(python --version 2>&1 | cut -c1-8)
