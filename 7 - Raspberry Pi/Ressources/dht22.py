@@ -79,5 +79,5 @@ if humidity is not None and temperature is not None:
     maj_widget(url)
 
 else:
-    print('Problème avec la lecture du DHT. Try again!')
+    print('Problème avec la lecture du DHT22. Try again!')
     sys.exit(1)
