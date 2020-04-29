@@ -63,7 +63,7 @@ if humidity is not None and temperature is not None:
     humid = str(int(humidity))
     #Sauvegarde température et humidité dans le fichier data_dht22.txt
     system("cd /home/pi/script")
-    # Ecriture du fichier dht.txt en mode write 'w'
+    # Ecriture du fichier data_dht22.txt en mode write 'w'
     print("Ecriture des données dans le fichier /home/pi/script/data_dht22.txt")
     li = ["Température : ", temp, "\n", "Humidité : ", humid]
     with open('/home/pi/script/data_dht22.txt','w') as fichier:
