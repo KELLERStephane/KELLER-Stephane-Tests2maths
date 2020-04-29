@@ -78,7 +78,7 @@ try:
     GPIO.wait_for_edge(BCM, GPIO.FALLING)
     ### Ouverture et affichage du fichier data_dht22.txt pour récupérer la température et l'humidité
     chdir("/home/pi/script")
-    with open('data_dht22.txt','r') as fichier:
+    with open('/home/pi/script/data_dht22.txt','r') as fichier:
         li = fichier.readlines()    # lecture dans le fichier avec la méthode readlines()
         ind_temp_deb = li[0].index("rature :")
         ind_temp_fin = li[0].index("\n")
