@@ -1,0 +1,3 @@
+include *.md
+recursive-include sm_lib *.jpg
+recursive-include sm_lib *.png
