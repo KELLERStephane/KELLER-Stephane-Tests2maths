@@ -80,7 +80,7 @@ setup(
     # La syntaxe est "nom-de-commande-a-creer = package.module:fonction".
     entry_points = {
         'console_scripts': [
-            'moonsk = moonssk.moonssk:lunar_phase',
+            'lunar = moons.moonssk:lunar_phase',
         ],
     },
 
