@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 
 # notez qu'on import la lib
 # donc assurez-vous que l'importe n'a pas d'effet de bord
-import moonssk
+import moons
 
 # Ceci n'est qu'un appel de fonction. Mais il est trèèèèèèèèèèès long
 # et il comporte beaucoup de paramètres
