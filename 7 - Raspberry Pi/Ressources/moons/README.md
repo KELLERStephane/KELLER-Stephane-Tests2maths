@@ -8,7 +8,7 @@ Vous pouvez l'installer avec pip:
 
 Exemple d'usage:
 
-    >>> from moons import lunar_phase
-    >>> lunar_phase(day, month, year)
+    >>> from moons import moonssk
+    >>> moonssk.lunar_phase(day, month, year)
 
 Ce code est sous licence WTFPL.
