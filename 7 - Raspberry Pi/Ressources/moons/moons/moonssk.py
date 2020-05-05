@@ -14,15 +14,15 @@ stephane.keller@yahoo.com
 https://github.com/KELLERStephane/KELLER-Stephane-Tests2maths
 
 Usage :
->>> import moonsk
+>>> from moons import lunar_phase
 >>> lunar_phase(day, month, year)
 """
 
 from math import cos, sin, radians
 import datetime, calendar
 
-#__all__ = ['angle', 'jj2date', 'calcul_Ci', 'lunar_phase', 'between_dates']
-__all__ = ['luna_phase']
+__all__ = ['angle', 'jj2date', 'calcul_Ci', 'lunar_phase', 'between_dates']
+#__all__ = ['lunar_phase']
 
 def angle(alpha):
     """Input: any alpha angle in degrees.
