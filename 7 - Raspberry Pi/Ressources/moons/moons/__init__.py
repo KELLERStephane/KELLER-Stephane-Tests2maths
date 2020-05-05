@@ -17,9 +17,8 @@ https://github.com/KELLERStephane/KELLER-Stephane-Tests2maths
 
 __version__ = "1.0"
 
-from moonssk import angle
-from moonssk import jj2date
-from moonssk import calcul_Ci
-from moonssk import lunar_phase
-from moonssk import between_dates
-
+from moons.moonssk import angle
+from moons.moonssk import jj2date
+from moons.moonssk import calcul_Ci
+from moons.moonssk import lunar_phase
+from moons.moonssk import between_dates
