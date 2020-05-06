@@ -14,7 +14,7 @@ stephane.keller@yahoo.com
 https://github.com/KELLERStephane/KELLER-Stephane-Tests2maths
 """
 
-__version__ = "1.1"
+__version__ = "1.5"
 
 from lune.phase import angle
 from lune.phase import jj2date
