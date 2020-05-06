@@ -14,8 +14,8 @@ stephane.keller@yahoo.com
 https://github.com/KELLERStephane/KELLER-Stephane-Tests2maths
 
 Usage :
->>> from moons import moonssk
->>> moonssk.lunar_phase(day, month, year)
+>>> from lune import phase
+>>> phase.lunar_phase(day, month, year)
 """
 
 from math import cos, sin, radians
