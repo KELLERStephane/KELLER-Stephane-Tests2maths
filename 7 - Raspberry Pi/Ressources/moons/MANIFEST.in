@@ -1,3 +1,0 @@
-include *.md
-recursive-include moonssk *.jpg
-recursive-include moonssk *.png
