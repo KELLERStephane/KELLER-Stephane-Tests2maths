@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """From a date given in parameter,
-the algorithm returns dates for :
+the algorithm returns respectively dates for :
 - the new moon;
 - the first quarter;
 - the full moon;

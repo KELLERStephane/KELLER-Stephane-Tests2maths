@@ -14,7 +14,7 @@ stephane.keller@yahoo.com
 https://github.com/KELLERStephane/KELLER-Stephane-Tests2maths
 
 Usage :
->>> from lune import phase
+>>> from moons import phase
 >>> phase.lunar_phase(day, month, year)
 """
 
@@ -70,7 +70,7 @@ Output: the date in the form (day, month, year)"""
 
 def calcul_Ci(k, T):
     """Input: the coefficients k and T ;
-    (T is the time in Julian centuries since 2000 epoch).
+    (T is the time in Julian centuries since the epoch 2000.0).
 Output: the list of the 1st group of the 14 corrections of the \☻
 periodic terms for the new moon."""
     A1 = 299.77 + 0.107408 * k - 0.009173 * T**2
