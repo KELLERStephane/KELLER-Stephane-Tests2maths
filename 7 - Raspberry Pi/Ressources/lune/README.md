@@ -66,5 +66,17 @@ Jour Julien des éphémérides (JDE) pour le dernier quartier : 2459250.23490872
 Date pour le dernier quartier : 04/02/2021
 
 
+    >>> phase.between_dates('24/5/1969','16/05/1969', '24/05/1969', '31/05/1969', '07/06/1969')
+ 
+ 
+  ('8.png', 'Premier quartier')
+  
+  
+      >>> phase.between_dates('28/01/2021','13/01/2021', '20/01/2021', '28/01/2021', '04/02/2021')
+ 
+    
+    ('15.png', 'Pleine lune')
+
+
 Ce code est sous licence WTFPL.
 
