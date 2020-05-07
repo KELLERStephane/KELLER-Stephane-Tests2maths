@@ -501,8 +501,8 @@ def between_dates(periode, d_NM, d_FQ, d_FM, d_LQ):
     d_FM (date ouf the full moon),
     d_LQ (date of the last quarter) in the form 'DD/MM/YYYY'.
     Output: the number of the image corresponding to visibility \
-    of the moon on this date and if necessary, the particular state, \
-    of the moon on this date."""
+of the moon on this date and if necessary, the particular state, \
+of the moon on this date."""
     (day, month, year) = periode.split('/')
     d = datetime.date(int(year), int(month), int(day))
     (day_NM, month_NM, year_NM) = d_NM.split('/')
