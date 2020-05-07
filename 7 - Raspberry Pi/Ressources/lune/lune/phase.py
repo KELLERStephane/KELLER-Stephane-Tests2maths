@@ -495,7 +495,6 @@ def lunar_phase(day, month, year):
     return li_JDE, li_date
 
 def between_dates(periode, d_NM, d_FQ, d_FM, d_LQ):
-    print(type(periode))
     """Input: a date in the form 'DD/MM/YYYY'.
     Output: the number of the image corresponding to visibility \
     of the moon on this date and if necessary, the particular state, \
