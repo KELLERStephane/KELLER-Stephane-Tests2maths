@@ -790,7 +790,7 @@ while $boucle_principale;do
                 shadow=,blue
                 ' \
                 whiptail --title "Menu d'installation des capteurs Raspberry" --checklist \
-                "\nScript réalisé par :\n- KELLER Stéphane (Lycée Agricole Louis Pasteur)\n- José De Castro\nhttps://github.com/KELLERStephane/KELLER-Stephane-Tests2maths\n\nQuels capteurs soutaitez-vous installer ?" 23 72 9 \
+                "\nScript réalisé par :\n- KELLER Stéphane (Lycée Agricole Louis Pasteur)\n- José De Castro\nhttps://github.com/KELLERStephane/KELLER-Stephane-Tests2maths\n\nQuels capteurs soutaitez-vous installer ?" 24 72 10 \
                 "Debug" "Interruption à la fin de chaque installation " OFF \
                 "GrovePi" "GrovePI de Dexter Industries " OFF \
                 "DHT22" "Capteur de température et d'humidité DHT22 " OFF \
@@ -799,7 +799,8 @@ while $boucle_principale;do
                 "Kuman" "Affichage données DHT22 sur écran Kuman " OFF \
                 "LCD" "Affichage données DHT22 sur écran LCD RGB Backlight" OFF \
                 "SPI" "Affichage données DHT22 sur écran bus SPI " OFF \
-                "Tests" "Tests des capteurs" OFF 3>&1 1>&2 2>&3)
+                "Tests" "Tests des capteurs" OFF \
+                "DEL" "Désinstallation des capteurs et programmes associés" OFF 3>&1 1>&2 2>&3)
 
                 exitstatus=$?
 
@@ -887,7 +888,7 @@ while $boucle_principale;do
                         L4="'"
                         sed -i '/'"$L1"'/ c\'"$L2"''"$L3"''"$L4"'' /home/pi/script/dht22.py
 
-                        #Saisi des paramètres de domoticz pour affichage température et humidité sur domoticz
+                        #Saisie des paramètres de domoticz pour affichage température et humidité sur domoticz
                         boucle=true
                         while $boucle;do
                             USER=$(whiptail --title "Paramètres pour dht22.py" --inputbox "\nSaisir l'identifiant domoticz : " 10 60 3>&1 1>&2 2>&3)
@@ -961,7 +962,7 @@ while $boucle_principale;do
                             echo -e "${vertclair}\nLa crontab a déja été modifiée ${neutre}"
                         else
                             echo -e "${vertclair}\nModification de la crontab ${neutre}"
-                            echo -e "#Affichage de la température et de l'humidité toutes les 10 mn chaque jour" >> /tmp/toto.txt # ajout de la ligne dans le fichier temporaire
+                            echo -e "\n#DHT22 Affichage de la température et de l'humidité toutes les 10 mn chaque jour" >> /tmp/toto.txt # ajout de la ligne dans le fichier temporaire
                             echo -e "*/10 * * * * cd /home/pi/script && python dht22.py" >> /tmp/toto.txt # ajout de la ligne dans le fichier temporaire
                             crontab /tmp/toto.txt # import de la crontab
                             rm /tmp/toto.txt* # le fichier temporaire ne sert plus à rien
@@ -1066,6 +1067,12 @@ while $boucle_principale;do
                             cd /home/pi/script/Adafruit_Python_DHT
                             pip install adafruit-circuitpython-am2320
 
+                            if [ -f /home/pi/script/am2315.py ] ; then
+                                echo -e "${cyanclair}\nLe fichier /home/pi/script/am2315.py existe déjà ${neutre}"
+                                echo -e "${cyanclair}Effacement du fichier puis téléchargement du nouveau fichier ${neutre}"
+                                rm /etc/ntp.com*
+                            fi
+
                             echo -e "${vertclair}\nTéléchargement du fichier am2315.py ${neutre}"
                             wget -P /home/pi/script $lien_github_raw/am2315.py
                             chown pi:pi /home/pi/script/am2315.py
@@ -1140,7 +1147,7 @@ while $boucle_principale;do
                                 echo -e "${vertclair}\nLa crontab a déja été modifiée ${neutre}"
                             else
                                 echo -e "${vertclair}\nModification de la crontab ${neutre}"
-                                echo -e "#Affichage de la température et de l'humidité toutes les 10 mn chaque jour" >> /tmp/toto.txt # ajout de la ligne dans le fichier temporaire
+                                echo -e "#AM2315 Affichage de la température et de l'humidité toutes les 10 mn chaque jour" >> /tmp/toto.txt # ajout de la ligne dans le fichier temporaire
                                 echo -e "*/10 * * * * cd /home/pi/script && python am2315.py" >> /tmp/toto.txt # ajout de la ligne dans le fichier temporaire
                                 crontab /tmp/toto.txt # import de la crontab
                                 rm /tmp/toto.txt* # le fichier temporaire ne sert plus à rien
@@ -1243,7 +1250,7 @@ while $boucle_principale;do
                                     echo -e "${vertclair}\nLa crontab a déja été modifiée ${neutre}"
                                  else
                                     echo -e "${vertclair}\nModification de la crontab ${neutre}"
-                                    echo -e "\n#Affichage permanent de la température et de l'humidité" >> /tmp/toto.txt # ajout de la ligne dans le fichier temporaire
+                                    echo -e "\n#Kuman Affichage permanent de la température et de l'humidité" >> /tmp/toto.txt # ajout de la ligne dans le fichier temporaire
                                     echo -e "*/10 * * * * cd /home/pi/script && python Kuman.py" >> /tmp/toto.txt # ajout de la ligne dans le fichier temporaire
                                     crontab /tmp/toto.txt # import de la crontab
                                     rm /tmp/toto.txt* # le fichier temporaire ne sert plus à rien
@@ -1306,7 +1313,7 @@ while $boucle_principale;do
                                 grep -i "Kuman.py" "/tmp/toto.txt" >/dev/null
                                 if [ $? = 0 ];then
                                     echo -e "${vertclair}\nSuppression de l'affichage permanent dans la crontab ${neutre}"
-                                    L1="#Affichage permanent de la température et de l'humidité"
+                                    L1="#Kuman Affichage permanent de la température et de l'humidité"
                                     L2=''
                                     sed -i '/'"$L1"'/ c\'"$L2"'' /tmp/toto.txt
                                     L3='Kuman.py'
@@ -1383,7 +1390,7 @@ while $boucle_principale;do
                                     echo -e "${vertclair}\nLa crontab a déja été modifiée ${neutre}"
                                  else
                                     echo -e "${vertclair}\nModification de la crontab ${neutre}"
-                                    echo -e "\n#Affichage permanent de la température et de l'humidité" >> /tmp/toto.txt # ajout de la ligne dans le fichier temporaire
+                                    echo -e "\n#LCD Affichage permanent de la température et de l'humidité" >> /tmp/toto.txt # ajout de la ligne dans le fichier temporaire
                                     echo -e "*/10 * * * * cd /home/pi/script && python lcd.py" >> /tmp/toto.txt # ajout de la ligne dans le fichier temporaire
                                     crontab /tmp/toto.txt # import de la crontab
                                     rm /tmp/toto.txt* # le fichier temporaire ne sert plus à rien
@@ -1449,7 +1456,7 @@ while $boucle_principale;do
                                 grep -i "lcd.py" "/tmp/toto.txt" >/dev/null
                                 if [ $? = 0 ];then
                                     echo -e "${vertclair}\nSuppression de l'affichage permanent dans la crontab ${neutre}"
-                                    L1="#Affichage permanent de la température et de l'humidité"
+                                    L1="#DHT22 Affichage permanent de la température et de l'humidité"
                                     L2=''
                                     sed -i '/'"$L1"'/ c\'"$L2"'' /tmp/toto.txt
                                     L3='lcd.py'
@@ -1514,21 +1521,12 @@ while $boucle_principale;do
                             unzip -u minecraftia.zip
                             rm /usr/share/fonts/truetype/Minecraftia/minecraftia.zip*
 
-                            #Téléchargement et décompactage des images météo pour l'écran
-                            if [ -f "/home/pi/script/Python_ST7735/img_meteo/" ] ; then
-                                echo -e "${cyanclair}\nLe·répertoire·/home/pi/script/Python_ST7735/img_meteo·existe·déjà.·Suppression·du·répertoire·avant·la·nouvelle·installation·${neutre}"
-                                rm -r /home/pi/script/Python_ST7735/img_meteo/
-                            fi
                             echo -e "${cyanclair}\nTéléchargement des images météos ${neutre}"
                             cd /home/pi/script/Python_ST7735/
-                            wget -P /home/pi/script/Python_ST7735/ $lien_github_zip/pywws_grzanka.zip
-                            unzip -u pywws_grzanka.zip
-                            rm -r /home/pi/script/Python_ST7735/pywws_grzanka.zip*
-                            mv /home/pi/script/Python_ST7735/pywws_grzanka /home/pi/script/Python_ST7735/img_meteo/
-
-                            #Téléchargement du programme du calcul de phase lunaire
-                            echo -e "${cyanclair}\nTéléchargement du programme pylunar ${neutre}"
-                            python -m pip install pylunar
+                            wget -P /home/pi/script/Python_ST7735/ $lien_github_zip/meteo_BVR.zip
+                            unzip -u meteo_BVR.zip
+                            rm -r /home/pi/script/Python_ST7735/meteo_BVR.zip*
+                            mv /home/pi/script/Python_ST7735/meteo_BVR /home/pi/script/Python_ST7735/img_meteo/
 
                             #Téléchargement et décompactage des images lunaires pour l'écran
                             if [ -f "/home/pi/script/Python_ST7735/moons/" ] ; then
@@ -1537,9 +1535,9 @@ while $boucle_principale;do
                             fi
                             echo -e "${cyanclair}\nTéléchargement des images lunaires ${neutre}"
                             cd /home/pi/script/Python_ST7735/
-                            wget -P /home/pi/script/Python_ST7735/ $lien_github_zip/moons.tar.gz
-                            tar xzvf moons.tar.gz
-                            rm -r /home/pi/script/Python_ST7735/moons.tar.gz*
+                            wget -P /home/pi/script/Python_ST7735/ $lien_github_zip/moons_BVR.zip
+                            unzip -u moons_BVR.zip
+                            rm -r /home/pi/script/Python_ST7735/moons_BVR.zip*
 
                             apt -y install build-essential python-dev python-smbus
                             version=$(python --version 2>&1 | cut -c1-8)
@@ -1550,22 +1548,225 @@ while $boucle_principale;do
                                 sudo pip3 install Adafruit_GPIO
                                 cd /home/pi/script/Python_ST7735
                                 python3 setup.py install
+                                sudo pip3 install lune
                             else
                                 #installation si Python2
                                 sudo pip install Adafruit_GPIO
                                 cd /home/pi/script/Python_ST7735
                                 python setup.py install
+                                sudo pip install lune
                             fi
 
 #########################################################
 
 
                             if [[ $CHOIX_CAPTEUR =~ "Debug" ]]; then
-                                    echo -e "${violetclair}\nFin de l'installation de l'écran Kuman. Appuyer sur Entrée pour poursuivre l'Installation ${neutre}"
+                                echo -e "${violetclair}\nFin de l'installation de l'écran SPI. Appuyer sur Entrée pour poursuivre l'Installation ${neutre}"
                                 read
                             fi
                         fi
                     fi
+
+                    ### ===============================================================
+                    ### Désinstallation des capteurs et des programmes associés
+                    ### ===============================================================
+
+                    if [[ $CHOIX_CAPTEUR =~ "DEL" ]]; then
+                        echo -e "${bleuclair}\nDésinstallation des capteurs et programmes associés ${neutre}"
+                        boucle_efface=true
+                        while $boucle_efface;do
+
+                            CHOIX_DEL=$(NEWT_COLORS='
+                            root=,blue
+                            checkbox=white,brightblue
+                            shadow=,black
+                            ' \
+                            whiptail --title "Menu de désinstallation des capteurs Raspberry" --checklist \
+                            "\nScript réalisé par :\n- KELLER Stéphane (Lycée Agricole Louis Pasteur)\n- José De Castro\nhttps://github.com/KELLERStephane/KELLER-Stephane-Tests2maths\n\nQuels capteurs soutaitez-vous désinstaller ?" 22 72 8 \
+                            "Debug" "Interruption à la fin de chaque installation " OFF \
+                            "GrovePi" "GrovePI de Dexter Industries " OFF \
+                            "DHT22" "Capteur de température et d'humidité DHT22 " OFF \
+                            "DS18B20" "Capteur de température DS18B20 " OFF \
+                            "AM2315" "Capteur de température et d'humidité AM2315 " OFF \
+                            "Kuman" "Affichage données DHT22 sur écran Kuman " OFF \
+                            "LCD" "Affichage données DHT22 sur écran LCD RGB Backlight" OFF \
+                            "SPI" "Affichage données DHT22 sur écran bus SPI " OFF 3>&1 1>&2 2>&3)
+
+                            exitstatus=$?
+
+                            if [[ $exitstatus = 0 ]]; then
+                                echo -e -n "${jauneclair}\t ==========================================  \n ${neutre}"
+                                echo -e -n "${jauneclair}\t Les capteurs suivants seront désinstallés   \n ${neutre}"
+                                echo -e -n "${jauneclair}\t $CHOIX_DEL                                  \n ${neutre}"
+                                echo -e -n "${jauneclair}\t ==========================================  \n ${neutre}"
+
+                                ### ===============================================================
+                                ### DESINSTALLATION SHIELD GROVEPI
+                                ### ===============================================================
+
+                                if [[ $CHOIX_DEL =~ "GrovePi" ]]; then
+                                    echo -e "${bleuclair}\nDésinstallation du shield GrovePi. ${neutre}"
+                                    echo -e "${rougeclair}\nEn cours de construction. ${neutre}"
+                                fi
+
+                                if [[ $CHOIX_DEL =~ "Debug" ]]; then
+                                    echo -e "${violetclair}\nFin de la désinstallation du shield GrovePi. Appuyer sur Entrée pour poursuivre. ${neutre}"
+                                    read
+                                fi
+
+                                ### ===============================================================
+                                ### DESINSTALLATION DU CAPTEUR DE TEMPERATURE DHT22
+                                ### ===============================================================
+
+                                if [[ $CHOIX_DEL =~ "DHT22" ]]; then
+                                    echo -e "${bleuclair}\nDésinstallation du capteur de température et d'humidité DHT22. ${neutre}"
+                                    if [ -d "/home/pi/script/Adafruit_Python_DHT" ]; then
+                                        echo -e "${cyanclair}\nSuppression du répertoire d'installation /home/pi/script/Adafruit_Python_DHT. ${neutre}"
+                                        rm -r /home/pi/script/Adafruit_Python_DHT
+                                    fi
+                                    if [ -f "/home/pi/script/dht22.py" ] ; then
+                                        echo -e "${cyanclair}\nSuppression du fichier /home/pi/script/dht22.py ${neutre}" 
+                                        rm /home/pi/script/dht22.py*
+                                    fi
+                                    if [ -f "/home/pi/script/data_dht22.txt" ] ; then
+                                        echo -e "${cyanclair}\nSuppression du fichier /home/pi/script/data_dht22.txt ${neutre}"
+                                        rm /home/pi/script/data_dht22.txt*
+                                    fi
+
+                                    #Modification de la crontab pour supprimer affichage de température et humidité toutes les 10 minutes
+                                    crontab -u root -l > /tmp/toto.txt # export de la crontab
+                                    grep -i "dht22.py" "/tmp/toto.txt" >/dev/null
+                                    if [ $? = 0 ];then
+                                        echo -e "${vertclair}\nModification de la crontab ${neutre}"
+                                        L1="#DHT22 Affichage de la température et de l'humidité toutes les 10 mn chaque jour"
+                                        L2=""
+                                        sed -i '/'"$L1"'/ c\'"$L2"'' /tmp/toto.txt #suppression de la ligne L1 dans le fichier temporaire
+                                        L3="python dht22.py"
+                                        L4=""
+                                        sed -i '/'"$L3"'/ c\'"$L4"'' /tmp/toto.txt #suppression de la ligne L3 dans le fichier temporaire
+                                        crontab /tmp/toto.txt # import de la crontab
+                                        rm /tmp/toto.txt* # le fichier temporaire ne sert plus à rien
+                                    else
+                                        echo -e "${vertclair}\nLa crontab a déja été modifiée ${neutre}"
+                                    fi
+
+                                    if [[ $CHOIX_DEL =~ "Debug" ]]; then
+                                        echo -e "${violetclair}\nFin de la désinstallation du capteur de température et d'humidité DHT22. Appuyer sur Entrée pour poursuivre. ${neutre}"
+                                        read
+                                    fi
+                                fi
+
+                                ### ===============================================================
+                                ### DESINSTALLATION DU CAPTEUR DE TEMPERATURE DS18B20
+                                ### ===============================================================
+
+                                if [[ $CHOIX_DEL =~ "DS18B20" ]]; then
+                                    echo -e "${bleuclair}\nDésinstallation du capteur de température DS18B20. ${neutre}"
+                                    if [ -f "/home/pi/script/ds18b20.py" ] ; then
+                                        echo -e "${cyanclair}\nSuppression du fichier /home/pi/script/ds18b20.py ${neutre}"
+                                        rm /home/pi/script/ds18b20.py*
+                                    fi
+                                    if [ -f "/home/pi/script/data_ds18b20.txt" ] ; then
+                                        echo -e "${cyanclair}\nSuppression du fichier /home/pi/script/data_ds18b20.txt ${neutre}"
+                                        rm /home/pi/script/data_ds18b20.txt*
+                                    fi
+
+                                    #Modification du fichier /boot/config.txt
+                                    grep -i "dtoverlay=w1-gpio,gpiopin=" "/boot/config.txt" >/dev/null
+                                    if [ $? = 0 ];then
+                                        echo -e "${vertclair}\nModification du fichier /boot/config.txt ${neutre}"
+                                        L1="dtoverlay=w1-gpio,gpiopin="
+                                        L2="dtoverlay=w1-gpio"
+                                        sed -i '/'"$L1"'/ c\'"$L2"'' /boot/config.txt #remplacmeent de la ligne L1 dans le fichier /boot/config.txt
+                                    else
+                                        echo -e "${vertclair}\nLe fichier /boot/config.txt a déja été modifié ${neutre}"
+                                    fi
+
+                                    #Modification du fichier /etc/modules
+                                    grep -i "w1-therm" "/etc/modules" >/dev/null
+                                    if [ $? = 0 ];then
+                                        echo -e "${vertclair}\nModification du fichier /etc/modules ${neutre}"
+                                        L1="w1-therm"
+                                        L2=""
+                                        sed -i '/'"$L1"'/ c\'"$L2"'' /etc/modules #remplacmeent de la ligne L1 dans le fichier /etc/modules
+                                        L1="w1-gpio"
+                                        L2=""
+                                        sed -i '/'"$L1"'/ c\'"$L2"'' /etc/modules #remplacmeent de la ligne L1 dans le fichier /etc/modules
+                                    else
+                                        echo -e "${vertclair}\nLe fichier /etc/modules a déja été modifié ${neutre}"
+                                    fi
+
+                                    if [[ $CHOIX_DEL =~ "Debug" ]]; then
+                                        echo -e "${violetclair}\nFin de la désinstallation du capteur de température DS18B20. Appuyer sur Entrée pour poursuivre. ${neutre}"
+                                        read
+                                    fi
+                                fi
+
+                                ### ===============================================================
+                                ### DESINSTALLATION DU CAPTEUR DE TEMPERATURE AM2315
+                                ### ===============================================================
+
+                                if [[ $CHOIX_DEL =~ "AM2315" ]]; then
+                                    echo -e "${bleuclair}\nDésinstallation du capteur de température et d'humidité AM2315. ${neutre}"
+                                    echo -e "${rougeclair}\nEn cours de construction. ${neutre}"
+                                fi
+
+                                if [[ $CHOIX_DEL =~ "Debug" ]]; then
+                                    echo -e "${violetclair}\nFin de la désinstallation du capteur de température et d'humidité DS18B20. Appuyer sur Entrée pour poursuivre. ${neutre}"
+                                    read
+                                fi
+
+                                ### ===============================================================
+                                ### DESINSTALLATION DE L'ECRAN KUMAN
+                                ### ===============================================================
+
+                                if [[ $CHOIX_DEL =~ "Kuman" ]]; then
+                                    echo -e "${bleuclair}\nDésinstallation de l'écran Kuman. ${neutre}"
+                                    echo -e "${rougeclair}\nEn cours de construction. ${neutre}"
+                                fi
+
+                                if [[ $CHOIX_DEL =~ "Debug" ]]; then
+                                    echo -e "${violetclair}\nFin de la désinstallation de l'écran Kuman. Appuyer sur Entrée pour poursuivre. ${neutre}"
+                                    read
+                                fi
+
+                                ### ===============================================================
+                                ### DESINSTALLATION DE L'ECRAN LCD
+                                ### ===============================================================
+
+                                if [[ $CHOIX_DEL =~ "LCD" ]]; then
+                                    echo -e "${bleuclair}\nDésinstallation de l'écran LCD. ${neutre}"
+                                    echo -e "${rougeclair}\nEn cours de construction. ${neutre}"
+                                fi
+
+                                if [[ $CHOIX_DEL =~ "Debug" ]]; then
+                                    echo -e "${violetclair}\nFin de la désinstallation de l'écran LCD. Appuyer sur Entrée pour poursuivre. ${neutre}"
+                                    read
+                                fi
+
+                                ### ===============================================================
+                                ### DESINSTALLATION DE L'ECRAN SPI
+                                ### ===============================================================
+
+                                if [[ $CHOIX_DEL =~ "SPI" ]]; then
+                                    echo -e "${bleuclair}\nDésinstallation de l'écran SPI. ${neutre}"
+                                    echo -e "${rougeclair}\nEn cours de construction. ${neutre}"
+                                fi
+
+                                if [[ $CHOIX_DEL =~ "Debug" ]]; then
+                                    echo -e "${violetclair}\nFin de la désinstallation de l'écran SPI. Appuyer sur Entrée pour poursuivre. ${neutre}"
+                                    read
+                                fi
+
+
+
+                            else
+                                echo -e "${violetclair}\nFin de la désinstallation des capteurs. ${neutre}"
+                                boucle_efface=false
+                            fi
+                        done
+                    fi
+
 
                     ### ===============================================================
                     ### TEST DES CAPTEURS
@@ -1765,6 +1966,7 @@ while $boucle_principale;do
                             fi
                         done
                     fi
+
                     ### ===============================================================
                     ### AUCUN CHOIX POUR LES CAPTEURS
                     ### ===============================================================
@@ -1781,7 +1983,7 @@ while $boucle_principale;do
             done
         fi
     else
-        echo -e "${violetclair}\Annnulation de l'installation des logiciels. ${neutre}"
+        echo -e "${violetclair}Annnulation de l'installation des logiciels. ${neutre}"
         boucle_principale=false
     fi
 done
