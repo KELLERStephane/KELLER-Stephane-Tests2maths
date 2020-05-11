@@ -1522,21 +1522,24 @@ while $boucle_principale;do
                             rm /usr/share/fonts/truetype/Minecraftia/minecraftia.zip*
 
                             #Téléchargement et décompactage des images météos
+                            if [ -f "/home/pi/script/Python_ST7735/meteo_BVR/" ] ; then
+                                echo -e "${cyanclair}\nLe répertoire /home/pi/script/Python_ST7735//meteo_BVR existe déjà. Suppression du répertoire avant la nouvelle installation ${neutre}"
+                                rm -r /home/pi/script/Python_ST7735/meteo_BVR/
+                            fi
                             echo -e "${cyanclair}\nTéléchargement des images météos ${neutre}"
                             cd /home/pi/script/Python_ST7735/
-                            wget -P /home/pi/script/Python_ST7735/meteo_BVR/ $lien_github_zip/meteo_BVR.zip
+                            wget -P /home/pi/script/Python_ST7735/ $lien_github_zip/meteo_BVR.zip
                             unzip -u meteo_BVR.zip
                             rm -r /home/pi/script/Python_ST7735/meteo_BVR.zip*
-                            mv /home/pi/script/Python_ST7735/meteo_BVR /home/pi/script/Python_ST7735/img_meteo/
 
                             #Téléchargement et décompactage des images lunaires pour l'écran
-                            if [ -f "/home/pi/script/Python_ST7735/moons/" ] ; then
-                                echo -e "${cyanclair}\nLe répertoire /home/pi/script/Python_ST7735/moons existe déjà. Suppression du répertoire avant la nouvelle installation ${neutre}"
-                                rm -r /home/pi/script/Python_ST7735/moons/
+                            if [ -f "/home/pi/script/Python_ST7735/moons_BVR/" ] ; then
+                                echo -e "${cyanclair}\nLe répertoire /home/pi/script/Python_ST7735/moons_BVR existe déjà. Suppression du répertoire avant la nouvelle installation ${neutre}"
+                                rm -r /home/pi/script/Python_ST7735/moons_BVR/
                             fi
                             echo -e "${cyanclair}\nTéléchargement des images lunaires ${neutre}"
                             cd /home/pi/script/Python_ST7735/
-                            wget -P /home/pi/script/Python_ST7735/moons_BVR $lien_github_zip/moons_BVR.zip
+                            wget -P /home/pi/script/Python_ST7735/ $lien_github_zip/moons_BVR.zip
                             unzip -u moons_BVR.zip
                             rm -r /home/pi/script/Python_ST7735/moons_BVR.zip*
 
