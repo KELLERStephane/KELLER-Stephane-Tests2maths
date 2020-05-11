@@ -175,10 +175,6 @@ try:
 
     #Initialize display.
     disp.begin()
-    disp.clear(NOIR)
-
-    #periode = str(jour) + '/' + str(mois) + '/' + str(an)
-    #d = datetime.date(an, mois, jour)
 
     #récupération des dates de l'état particulier de la lune
     i_jour, i_mois, i_an = time.localtime()[2], time.localtime()[1], time.localtime()[0]
@@ -195,9 +191,6 @@ try:
 
     #affichage du jour courant
     draw.text((2, ligne1), jour, font=font_date, fill = VERT)
-
-    #pour les tests uniquements
-    draw.text((80, ligne1), str(time.localtime()[4]), font=font_date, fill = VERT)
 
     #affichage de la date courante
     draw.text((2, ligne2), periode, font=font_date, fill = VERT)
@@ -241,10 +234,12 @@ try:
     ecran.paste(img_meteo, (64, 115))
 
     disp.display(ecran)
-    time.sleep(0.5)
+    time.sleep(15)
 
-    #Draw the image on the display hardware.
-    print('Drawing images')
+    #Création du fond noir
+    ecran = Image.new("RGB", (largeur_ecran, hauteur_ecran), NOIR)
+    draw =  ImageDraw.Draw(ecran)
+    disp.display(ecran)
 
 except KeyboardInterrupt:
     print("Fin de l'interruption")
