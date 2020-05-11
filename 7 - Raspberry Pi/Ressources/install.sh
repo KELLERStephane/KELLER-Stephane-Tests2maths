@@ -1070,7 +1070,7 @@ while $boucle_principale;do
                             if [ -f /home/pi/script/am2315.py ] ; then
                                 echo -e "${cyanclair}\nLe fichier /home/pi/script/am2315.py existe déjà ${neutre}"
                                 echo -e "${cyanclair}Effacement du fichier puis téléchargement du nouveau fichier ${neutre}"
-                                rm /etc/ntp.com*
+                                rm /home/pi/script/am2315.py*
                             fi
 
                             echo -e "${vertclair}\nTéléchargement du fichier am2315.py ${neutre}"
@@ -1087,7 +1087,7 @@ while $boucle_principale;do
                             L2="domoticz_ip = '"
                             L3=$adresse
                             L4="'"
-                            sed -i '/'"$L1"'/ c\'"$L2"''"$L3"''"$L4"'' /home/pi/script/dht22.py
+                            sed -i '/'"$L1"'/ c\'"$L2"''"$L3"''"$L4"'' /home/pi/script/am2315.py
 
                             #Saisi des paramètres de domoticz pour affichage température et humidité sur domoticz
                             boucle=true
@@ -1099,7 +1099,7 @@ while $boucle_principale;do
                                     L2="user = '"
                                     L3=$USER
                                     L4="'"
-                                    sed -i '/'"$L1"'/ c\'"$L2"''"$L3"''"$L4"'' /home/pi/script/dht22.py
+                                    sed -i '/'"$L1"'/ c\'"$L2"''"$L3"''"$L4"'' /home/pi/script/am2315.py
                                     boucle=false
                                 else
                                     echo "Tu as annulé... Recommence :-("
@@ -1116,7 +1116,7 @@ while $boucle_principale;do
                                     L2="password = '"
                                     L3=$MDP
                                     L4="'"
-                                    sed -i '/'"$L1"'/ c\'"$L2"''"$L3"''"$L4"'' /home/pi/script/dht22.py
+                                    sed -i '/'"$L1"'/ c\'"$L2"''"$L3"''"$L4"'' /home/pi/script/am2315.py
                                     boucle=false
                                 else
                                     echo "Vous avez annulez"
@@ -1132,13 +1132,13 @@ while $boucle_principale;do
                                     L1="domoticz_idx ="
                                     L2="domoticz_idx = "
                                     L3=$IDX
-                                    sed -i '/'"$L1"'/ c\'"$L2"''"$L3"'' /home/pi/script/dht22.py
+                                    sed -i '/'"$L1"'/ c\'"$L2"''"$L3"'' /home/pi/script/am2315.py
                                     boucle=false
                                 else
                                     echo "Tu as annulé... Recommence :-("
                                 fi
                             done
-                            echo -e "${vertclair}Ajout de l'IDX dans le fichier dht22.py ${neutre}"
+                            echo -e "${vertclair}Ajout de l'IDX dans le fichier am2315.py ${neutre}"
 
                             #Modification de la crontab pour mise à jour de température et humidité toutes les 10 minutes
                             crontab -u root -l > /tmp/toto.txt # export de la crontab
@@ -1160,7 +1160,7 @@ while $boucle_principale;do
                         fi
 
                         if [[ $CHOIX_CAPTEUR =~ "Debug" ]]; then
-                            echo -e "${violetclair}\nFin de l'installation du capteur DHT22. Appuyer sur Entrée pour poursuivre l'Installation ${neutre}"
+                            echo -e "${violetclair}\nFin de l'installation du capteur AM2315. Appuyer sur Entrée pour poursuivre l'Installation ${neutre}"
                             read
                         fi
                     fi
@@ -1228,7 +1228,7 @@ while $boucle_principale;do
                             if [[ $CHOIX_KUMAN =~ "1" ]]; then
                                 if [ -f "/home/pi/script/Kuman.py" ] ; then
                                     echo -e "${cyanclair}\nLe fichier /home/pi/script/Kuman.py existe déjà${neutre}"
-                                    echo -e "${cyanclair}Effacement du fichier puis télechargement du nouveau fichier ${neutre}"
+                                    echo -e "${cyanclair}Effacement du fichier puis téléchargement du nouveau fichier ${neutre}"
                                     rm /home/pi/script/Kuman.py
                                 fi
                                 echo -e "${vertclair}\nTéléchargement du fichier kuman.py ${neutre}"
@@ -1367,7 +1367,7 @@ while $boucle_principale;do
                             if [[ $CHOIX_LCD =~ "1" ]]; then
                                 if [ -f "/home/pi/script/lcd.py" ] ; then
                                     echo -e "${cyanclair}\nLe fichier /home/pi/script/lcd.py existe déjà${neutre}"
-                                    echo -e "${cyanclair}Effacement du fichier puis télechargement du nouveau fichier ${neutre}"
+                                    echo -e "${cyanclair}Effacement du fichier puis téléchargement du nouveau fichier ${neutre}"
                                     rm /home/pi/script/lcd.py
                                 fi
                                 echo -e "${vertclair}\nTéléchargement du fichier lcd.py ${neutre}"
@@ -1494,7 +1494,7 @@ while $boucle_principale;do
 
                             echo -e "${bleuclair}\nInstallation de l'écran SPI ${neutre}"
                             echo -e "${rougeclair}Domoticz, GPIO et DHT22 doivent être installés. ${neutre}"
-                            echo -e "${rougeclair}Le capteur DHT22 et l'écran SPI doivent être reliés correctement au Raspberry : ${neutre}"
+                            echo -e "${rougeclair}Les capteurs DHT22 et AM2315 ainsiq que l'écran SPI doivent être reliés correctement au Raspberry : ${neutre}"
                             echo -e "${rougeclair}Ne pas oublier d'activer les GPIO avec sudo raspi-config ${neutre}"
                             echo -e "${rougeclair}Ne pas oublier d'activer SPI avec sudo raspi-config ${neutre}"
 
@@ -1521,9 +1521,10 @@ while $boucle_principale;do
                             unzip -u minecraftia.zip
                             rm /usr/share/fonts/truetype/Minecraftia/minecraftia.zip*
 
+                            #Téléchargement et décompactage des images météos
                             echo -e "${cyanclair}\nTéléchargement des images météos ${neutre}"
                             cd /home/pi/script/Python_ST7735/
-                            wget -P /home/pi/script/Python_ST7735/ $lien_github_zip/meteo_BVR.zip
+                            wget -P /home/pi/script/Python_ST7735/meteo_BVR/ $lien_github_zip/meteo_BVR.zip
                             unzip -u meteo_BVR.zip
                             rm -r /home/pi/script/Python_ST7735/meteo_BVR.zip*
                             mv /home/pi/script/Python_ST7735/meteo_BVR /home/pi/script/Python_ST7735/img_meteo/
@@ -1535,7 +1536,7 @@ while $boucle_principale;do
                             fi
                             echo -e "${cyanclair}\nTéléchargement des images lunaires ${neutre}"
                             cd /home/pi/script/Python_ST7735/
-                            wget -P /home/pi/script/Python_ST7735/ $lien_github_zip/moons_BVR.zip
+                            wget -P /home/pi/script/Python_ST7735/moons_BVR $lien_github_zip/moons_BVR.zip
                             unzip -u moons_BVR.zip
                             rm -r /home/pi/script/Python_ST7735/moons_BVR.zip*
 
@@ -1556,6 +1557,46 @@ while $boucle_principale;do
                                 python setup.py install
                                 sudo pip install lune
                             fi
+
+                            ### ===============================================================
+                            ### Affichage permanent données DHT22 et AM2315 sur écran SPI
+                            ### ===============================================================
+
+                            if [[ $CHOIX_SPI =~ "1" ]]; then
+                                if [ -f "/home/pi/script/st7735.py" ] ; then
+                                    echo -e "${cyanclair}\nLe fichier /home/pi/script/st7735.py existe déjà${neutre}"
+                                    echo -e "${cyanclair}Effacement du fichier puis téléchargement du nouveau fichier ${neutre}"
+                                    rm /home/pi/script/st7735.py
+                                fi
+                                echo -e "${vertclair}\nTéléchargement du fichier st7735.py ${neutre}"
+                                wget -P /home/pi/script $lien_github_raw/st7735.py
+                                chown pi:pi /home/pi/script/st7735.py
+                                chmod +x /home/pi/script/st7735.py
+
+                                if [ -f "/etc/systemd/system/interrupteur_spi.service" ] ; then
+                                    echo -e "${cyanclair}\nLe fichier /etc/systemd/system/interrupteur_spi.service existe ${neutre}"
+                                    echo -e "${cyanclair}et n'est plus nécessaire. Suppression du service ${neutre}"
+                                    systemctl stop interrupteur_spi.service
+                                    systemctl disable interrupteur_spi.service
+                                    rm /etc/systemd/system/interrupteur_spi.service*
+                                fi
+
+                                #Modification de la crontab pour Affichage de la température et humidité toutes les 10 minutes
+                                crontab -u root -l > /tmp/toto.txt # export de la crontab
+                                grep -i "st7735.py" "/tmp/toto.txt" >/dev/null
+                                if [ $? = 0 ];then
+                                    echo -e "${vertclair}\nLa crontab a déja été modifiée ${neutre}"
+                                 else
+                                    echo -e "${vertclair}\nModification de la crontab ${neutre}"
+                                    echo -e "\n#LCD Affichage permanent de la température et de l'humidité" >> /tmp/toto.txt # ajout de la ligne dans le fichier temporaire
+                                    echo -e "*/10 * * * * cd /home/pi/script && python st7735.py" >> /tmp/toto.txt # ajout de la ligne dans le fichier temporaire
+                                    crontab /tmp/toto.txt # import de la crontab
+                                    rm /tmp/toto.txt* # le fichier temporaire ne sert plus à rien
+                                fi
+                            fi
+
+
+
 
 #########################################################
 
@@ -1607,11 +1648,11 @@ while $boucle_principale;do
                                 if [[ $CHOIX_DEL =~ "GrovePi" ]]; then
                                     echo -e "${bleuclair}\nDésinstallation du shield GrovePi. ${neutre}"
                                     echo -e "${rougeclair}\nEn cours de construction. ${neutre}"
-                                fi
 
-                                if [[ $CHOIX_DEL =~ "Debug" ]]; then
-                                    echo -e "${violetclair}\nFin de la désinstallation du shield GrovePi. Appuyer sur Entrée pour poursuivre. ${neutre}"
-                                    read
+                                    if [[ $CHOIX_DEL =~ "Debug" ]]; then
+                                        echo -e "${violetclair}\nFin de la désinstallation du shield GrovePi. Appuyer sur Entrée pour poursuivre. ${neutre}"
+                                        read
+                                    fi
                                 fi
 
                                 ### ===============================================================
@@ -1677,7 +1718,7 @@ while $boucle_principale;do
                                         echo -e "${vertclair}\nModification du fichier /boot/config.txt ${neutre}"
                                         L1="dtoverlay=w1-gpio,gpiopin="
                                         L2="dtoverlay=w1-gpio"
-                                        sed -i '/'"$L1"'/ c\'"$L2"'' /boot/config.txt #remplacmeent de la ligne L1 dans le fichier /boot/config.txt
+                                        sed -i '/'"$L1"'/ c\'"$L2"'' /boot/config.txt #remplacement de la ligne L1 dans le fichier /boot/config.txt
                                     else
                                         echo -e "${vertclair}\nLe fichier /boot/config.txt a déja été modifié ${neutre}"
                                     fi
@@ -1688,10 +1729,10 @@ while $boucle_principale;do
                                         echo -e "${vertclair}\nModification du fichier /etc/modules ${neutre}"
                                         L1="w1-therm"
                                         L2=""
-                                        sed -i '/'"$L1"'/ c\'"$L2"'' /etc/modules #remplacmeent de la ligne L1 dans le fichier /etc/modules
+                                        sed -i '/'"$L1"'/ c\'"$L2"'' /etc/modules #remplacement de la ligne L1 dans le fichier /etc/modules
                                         L1="w1-gpio"
                                         L2=""
-                                        sed -i '/'"$L1"'/ c\'"$L2"'' /etc/modules #remplacmeent de la ligne L1 dans le fichier /etc/modules
+                                        sed -i '/'"$L1"'/ c\'"$L2"'' /etc/modules #remplacement de la ligne L1 dans le fichier /etc/modules
                                     else
                                         echo -e "${vertclair}\nLe fichier /etc/modules a déja été modifié ${neutre}"
                                     fi
@@ -1708,12 +1749,36 @@ while $boucle_principale;do
 
                                 if [[ $CHOIX_DEL =~ "AM2315" ]]; then
                                     echo -e "${bleuclair}\nDésinstallation du capteur de température et d'humidité AM2315. ${neutre}"
-                                    echo -e "${rougeclair}\nEn cours de construction. ${neutre}"
-                                fi
+                                    if [ -f "/home/pi/script/am2315.py" ] ; then
+                                        echo -e "${cyanclair}\nSuppression du fichier /home/pi/script/am2315.py ${neutre}"
+                                        rm /home/pi/script/am2315.py*
+                                    fi
+                                    if [ -f "/home/pi/script/data_am2315.txt" ] ; then
+                                        echo -e "${cyanclair}\nSuppression du fichier /home/pi/script/data_am2315.txt ${neutre}"
+                                        rm /home/pi/script/data_am2315.txt*
+                                    fi
 
-                                if [[ $CHOIX_DEL =~ "Debug" ]]; then
-                                    echo -e "${violetclair}\nFin de la désinstallation du capteur de température et d'humidité DS18B20. Appuyer sur Entrée pour poursuivre. ${neutre}"
-                                    read
+                                    #Modification de la crontab pour supprimer affichage de température et humidité toutes les 10 minutes
+                                    crontab -u root -l > /tmp/toto.txt # export de la crontab
+                                    grep -i "am2315.py" "/tmp/toto.txt" >/dev/null
+                                    if [ $? = 0 ];then
+                                        echo -e "${vertclair}\nModification de la crontab ${neutre}"
+                                        L1="#AM2315 Affichage de la température et de l'humidité toutes les 10 mn chaque jour"
+                                        L2=""
+                                        sed -i '/'"$L1"'/ c\'"$L2"'' /tmp/toto.txt #suppression de la ligne L1 dans le fichier temporaire
+                                        L3="python am2315.py"
+                                        L4=""
+                                        sed -i '/'"$L3"'/ c\'"$L4"'' /tmp/toto.txt #suppression de la ligne L3 dans le fichier temporaire
+                                        crontab /tmp/toto.txt # import de la crontab
+                                        rm /tmp/toto.txt* # le fichier temporaire ne sert plus à rien
+                                    else
+                                        echo -e "${vertclair}\nLa crontab a déja été modifiée ${neutre}"
+                                    fi
+
+                                    if [[ $CHOIX_DEL =~ "Debug" ]]; then
+                                        echo -e "${violetclair}\nFin de la désinstallation du capteur de température et d'humidité AM2315. Appuyer sur Entrée pour poursuivre. ${neutre}"
+                                        read
+                                    fi
                                 fi
 
                                 ### ===============================================================
@@ -1722,12 +1787,40 @@ while $boucle_principale;do
 
                                 if [[ $CHOIX_DEL =~ "Kuman" ]]; then
                                     echo -e "${bleuclair}\nDésinstallation de l'écran Kuman. ${neutre}"
-                                    echo -e "${rougeclair}\nEn cours de construction. ${neutre}"
-                                fi
 
-                                if [[ $CHOIX_DEL =~ "Debug" ]]; then
-                                    echo -e "${violetclair}\nFin de la désinstallation de l'écran Kuman. Appuyer sur Entrée pour poursuivre. ${neutre}"
-                                    read
+                                    if [ -d "/home/pi/script/Adafruit_Python_SSD1306" ]; then
+                                        echo -e "${cyanclair}Suppression du répertoire d'installation /home/pi/script/Adafruit_Python_SSD1306. ${neutre}"
+                                        rm -r /home/pi/script/Adafruit_Python_SSD1306
+                                    fi
+                                    if [ -f "/home/pi/script/Kuman.py" ] ; then
+                                        echo -e "${cyanclair}\nSuppression du fichier /home/pi/script/Kuman.py ${neutre}"
+                                        rm /home/pi/script/Kuman.py
+                                    fi
+                                    if [ -f "/etc/systemd/system/interrupteur_kuman.service" ] ; then
+                                        echo -e "${cyanclair}\nSuppression du service /etc/systemd/system/interrupteur_kuman.service ${neutre}"
+                                        systemctl disable interrupteur_kuman.service
+                                        rm /etc/systemd/system/interrupteur_kuman.service*
+                                    fi
+
+                                    #Modification de la crontab pour supprimer affichage permanent de la température et humidité
+                                    crontab -u root -l > /tmp/toto.txt # export de la crontab
+                                    grep -i "Kuman.py" "/tmp/toto.txt" >/dev/null
+                                    if [ $? = 0 ];then
+                                        echo -e "${vertclair}\nSuppression de l'affichage permanent dans la crontab ${neutre}"
+                                        L1="#Kuman Affichage permanent de la température et de l'humidité"
+                                        L2=''
+                                        sed -i '/'"$L1"'/ c\'"$L2"'' /tmp/toto.txt
+                                        L3='Kuman.py'
+                                        L4=''
+                                        sed -i '/'"$L3"'/ c\'"$L4"'' /tmp/toto.txt
+                                        crontab /tmp/toto.txt # import de la crontab
+                                        rm /tmp/toto.txt* # le fichier temporaire ne sert plus à rien
+                                    fi
+
+                                    if [[ $CHOIX_DEL =~ "Debug" ]]; then
+                                        echo -e "${violetclair}\nFin de la désinstallation de l'écran Kuman. Appuyer sur Entrée pour poursuivre. ${neutre}"
+                                        read
+                                    fi
                                 fi
 
                                 ### ===============================================================
@@ -1737,11 +1830,23 @@ while $boucle_principale;do
                                 if [[ $CHOIX_DEL =~ "LCD" ]]; then
                                     echo -e "${bleuclair}\nDésinstallation de l'écran LCD. ${neutre}"
                                     echo -e "${rougeclair}\nEn cours de construction. ${neutre}"
-                                fi
 
-                                if [[ $CHOIX_DEL =~ "Debug" ]]; then
-                                    echo -e "${violetclair}\nFin de la désinstallation de l'écran LCD. Appuyer sur Entrée pour poursuivre. ${neutre}"
-                                    read
+                                    #Suppression du service interrupteur_lcd
+                                    if [ -f "/etc/systemd/system/interrupteur_lcd.service" ] ; then
+                                        echo -e "${cyanclair}\nSuppresson du fichier /etc/systemd/system/interrupteur_lcd.service ${neutre}"
+                                        systemctl stop interrupteur_lcd.service
+                                        systemctl disable interrupteur_lcd.service
+                                        rm /etc/systemd/system/interrupteur_lcd.service
+                                    fi
+                                    if [ -f "/home/pi/script/interrupteur_lcd.py" ] ; then
+                                        echo -e "${cyanclair}\nSuppression du fichier /home/pi/script/interrupteur_lcd.py ${neutre}"
+                                        rm /home/pi/script/interrupteur_lcd.py*
+                                    fi
+
+                                    if [[ $CHOIX_DEL =~ "Debug" ]]; then
+                                        echo -e "${violetclair}\nFin de la désinstallation de l'écran LCD. Appuyer sur Entrée pour poursuivre. ${neutre}"
+                                        read
+                                    fi
                                 fi
 
                                 ### ===============================================================
@@ -1751,13 +1856,13 @@ while $boucle_principale;do
                                 if [[ $CHOIX_DEL =~ "SPI" ]]; then
                                     echo -e "${bleuclair}\nDésinstallation de l'écran SPI. ${neutre}"
                                     echo -e "${rougeclair}\nEn cours de construction. ${neutre}"
-                                fi
 
-                                if [[ $CHOIX_DEL =~ "Debug" ]]; then
-                                    echo -e "${violetclair}\nFin de la désinstallation de l'écran SPI. Appuyer sur Entrée pour poursuivre. ${neutre}"
-                                    read
-                                fi
 
+                                    if [[ $CHOIX_DEL =~ "Debug" ]]; then
+                                        echo -e "${violetclair}\nFin de la désinstallation de l'écran SPI. Appuyer sur Entrée pour poursuivre. ${neutre}"
+                                        read
+                                    fi
+                                fi
 
 
                             else
@@ -1928,7 +2033,7 @@ while $boucle_principale;do
                                         /home/pi/script/interrupteur_kuman.py
                                     fi
                                     if [[ $CHOIX_TEST =~ "Debug" ]]; then
-                                        echo -e "${violetclair}\nFin du test de l'interrupteur. Appuyer sur Entrée pour les tests ${neutre}"
+                                        echo -e "${violetclair}\nFin du test de l'interrupteur. Appuyer sur Entrée poursuivre pour les tests ${neutre}"
                                         read
                                     fi
                                 fi
@@ -1946,7 +2051,7 @@ while $boucle_principale;do
                                         /home/pi/script/interrupteur_lcd.py
                                     fi
                                     if [[ $CHOIX_TEST =~ "Debug" ]]; then
-                                        echo -e "${violetclair}\nFin du test de l'interrupteur. Appuyer sur Entrée pour les tests ${neutre}"
+                                        echo -e "${violetclair}\nFin du test de l'interrupteur. Appuyer sur Entrée pour poursuivre les tests ${neutre}"
                                         read
                                     fi
                                 fi

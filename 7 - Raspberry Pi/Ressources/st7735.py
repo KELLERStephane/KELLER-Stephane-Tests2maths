@@ -175,6 +175,9 @@ draw =  ImageDraw.Draw(ecran)
 #affichage du jour courant
 draw.text((2, ligne1), jour, font=font_date, fill = VERT)
 
+#pour les tests uniquements
+draw.text((80, ligne1), str(time.localtime()[4]), font=font_date, fill = VERT)
+
 #affichage de la date courante
 draw.text((2, ligne2), periode, font=font_date, fill = VERT)
 
@@ -194,7 +197,7 @@ draw.text((85, ligne6), humid, font=font_param, fill = JAUNE)
 draw.text((2, ligne7), etat, font = font_police_lune, fill = VERT)
 
 #Affichage de la lune dans la zone de l'image de la lune
-os.chdir('/home/pi/script/Python_ST7735/moons/')
+os.chdir('/home/pi/script/Python_ST7735/moons_bvr/')
 A = mpimg.imread(fichier)  #A est de type numpy.ndarray
 if A.dtype == np.float32: #si le résultat n'est pas un tableau d'entiers
     A = (A * 255).astype(np.uint8)
@@ -208,7 +211,7 @@ ecran.paste(img_moons, (0, 115))
 
 #choix aléatoire d'une image météo
 li = list('ABCDEFGHIJKLMNOPQRSTUVWXYZ')
-os.chdir('/home/pi/script/Python_ST7735/img_meteo/')
+os.chdir('/home/pi/script/Python_ST7735/meteo_bvr/')
 path_img_meteo = random.choice(li) + '.png'
 print("path_img_meteo = ", path_img_meteo)
 img_meteo = Image.open(path_img_meteo)
