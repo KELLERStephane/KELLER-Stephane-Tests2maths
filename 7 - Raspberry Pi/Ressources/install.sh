@@ -1523,14 +1523,15 @@ while $boucle_principale;do
 
                             #Téléchargement et décompactage des images météos
                             if [ -f "/home/pi/script/Python_ST7735/meteo_BVR/" ] ; then
-                                echo -e "${cyanclair}\nLe répertoire /home/pi/script/Python_ST7735//meteo_BVR existe déjà. Suppression du répertoire avant la nouvelle installation ${neutre}"
+                                echo -e "${cyanclair}\nLe répertoire /home/pi/script/Python_ST7735/meteo_BVR existe déjà. Suppression du répertoire avant la nouvelle installation ${neutre}"
                                 rm -r /home/pi/script/Python_ST7735/meteo_BVR/
                             fi
                             echo -e "${cyanclair}\nTéléchargement des images météos ${neutre}"
-                            cd /home/pi/script/Python_ST7735/
-                            wget -P /home/pi/script/Python_ST7735/ $lien_github_zip/meteo_BVR.zip
+                            mkdir /home/pi/script/Python_ST7735/meteo_BVR  >/dev/null
+                            cd /home/pi/script/Python_ST7735/meteo_BVR/
+                            wget -P /home/pi/script/Python_ST7735/meteo_BVR/ $lien_github_zip/meteo_BVR.zip
                             unzip -u meteo_BVR.zip
-                            rm -r /home/pi/script/Python_ST7735/meteo_BVR.zip*
+                            rm -r /home/pi/script/Python_ST7735/meteo_BVR/meteo_BVR.zip*
 
                             #Téléchargement et décompactage des images lunaires pour l'écran
                             if [ -f "/home/pi/script/Python_ST7735/moons_BVR/" ] ; then
@@ -1538,10 +1539,11 @@ while $boucle_principale;do
                                 rm -r /home/pi/script/Python_ST7735/moons_BVR/
                             fi
                             echo -e "${cyanclair}\nTéléchargement des images lunaires ${neutre}"
-                            cd /home/pi/script/Python_ST7735/
-                            wget -P /home/pi/script/Python_ST7735/ $lien_github_zip/moons_BVR.zip
+                            mkdir /home/pi/script/Python_ST7735/moons_BVR  >/dev/null
+                            cd /home/pi/script/Python_ST7735/moons_BVR/
+                            wget -P /home/pi/script/Python_ST7735/moons_BVR/ $lien_github_zip/moons_BVR.zip
                             unzip -u moons_BVR.zip
-                            rm -r /home/pi/script/Python_ST7735/moons_BVR.zip*
+                            rm -r /home/pi/script/Python_ST7735/moons_BVR/moons_BVR.zip*
 
                             apt -y install build-essential python-dev python-smbus
                             version=$(python --version 2>&1 | cut -c1-8)
