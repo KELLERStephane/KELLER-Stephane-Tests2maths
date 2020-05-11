@@ -1475,7 +1475,7 @@ while $boucle_principale;do
                     fi
 
                     ### ===============================================================
-                    ### Ecran SPI pour affichage données DHT22
+                    ### Ecran SPI pour affichage données DHT22 et AM2315
                     ### ===============================================================
 
                     if [[ $CHOIX_CAPTEUR =~ "SPI" ]]; then
@@ -1527,7 +1527,7 @@ while $boucle_principale;do
                                 rm -r /home/pi/script/Python_ST7735/meteo_BVR/
                             fi
                             echo -e "${cyanclair}\nTéléchargement des images météos ${neutre}"
-                            mkdir /home/pi/script/Python_ST7735/meteo_BVR  >/dev/null
+                             mkdir /home/pi/script/Python_ST7735/meteo_BVR  >/dev/null
                             cd /home/pi/script/Python_ST7735/meteo_BVR/
                             wget -P /home/pi/script/Python_ST7735/meteo_BVR/ $lien_github_zip/meteo_BVR.zip
                             unzip -u meteo_BVR.zip
@@ -1593,18 +1593,82 @@ while $boucle_principale;do
                                     echo -e "${vertclair}\nLa crontab a déja été modifiée ${neutre}"
                                  else
                                     echo -e "${vertclair}\nModification de la crontab ${neutre}"
-                                    echo -e "\n#LCD Affichage permanent de la température et de l'humidité" >> /tmp/toto.txt # ajout de la ligne dans le fichier temporaire
+                                    echo -e "\n#ST7735 Affichage permanent de la température et de l'humidité toutes les 10 mn chaque jour" >> /tmp/toto.txt # ajout de la ligne dans le fichier temporaire
                                     echo -e "*/10 * * * * cd /home/pi/script && python st7735.py" >> /tmp/toto.txt # ajout de la ligne dans le fichier temporaire
                                     crontab /tmp/toto.txt # import de la crontab
                                     rm /tmp/toto.txt* # le fichier temporaire ne sert plus à rien
                                 fi
                             fi
 
+                            ### ===============================================================
+                            ### Affichage ponctuel données DHT22 et AM2315 sur écran SPI
+                            ### ===============================================================
 
+                            if [[ $CHOIX_SPI =~ "2" ]]; then
+                                echo -e "${rougeclair}DHT22, AM2315 et GPIO doivent être installés et l'interrupteur relié au Raspberry ${neutre}"
+                                echo -e "${rougeclair}Il faut connaître et renseigner le numéro GPIO BCM ${neutre}"
+                                echo -e "${rougeclair}sur lequel est relié l'interrupteur. ${neutre}"
 
+                                #Ajout du service interrupteur_spi
+                                if [ -f "/etc/systemd/system/interrupteur_spi.service" ] ; then
+                                    echo -e "${cyanclair}\nLe fichier /etc/systemd/system/interrupteur_spi.service existe déjà ${neutre}"
+                                    echo -e "${cyanclair}Suppression du service puis téléchargement du nouveau fichier ${neutre}"
+                                    systemctl stop interrupteur_spi.service
+                                    systemctl disable interrupteur_spi.service
+                                    rm /etc/systemd/system/interrupteur_spi.service
+                                fi
+                                wget -P /etc/systemd/system/ $lien_github_raw/interrupteur_spi.service
+                                echo -e "${cyanclair}Activation et démarrage du service /etc/systemd/system/interrupteur_spi.service ${neutre}"
+                                systemctl enable interrupteur_spi.service
+                                systemctl start interrupteur_spi.service
 
-#########################################################
+                                #Téléchargement du fichier interrupteur_spi.py
+                                echo -e "${vertclair}\nTéléchargement du fichier interrupteur_spi.py ${neutre}"
+                                if [ -f "/home/pi/script/interrupteur_spi.py" ] ; then
+                                    echo -e "${cyanclair}Le fichier /home/pi/script/interrupteur_spi.py existe déjà ${neutre}"
+                                    echo -e "${cyanclair}Effacement du fichier puis création du nouveau fichier ${neutre}"
+                                    rm /home/pi/script/interrupteur_spi.py*
+                                fi
+                                echo -e "${vertclair}\nTéléchargement du fichier interrupteur_spi.py ${neutre}"
+                                wget -P /home/pi/script $lien_github_raw/interrupteur_spi.py
+                                chown pi:pi /home/pi/script/interrupteur_spi.py
+                                chmod +x /home/pi/script/interrupteur_spi.py
 
+                                #Modification du fichier interrupteur_spi.py en renseignant le numéro de GPIO BCM
+                                echo -e "${vertclair}\nAjout du GPIO (BCM) dans le fichier interrupteur_spi.py ${neutre}"
+
+                                boucle=true
+                                while $boucle;do
+                                    BCM=$(whiptail --title "Paramètres pour l'interupteur" --inputbox "\nSaisir le GPIO (BCM) de l'interrupteur : " 10 60 3>&1 1>&2 2>&3)
+                                    exitstatus=$?
+                                    if [ $exitstatus = 0 ]; then
+                                        echo -e "${vertclair}Modification du fichier interrupteur_spi.py en ajoutant le numéro de GPIO (BCM) ${neutre}"
+                                        L1="BCM ="
+                                        L2="BCM = "
+                                        L3=$BCM
+                                        sed -i '/'"$L1"'/ c\'"$L2"''"$L3"'' /home/pi/script/interrupteur_spi.py
+                                        boucle=false
+                                    else
+                                        echo "Tu as annulé... Recommence :-("
+                                    fi
+                                done
+                                echo -e "${vertclair}\nAjout du GPIO (BCM) dans le fichier interrupteur_spi.py ${neutre}"
+
+                                #Modification de la crontab pour supprimer affichage permanent de la température et humidité
+                                crontab -u root -l > /tmp/toto.txt # export de la crontab
+                                grep -i "spi.py" "/tmp/toto.txt" >/dev/null
+                                if [ $? = 0 ];then
+                                    echo -e "${vertclair}\nSuppression de l'affichage permanent dans la crontab ${neutre}"
+                                    L1="#ST7735 Affichage permanent de la température et de l'humidité"
+                                    L2=''
+                                    sed -i '/'"$L1"'/ c\'"$L2"'' /tmp/toto.txt
+                                    L3='st7735.py'
+                                    L4=''
+                                    sed -i '/'"$L3"'/ c\'"$L4"'' /tmp/toto.txt
+                                    crontab /tmp/toto.txt # import de la crontab
+                                    rm /tmp/toto.txt* # le fichier temporaire ne sert plus à rien
+                                fi
+                            fi
 
                             if [[ $CHOIX_CAPTEUR =~ "Debug" ]]; then
                                 echo -e "${violetclair}\nFin de l'installation de l'écran SPI. Appuyer sur Entrée pour poursuivre l'Installation ${neutre}"
