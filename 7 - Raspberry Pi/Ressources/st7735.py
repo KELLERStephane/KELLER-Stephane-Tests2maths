@@ -9,7 +9,6 @@ import matplotlib.image as mpimg
 import numpy as np
 
 import ST7735 as TFT
-import Adafruit_GPIO as GPIO
 import Adafruit_GPIO.SPI as SPI
 import os
 import random

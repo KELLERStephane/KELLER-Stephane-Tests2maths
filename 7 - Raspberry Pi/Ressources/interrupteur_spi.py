@@ -9,6 +9,7 @@
 #Numéro de GPIO (BCM)
 BCM = 13
 
+import RPi.GPIO as GPIO
 from PIL import ImageFont
 from PIL import Image
 from PIL import ImageDraw
@@ -17,7 +18,6 @@ import matplotlib.image as mpimg
 import numpy as np
 
 import ST7735 as TFT
-import Adafruit_GPIO as GPIO
 import Adafruit_GPIO.SPI as SPI
 import os
 import random
@@ -245,6 +245,6 @@ try:
 
     #Draw the image on the display hardware.
     print('Drawing images')
-    
+
 except KeyboardInterrupt:
     print("Fin de l'interruption")

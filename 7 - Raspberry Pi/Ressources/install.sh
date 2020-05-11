@@ -1656,7 +1656,7 @@ while $boucle_principale;do
 
                                 #Modification de la crontab pour supprimer affichage permanent de la température et humidité
                                 crontab -u root -l > /tmp/toto.txt # export de la crontab
-                                grep -i "spi.py" "/tmp/toto.txt" >/dev/null
+                                grep -i "st7735.py" "/tmp/toto.txt" >/dev/null
                                 if [ $? = 0 ];then
                                     echo -e "${vertclair}\nSuppression de l'affichage permanent dans la crontab ${neutre}"
                                     L1="#ST7735 Affichage permanent de la température et de l'humidité"
