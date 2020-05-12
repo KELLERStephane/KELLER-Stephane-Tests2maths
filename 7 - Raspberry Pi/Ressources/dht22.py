@@ -48,6 +48,8 @@ def maj_widget(val_url):
         print("Erreur API Domoticz")
 
 humidity, temperature = Adafruit_DHT.read_retry(sensor, pin)
+humidity -= 3 #décalage à modifier pour l'étalonnage
+temperature -= 0.1 #décalage à modifier pour l'étalonnage
 
 if humidity is not None and temperature is not None:
 
