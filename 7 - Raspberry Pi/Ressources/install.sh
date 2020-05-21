@@ -140,6 +140,7 @@ while $boucle_principale;do
                 apt install -y python3-setuptools
                 python3 -m pip install --upgrade pip
                 python3 -m pip install --upgrade Pillow
+                python3 -m pip install --upgrade matplotlib
                 python3 -m pip install --upgrade pip setuptools wheel
                 python3 -m pip install requests
             elif [ $ver -eq 2 ]; then
@@ -150,6 +151,7 @@ while $boucle_principale;do
                 apt install -y python-setuptools
                 python -m pip install --upgrade pip
                 python -m pip install --upgrade Pillow
+                python -m pip install --upgrade matplotlib
                 python -m pip install --upgrade pip setuptools wheel
                 python -m pip install requests
 
