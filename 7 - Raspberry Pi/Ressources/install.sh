@@ -137,8 +137,9 @@ while $boucle_principale;do
                 echo -e "${vertclair}\nInstallation de pip, dev, pil, setuptools, wheel, requests pour python3 si nécessaire ${neutre}"
                 apt -y install python3-pip
                 apt install -y python3-dev
-                apt install -y python3-pil
                 apt install -y python3-setuptools
+                python3 -m pip install --upgrade pip
+                python3 -m pip install --upgrade Pillow
                 python3 -m pip install --upgrade pip setuptools wheel
                 python3 -m pip install requests
             elif [ $ver -eq 2 ]; then
@@ -146,8 +147,9 @@ while $boucle_principale;do
                 echo -e "${vertclair}\nInstallation de pip, dev, pil, setuptools, wheel, requests pour python2 si nécessaire ${neutre}"
                 apt -y install python-pip
                 apt install -y python-dev
-                apt install -y python-pil
                 apt install -y python-setuptools
+                python -m pip install --upgrade pip
+                python -m pip install --upgrade Pillow
                 python -m pip install --upgrade pip setuptools wheel
                 python -m pip install requests
 
