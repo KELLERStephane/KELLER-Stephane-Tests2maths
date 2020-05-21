@@ -130,7 +130,8 @@ while $boucle_principale;do
             echo 1 | sudo update-alternatives --config python
             echo -e -n "${vertclair}\nLa version de Python par défaut est : ${neutre}"
             python --version
-
+            apt-get install libatlas-base-dev
+            
             ver=$(python -c"import sys; print(sys.version_info.major)")
             if [ $ver -eq 3 ]; then
                 #installation des paquets pour Python3
