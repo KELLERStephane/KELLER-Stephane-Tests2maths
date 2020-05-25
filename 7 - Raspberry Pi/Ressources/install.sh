@@ -93,19 +93,19 @@ while $boucle_principale;do
             apt update && apt -y upgrade
 
             echo -e "${bleuclair}\nInstallation d'Aptitude si nécessaire ${neutre} ${neutre}"
-            apt -y install aptitude
+            apt install -y aptitude
 
             echo -e "${bleuclair}\nInstallation de wget si nécessaire ${neutre}"
-            apt -y install wget
+            apt install -y wget
 
             echo -e "${bleuclair}\nInstallation de git si nécessaire ${neutre}"
-            apt -y install git
+            apt install -y git
 
             echo -e "${bleuclair}\nInstallation du gestionnaire et éditeur de fichier mcedit si nécessaire ${neutre}"
-            apt -y install mc
+            apt install -y mc
 
             echo -e "${bleuclair}\nInstallation de locate si nécessaire et indexation des fichiers ${neutre}"
-            apt -y install locate && updatedb
+            apt install -y locate && updatedb
 
             echo -e "${bleuclair}\nInstallation du protocole de synchronisation de l'heure si nécessaire ${neutre}"
             aptitude install ntp -y
@@ -121,7 +121,7 @@ while $boucle_principale;do
 
             echo -e "${bleuclair}\nInstallation de Python2 et de Python3 et de ses modules si nécessaire ${neutre}"
             apt·-y·install·python2
-            apt -y install python3
+            apt install -y python3
             echo -e "${vertclair}\nModification da la version par défaut de python en python3 si nécessaire ${neutre}"
             update-alternatives --install /usr/bin/python python /usr/bin/python2.7 1
             update-alternatives --install /usr/bin/python python /usr/bin/python3.7 2
@@ -136,7 +136,7 @@ while $boucle_principale;do
             if [ $ver -eq 3 ]; then
                 #installation des paquets pour Python3
                 echo -e "${vertclair}\nInstallation de pip, dev, pil, setuptools, wheel, requests pour python3 si nécessaire ${neutre}"
-                apt -y install python3-pip
+                apt install -y python3-pip
                 apt install -y python3-dev
                 apt install -y python3-setuptools
                 python3 -m pip install --upgrade pip
@@ -147,7 +147,7 @@ while $boucle_principale;do
             elif [ $ver -eq 2 ]; then
                 #installation des paquets pour Python2
                 echo -e "${vertclair}\nInstallation de pip, dev, pil, setuptools, wheel, requests pour python2 si nécessaire ${neutre}"
-                apt -y install python-pip
+                apt install -y python-pip
                 apt install -y python-dev
                 apt install -y python-setuptools
                 python -m pip install --upgrade pip
@@ -228,7 +228,7 @@ while $boucle_principale;do
                 rm -r /etc/fail2ban
                 apt -y --purge remove fail2ban
             fi
-            apt -y install fail2ban
+            apt install -y fail2ban
 
             echo -e "${vertclair}Sauvegarde des fichiers de configuration des prisons de Fail2ban${neutre}"
             echo -e "${vertclair}/etc/fail2ban/jail.conf -> /etc/fail2ban/jail.copy ${neutre}"
@@ -268,7 +268,7 @@ while $boucle_principale;do
 
             #installation de Postfix pour envoi des mails d'alerte
             echo -e "${vertclair}\nInstallation de Postfix si nécessaire pour l'envoi des mails d'alerte ${neutre} ${neutre}"
-            apt -y install postfix
+            apt install -y postfix
 
             #Saisis adresse mail pour envoi des mails d'alerte
             boucle=true
@@ -559,8 +559,8 @@ while $boucle_principale;do
             fi
 
             echo -e "${vertclair}\nMise à jour des paquets dépendants si nécessaire ${neutre}"
-            apt -y install python-pip python-dev libssl-dev libcurl4-openssl-dev libjpeg-dev libz-dev
-            apt -y install ffmpeg libmariadb3 libpq5 libmicrohttpd12
+            apt install -y python-pip python-dev libssl-dev libcurl4-openssl-dev libjpeg-dev libz-dev
+            apt install -y ffmpeg libmariadb3 libpq5 libmicrohttpd12
 
             echo -e "${vertclair}\nTéléchargement de Motioneye ${neutre}"
             if [ -f /home/pi/pi_buster* ];  then
@@ -603,7 +603,7 @@ while $boucle_principale;do
                     rm -r /var/www/passwd
                 fi
             fi
-            apt -y install apache2
+            apt install -y apache2
 
             echo -e "${vertclair}suppression si nécessaire de la page par défaut d'Apache2 ${neutre}"
             if [ -f "/var/www/html/index.html" ]; then
@@ -708,7 +708,7 @@ while $boucle_principale;do
             echo -e "${bleuclair}\nInstallation de wiringpi pour l'utilisation des GPIO (nécessite Fail2ban) ${neutre}"
             echo -e "${rougeclair}Ne pas oublier d'activer les GPIO avec sudo raspi-config ${neutre}"
             echo -e "${vertclair}\nTéléchargement et installation de wiringpi si nécessaire ${neutre}"
-            apt -y install wiringpi
+            apt install -y wiringpi
             echo -e "${rougeclair}\nExecuter la commande gpio readall pour voir la configuration des broches ${neutre}"
 
             if [[ $version =~ "Python 3" ]]; then
@@ -1529,7 +1529,7 @@ while $boucle_principale;do
                             #Téléchargement et décompactage des images météos
                             if [ -f "/home/pi/script/Python_ST7735/meteo_BVR/" ] ; then
                                 echo -e "${cyanclair}\nLe répertoire /home/pi/script/Python_ST7735/meteo_BVR existe déjà. Suppression du répertoire avant la nouvelle installation ${neutre}"
-                                rm -r /home/pi/script/Python_ST7735/meteo_BVR/
+                                rm -r /home/pi/script/Python_ST7735/meteo_BVR/      
                             fi
                             echo -e "${cyanclair}\nTéléchargement des images météos ${neutre}"
                              mkdir /home/pi/script/Python_ST7735/meteo_BVR  >/dev/null
@@ -1550,7 +1550,7 @@ while $boucle_principale;do
                             unzip -u moons_BVR.zip
                             rm -r /home/pi/script/Python_ST7735/moons_BVR/moons_BVR.zip*
 
-                            apt -y install build-essential python-dev python-smbus
+                            apt install -y build-essential python-dev python-smbus
                             version=$(python --version 2>&1 | cut -c1-8)
                             echo -e -n "${vertclair}\nVersion de Python par défaut : ${neutre}"
                             echo -e $version
