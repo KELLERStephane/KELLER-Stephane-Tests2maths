@@ -160,12 +160,13 @@ disp.clear(NOIR)
 
 #récupération des dates de l'état particulier de la lune
 i_jour, i_mois, i_an = time.localtime()[2], time.localtime()[1], time.localtime()[0]
-[JDE_NL, JDE_PQ, JDE_PL, JDE_DQ], [d_NL, d_PQ, d_PL, d_DQ] = lune.lunar_phase(i_jour, i_mois, i_an)
-fichier, etat = lune.between_dates(periode, d_NL, d_PQ, d_PL, d_DQ)
-#mise à jour des dates NL, PQ, PL et DQ
-if etat == "Dernier quartier":
-    [JDE_NL, JDE_PQ, JDE_PL, JDE_DQ], [d_NL, d_PQ, d_PL, d_DQ] = lune.lunar_phase(i_jour, i_mois, i_an)
-    print("Date =", periode, fichier, etat)
+[JDE_NL, JDE_PQ, JDE_PL, JDE_DQ], [d_NL, d_PQ, d_PL, d_DQ] = lune.calcul_phase(i_an, i_mois, i_jour)
+fichier, etat = lune.lunar_phase(i_an, i_mois, i_jour)
+print("Fichier lune =", fichier, "Etat =", etat)
+print("Nouvelle lune = ", d_NL)
+print("Premier quartier =", d_PQ)
+print("Pleine lune =", d_PL)
+print("Dernier quartier =", d_DQ)
 
 #Création du fond noir
 ecran = Image.new("RGB", (largeur_ecran, hauteur_ecran), NOIR)
@@ -174,8 +175,8 @@ draw =  ImageDraw.Draw(ecran)
 #affichage du jour courant
 draw.text((2, ligne1), jour, font=font_date, fill = VERT)
 
-#pour les tests uniquements
-draw.text((80, ligne1), str(time.localtime()[4]), font=font_date, fill = VERT)
+#uniquememt pour les tests
+draw.text((90, ligne1), str(time.localtime()[4] // 10 + 1) + '/6', font=font_date, fill = VERT)
 
 #affichage de la date courante
 draw.text((2, ligne2), periode, font=font_date, fill = VERT)
