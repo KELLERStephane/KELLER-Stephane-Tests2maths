@@ -14,10 +14,10 @@ stephane.keller@yahoo.com
 https://github.com/KELLERStephane/KELLER-Stephane-Tests2maths
 """
 
-__version__ = "1.5"
+__version__ = "1.6.4"
 
 from lune.phase import angle
-from lune.phase import jj2date
 from lune.phase import calcul_Ci
+from lune.phase import calcul_phase
+from lune.phase import jj2date
 from lune.phase import lunar_phase
-from lune.phase import between_dates

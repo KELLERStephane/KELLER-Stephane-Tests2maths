@@ -14,20 +14,18 @@ stephane.keller@yahoo.com
 https://github.com/KELLERStephane/KELLER-Stephane-Tests2maths
 
 Usage :
->>> from moons import phase
->>> phase.lunar_phase(day, month, year)
+>>> from lune import phase
+>>> phase.calcul_phase(year, month, day)
 """
 
 from math import cos, sin, radians
 import datetime, calendar
 
-__all__ = ['angle', 'jj2date', 'calcul_Ci', 'lunar_phase', 'between_dates']
-#__all__ = ['lunar_phase']
+__all__ = ['angle', 'calcul_Ci', 'calcul_phase', 'jj2date', 'lunar_phase']
 
 def angle(alpha):
     """Input: any alpha angle in degrees.
 Output: the angle such that 0 <= alpha < 360"""
-
     n = 1 #Number of turns of the trigonometric circle to be added
     alpha2 = alpha
     while alpha <= 0:
@@ -42,31 +40,31 @@ Output: the angle such that 0 <= alpha < 360"""
 
 def jj2date(JJ):
     """Input: one day Julian of the ephemerides.
-Output: the date in the form (day, month, year)"""
+Output: the date in the form (year, month, day)"""
     JJ += 0.5
     Z = int(JJ)
     F = JJ - Z
     if Z < 2299161:
-        A = Z
+        Y = Z
     else:
         alpha = int((Z - 1867216.25) / 36524.25)
-        A = Z + 1 + alpha - int(alpha / 4)
-    B = A + 1524
+        Y = Z + 1 + alpha - int(alpha / 4)
+    B = Y + 1524
     C = int((B - 122.1) / 365.25)
     D = int(365.25 * C)
     E = int((B - D) /30.6001)
     JD = B - D - int(30.6001 * E) + F #decimal day calculation
-    J = int(JD) #day calculation
+    D = int(JD) #day calculation
 
     if (E < 13.5): #month calculation
         M = E - 1
     else:
         M = E - 13
     if (M > 2.5): #year calculation
-        A = C - 4716
+        Y = C - 4716
     else:
-        A = C - 4715
-    return "%02d/%02d/%04d" % (J, M, A)
+        Y = C - 4715
+    return "%04d/%02d/%02d" % (Y, M, D)
 
 def calcul_Ci(k, T):
     """Input: the coefficients k and T ;
@@ -118,16 +116,17 @@ periodic terms for the new moon."""
 #calculation of the dates corresponding to the four main lunar phases:
 #new moon (NM); first quarter (FQ)
 #full moon (FM) and last quarter (LQ)
-def lunar_phase(day, month, year):
-    """Input: a date in the format (day, month, year).
+def calcul_phase(year, month, day):
+    """Input: a date in the format (year, month, day).
+    year, month, day are integers
     Output: the list of the four dates corresponding respectively to :
     - the new moon;
     - the first quarter;
     - the full moon;
     - the last quarter
-    in the form Julian day and in the form (day, month, year)."""
-    #print(day, month, year)
-    #calcul du nombre de jours depuis le 1er janvier
+    in the form Julian day and in the form (year, month, day)."""
+    #print("Date parameter :", day, month, year)
+    #calculation of the number of days since January 1st
     delta = (datetime.date(year, month, day) - datetime.date(year, 1, 1)).days
     #print("Since 1 January", year," =", delta, "days")
     #calculation of the number of days in the year
@@ -273,7 +272,7 @@ def lunar_phase(day, month, year):
     #of the periodic terms for the first quarter
     li_C, SOM_C = calcul_Ci(k, T)
     #print("Calculation of the sum of the first group of the 14 ", end = ' ')
-    #print("corrections of the periodic terms for the first quarter =", SOM_C)
+    #print("Corrections of the periodic terms for the first quarter =", SOM_C)
     li_C, SOM_C = calcul_Ci(k, T)
 
     #calculation of the first 25 quarters (FQ)
@@ -393,11 +392,11 @@ def lunar_phase(day, month, year):
     #for i in range(25):
     #    print("FM",end = '')
     #    print(i+1, '=',li_FM[i])
-    #print("Somme 1er groupe des 14 corrections =", SOM_FM)
+    #print("Sum 1st group of 14 corrections =", SOM_FM)
 
     JDE_FM = JDE + SOM_FM + SOM_C
     #print("JDE_FM = ", JDE_FM)
-    #print("Le jour de la pleine lune est le ", jj2date(JDE_FM))
+    #print("The day of the full moon is ", jj2date(JDE_FM))
     li_JDE += [JDE_FM]
     li_date += [jj2date(JDE_FM)]
 
@@ -494,65 +493,90 @@ def lunar_phase(day, month, year):
 
     return li_JDE, li_date
 
-def between_dates(periode, d_NM, d_FQ, d_FM, d_LQ):
-    """Input: dates periode (any date), 
-    d_NM (date of the new moon), 
-    d_FQ (date or the first quarter),
-    d_FM (date ouf the full moon),
-    d_LQ (date of the last quarter) in the form 'DD/MM/YYYY'.
+
+def lunar_phase(year, month, day):
+    """Input: a date in the format (year, month, day).
+    year, month, day are integers
     Output: the number of the image corresponding to visibility \
 of the moon on this date and if necessary, the particular state, \
 of the moon on this date."""
-    (day, month, year) = periode.split('/')
-    d = datetime.date(int(year), int(month), int(day))
-    (day_NM, month_NM, year_NM) = d_NM.split('/')
-    d_NM = datetime.date(int(year_NM), int(month_NM), int(day_NM))
-    (day_FQ, month_FQ, year_FQ) = d_FQ.split('/')
-    d_FQ = datetime.date(int(year_FQ), int(month_FQ), int(day_FQ))
-    (day_FM, month_FM, year_FM) = d_FM.split('/')
-    d_FM = datetime.date(int(year_FM), int(month_FM), int(day_FM))
-    (day_LQ, month_LQ, year_LQ) = d_LQ.split('/')
-    d_LQ = datetime.date(int(year_LQ), int(month_LQ), int(day_LQ))
-    if (d - d_NM).days == 0:
+    [JDE_NM, JDE_FQ, JDE_FM, JDE_LQ], [d_NM, d_FQ, d_FM, d_LQ] = \
+    calcul_phase(year, month, day)
+    date_in = datetime.date(year, month, day)
+    dateNM = datetime.date(int(d_NM.split("/")[0]), int(d_NM.split("/")[1]), int(d_NM.split("/")[2]))
+
+    date = str(year) + '/' + str(month) + '/' + str(day)
+#    print("Date input =", date)
+#    print("Date of the new moon =", d_NM)
+#    print("Date of the first quarter =", d_FQ)
+#    print("Date of the full moon =", d_FM)
+#    print("Date of the last quarter =", d_LQ)
+
+#    print("JJ of the new moon =", JDE_NM)
+#    print("JJ of the first quarter =", JDE_FQ)
+#    print("JJ of the full moon =", JDE_FM)
+#    print("JJ of the last quarter =", JDE_LQ)
+
+    if date_in < dateNM:
+        d = datetime.date(year, month, day) - datetime.timedelta(28.5)
+#        print("d=", d)
+        year, month, day = d.year, d.month, d.day
+        [JDE_NM, JDE_FQ, JDE_FM, JDE_LQ], [d_NM, d_FQ, d_FM, d_LQ] = \
+    calcul_phase(year, month, day)
+
+    dateNM = datetime.date(int(d_NM.split("/")[0]), int(d_NM.split("/")[1]), int(d_NM.split("/")[2]))
+    dateFQ = datetime.date(int(d_FQ.split("/")[0]), int(d_FQ.split("/")[1]), int(d_FQ.split("/")[2]))
+    dateFM = datetime.date(int(d_FM.split("/")[0]), int(d_FM.split("/")[1]), int(d_FM.split("/")[2]))
+    dateLQ = datetime.date(int(d_LQ.split("/")[0]), int(d_LQ.split("/")[1]), int(d_LQ.split("/")[2]))
+
+#    date = str(year) + '/' + str(month) + '/' + str(day)
+#    print("Date input or modify =", date)
+#    print("Date of the new moon =", dateNM)
+#    print("Date of the first quarter =", dateFQ)
+#    print("Date of the full moon =", dateFM)
+#    print("Date of the last quarter =", dateLQ)
+
+    if date_in == dateNM:
         return '0.png', "Nouvelle lune"
-    elif (d - d_FQ).days == 0:
+    elif date_in == dateFQ:
         return '8.png', "Premier quartier"
-    elif (d - d_FM).days == 0:
+    elif date_in == dateFM:
         return '15.png', "Pleine lune"
-    elif (d - d_LQ).days == 0:
+    elif date_in == dateLQ:
         return '22.png', "Dernier quartier"
-    elif 0 < (d - d_NM).days and (d_FQ - d).days > 0:
-        return str((d - d_NM).days) + '.png', ""
-    elif 0 < (d - d_FQ).days and (d_FM - d).days > 0:
-        return str((d - d_FQ).days + 8) + '.png', ""
-    elif 0 < (d - d_FM).days and (d_LQ - d).days > 0:
-        return str((d - d_FM).days + 15) + '.png', ""
-    else:
-       return str((d - d_LQ).days + 51) + '.png', ""
+    elif dateNM < date_in < dateFQ:
+        return str((date_in - dateNM).days) + '.png', ""
+    elif dateFQ < date_in < dateFM:
+        return str((date_in - dateFQ).days + 8) + '.png', ""
+    elif dateFM < date_in < dateLQ:
+        return str((date_in - dateFM).days + 15) + '.png', ""
+    elif dateLQ < date_in:
+        return str(min(((date_in - dateLQ).days + 22), 29)) + '.png', ""
 
 if __name__ == "__main__":
-    print("The date display is in the form DD/MM/YYYY\
-    then JJ (Julian day)")
+    print("The date display is in the form YYYY/MM/DD")
+
     print("\nExample with the date May 24, 1969")
-    day, month, year = 24, 5, 1969
-    periode = str(day) + '/' + str(month) + '/' + str(year)
-    [JDE_NM, JDE_FQ, JDE_FM, JDE_LQ], [d_NM, d_FQ, d_FM, d_LQ] = \
-    lunar_phase(day, month, year)
-    print("Date  =", str(day), '/', str(month) + '/' + str(year))
-    print("Date of the new moon =", d_NM, '\n', JDE_NM)
-    print("Date of the first quarter =", d_FQ, '\n', JDE_FQ)
-    print("Date of the full moon =", d_FM, '\n', JDE_FM)
-    print("Date of the last quarter =", d_LQ, '\n', JDE_LQ)
+    year, month, day = 1969, 5, 24
+    [JDE_NM, JDE_FQ, JDE_FM, JDE_LQ], [d_NM, d_FQ, d_FM, d_LQ] = calcul_phase(year, month, day)
+    date = str(year) + '/' + str(month) + '/' + str(day)
+    print("Date input =", date)
+    print("Date of the new moon =", d_NM)
+    print("Date of the first quarter =", d_FQ)
+    print("Date of the full moon =", d_FM)
+    print("Date of the last quarter =", d_LQ)
+    print(lunar_phase(year, month, day))
 
     print("\nExample with today's date")
     year = datetime.datetime.now().year
     month = datetime.datetime.now().month
     day = datetime.datetime.now().day
-    periode = str(day) + '/' + str(month) + '/' + str(year)
-    [JDE_NM, JDE_FQ, JDE_FM, JDE_LQ], [d_NM, d_FQ, d_FM, d_LQ] = \
-    lunar_phase(day, month, year)
-    print("Date  =", str(day), '/', str(month) + '/' + str(year))
-    print("Date of the new moon =", d_NM, '\n', JDE_NM)
-    print("Date of the first quarter =", d_FQ, '\n', JDE_FQ)
-    print("Date of the full moon =", d_FM, '\n', JDE_FM)
-    print("Date of the last quarter =", d_LQ, '\n', JDE_LQ)
+
+    [JDE_NM, JDE_FQ, JDE_FM, JDE_LQ], [d_NM, d_FQ, d_FM, d_LQ] = calcul_phase(year, month, day)
+    date = str(year) + '/' + str(month) + '/' + str(day)
+    print("Date input =", date)
+    print("Date of the new moon =", d_NM)
+    print("Date of the first quarter =", d_FQ)
+    print("Date of the full moon =", d_FM)
+    print("Date of the last quarter =", d_LQ)
+    print(lunar_phase(year, month, day))
