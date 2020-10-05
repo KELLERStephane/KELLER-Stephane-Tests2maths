@@ -8,7 +8,8 @@
 - Fichiers Geogebra : problèmes d'optimisation.
 
 - Filius : NOUVELLE VERSION DU MODE D'EMPLOI BIENTOT.
-logiciel de simulation de réseaux avec un mode d’emploi en français.
+
+Logiciel de simulation de réseaux avec un mode d’emploi en français.
 
 - Raspberry : installation et utilisation.
 
