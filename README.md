@@ -7,9 +7,9 @@
 - Fiches d'utilisation de la calculatrice CASIO.
 - Fichiers Geogebra : problèmes d'optimisation.
 
-- Filius : NOUVELLE VERSION DU MODE D'EMPLOI BIENTOT.
+- Filius : logiciel de simulation de réseaux avec un mode d’emploi en français.
 
-Logiciel de simulation de réseaux avec un mode d’emploi en français.
+NOUVELLE VERSION DU MODE D'EMPLOI BIENTOT.
 
 - Raspberry : installation et utilisation.
 
