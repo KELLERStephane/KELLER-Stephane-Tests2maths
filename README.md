@@ -1,8 +1,11 @@
 - Fichiers Libre Office Calc :
         Tests de mathématiques, de SNT et de physique-chimie ; TP intervalle de confiance.
  
-        ATTENTION : LES FICHIERS FONCTIONNENT AVEC LES NOUVELLES VERSIONS DE LIBRE OFFICE.
-       POUR CELA, IL EST NECESSAIRE D'ACTIVER LES MACROS (VOIR L'ONGLET AIDE POUR LA PROCEDURE)
+        MES FICHIERS FONCTIONNENT AVEC LES VERSIONS DE LIBRE OFFICE STABLE
+        (Ne pas utiliser la version pour un passionné de technologie).
+        Il est nécessaire d'activer les macros (voir l'onglet AIDE pour la procédure) 
+        puis de rouvrir le fichier après la première activation. 
+        Bonne utilisation
 
 - Fiches d'utilisation de la calculatrice CASIO.
 - Fichiers Geogebra : problèmes d'optimisation.
