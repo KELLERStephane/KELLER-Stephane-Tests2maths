@@ -14,7 +14,7 @@
 
 - Raspberry : installation et utilisation.
 
-Fichiers créés par :
+Fichiers créés pour la plupart par :
 - Stéphane KELLER
 - Lycée agricole Louis Pasteur
 - BP 116 - 63370 Lempdes
