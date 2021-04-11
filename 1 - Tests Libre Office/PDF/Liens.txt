@@ -11,8 +11,11 @@ QCM :
 https://pix.fr
 
 LibreOffice :
-https://wiki.documentfoundation.org/Documentation/Publications/fr#Guides_utilisateur_officiels
+https://wiki.documentfoundation.org/Documentation/Publications/fr
 
 HTML :
 https://apprendre-html.3wa.fr/html
 https://developer.mozilla.org/fr/docs/Apprendre/Commencer_avec_le_web/Les_bases_HTML
+
+HTML Python SQL :
+https://www.w3schools.com/
