@@ -19,3 +19,4 @@ https://developer.mozilla.org/fr/docs/Apprendre/Commencer_avec_le_web/Les_bases_
 
 HTML Python SQL :
 https://www.w3schools.com/
+https://sqliteonline.com/
