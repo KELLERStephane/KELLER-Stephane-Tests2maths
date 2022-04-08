@@ -14,11 +14,15 @@ LibreOffice :
 https://wiki.documentfoundation.org/Documentation/Publications/fr
 
 HTML :
+https://www.w3schools.com/html/default.asp
 https://apprendre-html.3wa.fr/html
 https://developer.mozilla.org/fr/docs/Apprendre/Commencer_avec_le_web/Les_bases_HTML
 
-HTML Python SQL :
-https://www.w3schools.com/
+Python :
+https://www.w3schools.com/python/default.asp
+
+SQL :
+https://www.w3schools.com/sql/
 https://sqliteonline.com/
 https://sql.sh/
 https://developpement-informatique.com/tutoriel/19/langage-sql---guide-complet-pour-les-debutants
