@@ -24,6 +24,7 @@ https://www.w3schools.com/python/default.asp
 
 SQL :
 https://www.w3schools.com/sql/
+https://sqlzoo.net/wiki/SQL_Tutorial
 https://sqliteonline.com/
 https://sql.sh/
 https://developpement-informatique.com/tutoriel/19/langage-sql---guide-complet-pour-les-debutants
