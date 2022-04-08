@@ -12,6 +12,7 @@ https://pix.fr
 
 LibreOffice :
 https://wiki.documentfoundation.org/Documentation/Publications/fr
+https://wiki.documentfoundation.org/Documentation/Publications/fr#Guides_utilisateur_officiels
 
 HTML :
 https://www.w3schools.com/html/default.asp
