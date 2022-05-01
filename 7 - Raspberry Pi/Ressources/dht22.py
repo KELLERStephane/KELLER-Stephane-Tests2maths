@@ -2,7 +2,7 @@
 # coding: utf-8
 
 # basé sur le script Adafruit et adapté pour Domoticz
-from os import system
+import os
 import sys
 import Adafruit_DHT
 from requests.auth import HTTPBasicAuth
@@ -64,14 +64,15 @@ if humidity is not None and temperature is not None:
         temp = str(temp1)
     humid = str(int(humidity))
     #Sauvegarde température et humidité dans le fichier data_dht22.txt
-    system("cd /home/$user/script")
+    os.system("cd /home/$user/domoticz/script")
     # Ecriture du fichier data_dht22.txt en mode write 'w'
-    print("Ecriture des données dans le fichier /home/$user/script/data_dht22.txt")
+    chemin = os.environ['HOME'] + '/domoticz/script/data_dht22.txt'
+    print("Ecriture des données dans le fichier", chemin)
     li = ["Température : ", temp, "\n", "Humidité : ", humid]
     with open('/home/$user/script/data_dht22.txt','w') as fichier:
         for el in li:
             fichier.write(el)
-    system("chown $user:$user data_dht22.txt")
+    os.system("chown $user:$user data_dht22.txt")
 
     # l URL Domoticz pour le widget virtuel
     url='/json.htm?type=command&param=udevice&idx='+str(domoticz_idx)
