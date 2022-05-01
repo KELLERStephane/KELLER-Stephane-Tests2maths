@@ -69,7 +69,7 @@ if humidity is not None and temperature is not None:
     chemin = os.environ['HOME'] + '/domoticz/script/data_dht22.txt'
     print("Ecriture des données dans le fichier", chemin)
     li = ["Température : ", temp, "\n", "Humidité : ", humid]
-    with open('/home/$user/script/data_dht22.txt','w') as fichier:
+    with open(chemin,'w') as fichier:
         for el in li:
             fichier.write(el)
     os.system("chown $user:$user data_dht22.txt")
