@@ -64,11 +64,11 @@ if humidity is not None and temperature is not None:
         temp = str(temp1)
     humid = str(int(humidity))
     #Sauvegarde température et humidité dans le fichier data_dht22.txt
-    system("cd ~/script")
+    system("cd /home/$user/script")
     # Ecriture du fichier data_dht22.txt en mode write 'w'
-    print("Ecriture des données dans le fichier ~/script/data_dht22.txt")
+    print("Ecriture des données dans le fichier /home/$user/script/data_dht22.txt")
     li = ["Température : ", temp, "\n", "Humidité : ", humid]
-    with open('~/script/data_dht22.txt','w') as fichier:
+    with open('/home/$user/script/data_dht22.txt','w') as fichier:
         for el in li:
             fichier.write(el)
     system("chown $user:$user data_dht22.txt")
