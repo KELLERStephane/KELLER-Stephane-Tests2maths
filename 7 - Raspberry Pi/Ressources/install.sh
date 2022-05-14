@@ -46,11 +46,21 @@ neutre='\e[0;m'
 
 utilisateur=$(whoami)
 if [[ $utilisateur != "root" ]]; then
+    
     echo -e -n "${jauneclair} Cher $utilisateur, vous n'êtes pas 'root'; merci de relancer cette commande précédée de 'SUDO'. \n ${neutre}"
     exit
 else
     clear
 fi
+
+### ===============================================================
+### Récuparation et affichage du nom de l'utilisateur courant
+### Déplacement dans le répertoire de l'utilisateur courant
+### ===============================================================
+
+utilisateur=`cat /etc/passwd | grep "home/" | grep -v "nologin" | cut -d ":"$
+echo -e "${jauneclair}L'utilisateur est $utilisateur \n ${neutre}"
+cd /home/$utilisateur
 
 ### ===============================================================
 ### Choix des options d'installation
@@ -174,7 +184,7 @@ while $boucle_principale;do
             L19='\n#temps en s de bannissement ; -1 pour infini ; 86400  : 1 jour par défaut'
             L20='\nbantime = -1'
             echo -e $L1 $L2  $L3 $L4 $L5 $L6 $L7 $L8 $L9 $L10 $L11 $L12 $L13 $L14 $L15 $L16 $L17 $L18 $L19 $L20>/etc/fail2ban/jail.d/custom.conf
-            chown $user:$user /etc/fail2ban/jail.d/custom.conf
+            chown $utilisateur:$utilisateur /etc/fail2ban/jail.d/custom.conf
 
             #installation de Postfix pour envoi des mails d'alerte
             echo -e "${vertclair}\nInstallation de Postfix si nécessaire pour l'envoi des mails d'alerte ${neutre} ${neutre}"
@@ -215,7 +225,7 @@ while $boucle_principale;do
                     L4='\nfilter = postfix'
                     L5='\nlogpath  = /var/log/mail.log'
                     echo -e $L1 $L2 $L3 $L4 $L5 >> /etc/fail2ban/jail.d/postfix.conf
-                    chown $user:$user /etc/fail2ban/jail.d/postfix.conf
+                    chown $utilisateur:$utilisateur /etc/fail2ban/jail.d/postfix.conf
                 fi
 
                 #Ajout de l'adresse mail dans le fichier de configuration personnalisable de Fail2ban
@@ -260,44 +270,44 @@ while $boucle_principale;do
             systemctl enable fail2ban
 
             #Téléchargement si nécessaire du script jails.sh
-            echo -e "${vertclair}\nTéléchargement si nécessaire du script jails.sh pour l'affichage ${neutre}"
+            echo -e "${vertclair}\nTéléchargment si nécessaire du script jails.sh pour l'affichage ${neutre}"
             echo -e "${vertclair}des prisons et du nombre de bannis dans : ${neutre}"
 
-            if [ -d "~/script" ]; then
-                echo -e "${cyanclair}Le répertoire ~/script existe déjà. Suppression du répertoire avant la nouvelle installation  ${neutre}"
-                rm -r ~/script
+            if [ -d "/home/$utilisateur/script" ]; then
+                echo -e "${cyanclair}Le répertoire /home/$utilisateur/script existe déjà. Suppression du répertoire avant la nouvelle installation  ${neutre}"
+                rm -r /home/$utilisateur/script
             fi
 
-            mkdir ~/script
-            wget -P ~/script/ $lien_github_raw/jails.sh
-            chown $user:$user  ~/script/jails.sh
-            chmod +x ~/script/jails.sh
+            mkdir /home/$utilisateur/script
+            wget -P /home/$utilisateur/script/ $lien_github_raw/jails.sh
+            chown $utilisateur:$utilisateur  /home/$utilisateur/script/jails.sh
+            chmod +x /home/$utilisateur/script/jails.sh
             echo -e "${vertclair}\nCréation d'un raccourci vers le bureau ${neutre}"
-            if [ -h "~/jails.sh" ]; then
-                cd ~
+            if [ -h "/home/$utilisateur/jails.sh" ]; then
+                cd /home/$utilisateur
                 rm jails.sh*
             fi
-            ln -s ~/script/jails.sh ~/
+            ln -s /home/$utilisateur/script/jails.sh /home/$utilisateur/
             echo -e "${rougelair}Pour la liste des prisons et le nombre de bannis : ${neutre}"
-            echo -e "${rougeclair}cd ~ ${neutre}"
+            echo -e "${rougeclair}cd /home/$utilisateur ${neutre}"
             echo -e "${rougeclair}sudo ./jails.sh ${neutre}"
 
             #téléchargement si nécessaire du script banip
             echo -e "${vertclair}\nTéléchargement si nécessaire du script banip.sh ${neutre}"
             echo -e "${vertclair}pour bannir ou débannir une adresse IP : ${neutre}"
-            echo -e "${vertclair}~/script/jails.sh ${neutre}"
-            wget -P ~/script/ $lien_github_raw/banip.sh
-            chown $user:$user  ~/script/banip.sh
-            chmod +x ~/script/banip.sh
-            if [ -h "~/banip.sh" ]; then
-                cd ~
+            echo -e "${vertclair}/home/$utilisateur/script/jails.sh ${neutre}"
+            wget -P /home/$utilisateur/script/ $lien_github_raw/banip.sh
+            chown $utilisateur:$utilisateur  /home/$utilisateur/script/banip.sh
+            chmod +x /home/$utilisateur/script/banip.sh
+            if [ -h "/home/$utilisateur/banip.sh" ]; then
+                cd /home/$utilisateur
                 rm banip.sh*
-                unlink ~/script/banip.sh
+                unlink /home/$utilisateur/script/banip.sh
             fi
             echo -e "${vertclair}\nCréation d'un raccourci vers le bureau ${neutre}"
-            ln -s ~/script/banip.sh ~/
+            ln -s /home/$utilisateur/script/banip.sh /home/$utilisateur/
             echo -e "${rougeclair}Pour bannir ou débannir une adresse IP : ${neutre}"
-            echo -e "${rougeclair}cd ~ ${neutre}"
+            echo -e "${rougeclair}cd /home/$utilisateur ${neutre}"
             echo -e "${rougeclair}sudo ./banip.sh ${neutre}"
 
             if [[ $CHOIX =~ "Debug" ]]; then
@@ -357,8 +367,8 @@ while $boucle_principale;do
             L1='fail2map = *'
             L2='#fail2map = cd **FAIL2MAP PATH** && python fail2map.py'
             L3='\nfail2map = cd /var/www/html/fail2map && python fail2map.py'
-            sed '/'"$L1"'/ c\'"$L2"''"$L3"'' /var/www/html/fail2map/fail2map-action.conf>~/fail2map-action.conf
-            mv ~/fail2map-action.conf /var/www/html/fail2map/fail2map-action.conf
+            sed '/'"$L1"'/ c\'"$L2"''"$L3"'' /var/www/html/fail2map/fail2map-action.conf>/home/$utilisateur/fail2map-action.conf
+            mv /home/$utilisateur/fail2map-action.conf /var/www/html/fail2map/fail2map-action.conf
 
             echo -e "${vertclair}Copie du fichier /var/www/html/fail2map/fail2map-action.conf -> /etc/fail2ban/action.d/fail2map-action.conf ${neutre}"
             if [ -f /etc/fail2ban/actions.d/fail2map-action.conf ]; then
@@ -378,12 +388,12 @@ while $boucle_principale;do
 
             #Modification de la carte par défaut pour Fail2map
             echo -e "${vertclair}Changement de la carte par défaut en modifiant le fichier /var/www/html/fail2map/js/map.js ${neutre}"
-            sed '/'"$L1"'/ c\'"$L2"''"$L3"'' /var/www/html/fail2map/js/maps.js>~/maps.js
+            sed '/'"$L1"'/ c\'"$L2"''"$L3"'' /var/www/html/fail2map/js/maps.js>/home/$utilisateur/maps.js
             L1="baseLayer = *"
             L2="//    baseLayer = L.tileLayer.provider('Thunderforest.Landscape', {"
             L3="\n\tbaseLayer = L.tileLayer.provider('Esri.NatGeoWorldMap', {"
-            sed '/'"$L1"'/ c\'"$L2"''"$L3"'' /var/www/html/fail2map/js/maps.js >~/maps.js
-            mv ~/maps.js /var/www/html/fail2map/js/maps.js
+            sed '/'"$L1"'/ c\'"$L2"''"$L3"'' /var/www/html/fail2map/js/maps.js >/home/$utilisateur/maps.js
+            mv /home/$utilisateur/maps.js /var/www/html/fail2map/js/maps.js
 
             if [[ $CHOIX =~ "Debug" ]]; then
                 echo -e "${violetclair}\nFin de l'installation de Fail2map. Appuyer sur Entrée pour poursuivre l'Installation ${neutre}"
@@ -422,7 +432,7 @@ while $boucle_principale;do
                     L1='[webmin-auth]'
                     L2='\nenabled = true'
                     echo -e $L1 $L2 >/etc/fail2ban/jail.d/webmin.conf
-                    chown $user:$user /etc/fail2ban/jail.d/webmin.conf
+                    chown $utilisateur:$utilisateur /etc/fail2ban/jail.d/webmin.conf
                 fi
             fi
 
@@ -437,7 +447,7 @@ while $boucle_principale;do
         ### ===============================================================
 
         if [[ $CHOIX =~ "Motioneye" ]]; then
-            echo -e "${bleuclair}\nInstallation de Motioneye avec le module de caméra CSI OV5647 pour le Rapsberry ${neutre}"
+            echo -e "${bleuclair}\nInstallation de Motioneye avec le module de caméra CSI OV5647 pour le Rapsberry Pi ${neutre}"
             echo -e "${rougeclair}Ne pas oublier d'activer la caméra avec sudo raspi-config ${neutre}"
 
             echo -e "${bleuclair}\nInstallation de Python2 et mise à jour si nécessaire ${neutre}"
@@ -473,7 +483,7 @@ while $boucle_principale;do
                 echo -e "\nbcm2835-v4l2" >> /etc/modules
             fi
 
-            echo -e "${vertclair}\nDésactivation de la led de la caméra CSI OV5647 pour le Rapsberry ${neutre}"
+            echo -e "${vertclair}\nDésactivation de la led de la caméra CSI OV5647 pour le Rapsberry Pi ${neutre}"
             grep -i "disable_camera_led=1" "/boot/config.txt" >/dev/null
             if [ $? = 0 ]; then
                 echo -e "${cyanclair}La désactivation de la led de la caméra est déjà active dans /boot/config.txt ${neutre}"
@@ -487,12 +497,12 @@ while $boucle_principale;do
             apt install -y ffmpeg libmariadb3 libpq5 libmicrohttpd12
 
             echo -e "${vertclair}\nTéléchargement de Motioneye ${neutre}"
-            if [ -f ~$user_buster* ];  then
+            if [ -f /home/$utilisateur/pi_buster* ];  then
                 echo -e "${cyanclair}\nLe fichier de téléchargement pour Motioneye existe déjà ${neutre}"
                 echo -e "${cyanclair}Effacement du fichier puis téléchargement du nouveau fichier ${neutre}"
-                rm ~$user_buster*
+                rm /home/$utilisateur/pi_buster*
             fi
-            wget https://github.com/Motion-Project/motion/releases/download/release-4.2.2$user_buster_motion_4.2.2-1_armhf.deb
+            wget https://github.com/Motion-Project/motion/releases/download/release-4.2.2/pi_buster_motion_4.2.2-1_armhf.deb
             echo -e "${vertclair}\nInstallation de Motioneye ${neutre}"
             dpkg -i pi_buster_motion_4.2.2-1_armhf.deb && rm -f pi_buster_motion_4.2.2-1_armhf.deb*
             pip install motioneye
@@ -614,7 +624,7 @@ while $boucle_principale;do
                     L17='\n\n[apache-shellshock]'
                     L18='\nenabled = true'
                     echo -e $L1 $L2  $L3 $L4 $L5 $L6 $L7 $L8 $L9 $L10 $L11 $L12 $L13 $L14 $L15 $L16 $L17 $L18 >/etc/fail2ban/jail.d/apache.conf
-                    chown $user:$user /etc/fail2ban/jail.d/apache.conf
+                    chown $utilisateur:$utilisateur /etc/fail2ban/jail.d/apache.conf
                 fi
             fi
 
@@ -677,7 +687,7 @@ while $boucle_principale;do
                 rm /etc/fail2ban/filter.d/domoticz.conf*
             fi
             wget -P /etc/fail2ban/filter.d/ $lien_github_raw/domoticz.conf
-            chown $user:$user /etc/fail2ban/filter.d/domoticz.conf
+            chown $utilisateur:$utilisateur /etc/fail2ban/filter.d/domoticz.conf
 
             if [ ! -d "/etc/fail2ban" ]; then
                 echo -e "${cyanclair}\nFail2ban n'est pas installé ${neutre}"
@@ -695,7 +705,7 @@ while $boucle_principale;do
                     L4='\nfilter = domoticz'
                     L5='\nlogpath = /var/log/domoticz.log'
                     echo -e $L1 $L2 $L3 $L4 $L5 >> /etc/fail2ban/jail.d/domoticz.conf
-                    chown $user:$user /etc/fail2ban/jail.d/domoticz.conf
+                    chown $utilisateur:$utilisateur /etc/fail2ban/jail.d/domoticz.conf
                 fi
             fi
 
@@ -777,7 +787,7 @@ while $boucle_principale;do
                         echo -e "${rougeclair}Ne pas oublier d'activer les GPIO avec sudo raspi-config ${neutre}"
 
                         #Téléchargement et installation du Grovepi
-                        curl -kL dexterindustries.com/update_grovepi | sudo -u $user bash
+                        curl -kL dexterindustries.com/update_grovepi | sudo -u $utilisateur bash
                     fi
 
                     ### ===============================================================
@@ -798,39 +808,39 @@ while $boucle_principale;do
                         echo -e "${rougeclair}- le numéro GPIO BCM sur lequel est relié le capteur. ${neutre}"
                         echo -e "${rougeclair}Ne pas oublier d'activer les GPIO avec sudo raspi-config ${neutre}" 
 
-                        if [ -d "~/script/Adafruit_Python_DHT" ]; then
-                            echo -e "${cyanclair}\nLe répertoire d'installation ~/script/Adafruit_Python_DHT existe déjà. Suppression du répertoire avant la nouvelle installation ${neutre}"
-                            rm -r ~/script/Adafruit_Python_DHT
+                        if [ -d "/home/$utilisateur/script/Adafruit_Python_DHT" ]; then
+                            echo -e "${cyanclair}\nLe répertoire d'installation /home/$utilisateur/script/Adafruit_Python_DHT existe déjà. Suppression du répertoire avant la nouvelle installation ${neutre}"
+                            rm -r /home/$utilisateur/script/Adafruit_Python_DHT
                         fi
-                        if [ -f "~/script/dht22.py" ] ; then
-                            echo -e "${cyanclair}\nLe fichier ~/script/dht22.py existe déjà ${neutre}"
+                        if [ -f "/home/$utilisateur/script/dht22.py" ] ; then
+                            echo -e "${cyanclair}\nLe fichier /home/$utilisateur/script/dht22.py existe déjà ${neutre}"
                             echo -e "${cyanclair}Effacement du fichier puis création du nouveau fichier ${neutre}"
-                            rm ~/script/dht22.py*
+                            rm /home/$utilisateur/script/dht22.py*
                         fi
 
-                        cd ~/script
+                        cd /home/$utilisateur/script
                         #Téléchargement des bibliothèques et des fichiers
                         echo -e "${bleuclair}\nInstallation des bilbiothèques AdaFruit pour le capteur DHT22 (nécessite Domoticz) ${neutre}"
                         git clone https://github.com/adafruit/Adafruit_Python_DHT.git
-                        chown $user:$user ~/script/Adafruit_Python_DHT
+                        chown $utilisateur:$utilisateur /home/$utilisateur/script/Adafruit_Python_DHT
 
                         version=$(python --version 2>&1 | cut -c1-8)
                         echo -e -n "${vertclair}\nVersion de Python par défaut : ${neutre}"
                         echo -e $version
                         if [[ $version =~ "Python 3" ]]; then
                             #installation si Python3
-                            cd ~/script/Adafruit_Python_DHT
+                            cd /home/$utilisateur/script/Adafruit_Python_DHT
                             python3 setup.py install
                         else
                             #installation si Python2
-                            cd ~/script/Adafruit_Python_DHT
+                            cd /home/$utilisateur/script/Adafruit_Python_DHT
                             python setup.py install
                         fi
 
                         echo -e "${vertclair}\nTéléchargement du fichier dht22.py ${neutre}"
-                        wget -P ~/script $lien_github_raw/dht22.py
-                        chown $user:$user ~/script/dht22.py
-                        chmod +x ~/script/dht22.py
+                        wget -P /home/$utilisateur/script $lien_github_raw/dht22.py
+                        chown $utilisateur:$utilisateur /home/$utilisateur/script/dht22.py
+                        chmod +x /home/$utilisateur/script/dht22.py
 
                         #Saisie des paramètres pour le fichier dht22.py
                         adresse=$(hostname -I | cut -d' ' -f1)
@@ -841,7 +851,7 @@ while $boucle_principale;do
                         L2="domoticz_ip = '"
                         L3=$adresse
                         L4="'"
-                        sed -i '/'"$L1"'/ c\'"$L2"''"$L3"''"$L4"'' ~/script/dht22.py
+                        sed -i '/'"$L1"'/ c\'"$L2"''"$L3"''"$L4"'' /home/$utilisateur/script/dht22.py
 
                         #Saisie des paramètres de domoticz pour affichage température et humidité sur domoticz
                         boucle=true
@@ -853,7 +863,7 @@ while $boucle_principale;do
                                 L2="user = '"
                                 L3=$USER
                                 L4="'"
-                                sed -i '/'"$L1"'/ c\'"$L2"''"$L3"''"$L4"'' ~/script/dht22.py
+                                sed -i '/'"$L1"'/ c\'"$L2"''"$L3"''"$L4"'' /home/$utilisateur/script/dht22.py
                                 boucle=false
                             else
                                 echo "Tu as annulé... Recommence :-("
@@ -870,7 +880,7 @@ while $boucle_principale;do
                                 L2="password = '"
                                 L3=$MDP
                                 L4="'"
-                                sed -i '/'"$L1"'/ c\'"$L2"''"$L3"''"$L4"'' ~/script/dht22.py
+                                sed -i '/'"$L1"'/ c\'"$L2"''"$L3"''"$L4"'' /home/$utilisateur/script/dht22.py
                                 boucle=false
                             else
                                 echo "Vous avez annulez"
@@ -886,7 +896,7 @@ while $boucle_principale;do
                                 L1="domoticz_idx ="
                                 L2="domoticz_idx = "
                                 L3=$IDX
-                                sed -i '/'"$L1"'/ c\'"$L2"''"$L3"'' ~/script/dht22.py
+                                sed -i '/'"$L1"'/ c\'"$L2"''"$L3"'' /home/$utilisateur/script/dht22.py
                                 boucle=false
                             else
                                 echo "Tu as annulé... Recommence :-("
@@ -902,7 +912,7 @@ while $boucle_principale;do
                                 L1="pin ="
                                 L2="pin = "
                                 L3=$PIN
-                                sed -i '/'"$L1"'/ c\'"$L2"''"$L3"'' ~/script/dht22.py
+                                sed -i '/'"$L1"'/ c\'"$L2"''"$L3"'' /home/$utilisateur/script/dht22.py
                                 boucle=false
                             else
                                 echo "Tu as annulé... Recommence :-("
@@ -918,7 +928,7 @@ while $boucle_principale;do
                         else
                             echo -e "${vertclair}\nModification de la crontab ${neutre}"
                             echo -e "\n#DHT22 Affichage de la température et de l'humidité toutes les 10 mn chaque jour" >> /tmp/toto.txt # ajout de la ligne dans le fichier temporaire
-                            echo -e "*/10 * * * * cd ~/script && python dht22.py" >> /tmp/toto.txt # ajout de la ligne dans le fichier temporaire
+                            echo -e "*/10 * * * * cd /home/$utilisateur/script && python dht22.py" >> /tmp/toto.txt # ajout de la ligne dans le fichier temporaire
                             crontab /tmp/toto.txt # import de la crontab
                             rm /tmp/toto.txt* # le fichier temporaire ne sert plus à rien
                         fi
@@ -981,15 +991,15 @@ while $boucle_principale;do
                         modprobe w1-gpio
                         modprobe w1-therm
 
-                        if [ -f "~/script/dht22.py" ] ; then
-                            echo -e "${cyanclair}\nLe fichier ~/script/ds18b20.py existe déjà ${neutre}"
+                        if [ -f "/home/$utilisateur/script/dht22.py" ] ; then
+                            echo -e "${cyanclair}\nLe fichier /home/$utilisateur/script/ds18b20.py existe déjà ${neutre}"
                             echo -e "${cyanclair}Effacement du fichier puis création du nouveau fichier ${neutre}"
-                            rm ~/script/ds18b20.py*
+                            rm /home/$utilisateur/script/ds18b20.py*
                         fi
                         echo -e "${vertclair}\nTéléchargement du fichier ds18b20.py ${neutre}"
-                        wget -P ~/script $lien_github_raw/ds18b20.py
-                        chown $user:$user ~/script/ds18b20.py
-                        chmod +x ~/script/ds18b20.py
+                        wget -P /home/$utilisateur/script $lien_github_raw/ds18b20.py
+                        chown $utilisateur:$utilisateur /home/$utilisateur/script/ds18b20.py
+                        chmod +x /home/$utilisateur/script/ds18b20.py
 
                         if [[ $CHOIX_CAPTEUR =~ "Debug" ]]; then
                             echo -e "${violetclair}\nFin de l'installation du capteur DS18B20. Appuyer sur Entrée pour poursuivre l'Installation ${neutre}"
@@ -1019,19 +1029,19 @@ while $boucle_principale;do
                         echo -e $version
                         if [[ $version =~ "Python 3" ]]; then
                             #installation si Python3
-                            cd ~/script/Adafruit_Python_DHT
+                            cd /home/$utilisateur/script/Adafruit_Python_DHT
                             pip install adafruit-circuitpython-am2320
 
-                            if [ -f ~/script/am2315.py ] ; then
-                                echo -e "${cyanclair}\nLe fichier ~/script/am2315.py existe déjà ${neutre}"
+                            if [ -f /home/$utilisateur/script/am2315.py ] ; then
+                                echo -e "${cyanclair}\nLe fichier /home/$utilisateur/script/am2315.py existe déjà ${neutre}"
                                 echo -e "${cyanclair}Effacement du fichier puis téléchargement du nouveau fichier ${neutre}"
-                                rm ~/script/am2315.py*
+                                rm /home/$utilisateur/script/am2315.py*
                             fi
 
                             echo -e "${vertclair}\nTéléchargement du fichier am2315.py ${neutre}"
-                            wget -P ~/script $lien_github_raw/am2315.py
-                            chown $user:$user ~/script/am2315.py
-                            chmod +x ~/script/am2315.py
+                            wget -P /home/$utilisateur/script $lien_github_raw/am2315.py
+                            chown $utilisateur:$utilisateur /home/$utilisateur/script/am2315.py
+                            chmod +x /home/$utilisateur/script/am2315.py
 
                             #Saisie des paramètres pour le fichier am2315.py
                             adresse=$(hostname -I | cut -d' ' -f1)
@@ -1042,7 +1052,7 @@ while $boucle_principale;do
                             L2="domoticz_ip = '"
                             L3=$adresse
                             L4="'"
-                            sed -i '/'"$L1"'/ c\'"$L2"''"$L3"''"$L4"'' ~/script/am2315.py
+                            sed -i '/'"$L1"'/ c\'"$L2"''"$L3"''"$L4"'' /home/$utilisateur/script/am2315.py
 
                             #Saisi des paramètres de domoticz pour affichage température et humidité sur domoticz
                             boucle=true
@@ -1054,7 +1064,7 @@ while $boucle_principale;do
                                     L2="user = '"
                                     L3=$USER
                                     L4="'"
-                                    sed -i '/'"$L1"'/ c\'"$L2"''"$L3"''"$L4"'' ~/script/am2315.py
+                                    sed -i '/'"$L1"'/ c\'"$L2"''"$L3"''"$L4"'' /home/$utilisateur/script/am2315.py
                                     boucle=false
                                 else
                                     echo "Tu as annulé... Recommence :-("
@@ -1071,7 +1081,7 @@ while $boucle_principale;do
                                     L2="password = '"
                                     L3=$MDP
                                     L4="'"
-                                    sed -i '/'"$L1"'/ c\'"$L2"''"$L3"''"$L4"'' ~/script/am2315.py
+                                    sed -i '/'"$L1"'/ c\'"$L2"''"$L3"''"$L4"'' /home/$utilisateur/script/am2315.py
                                     boucle=false
                                 else
                                     echo "Vous avez annulez"
@@ -1087,7 +1097,7 @@ while $boucle_principale;do
                                     L1="domoticz_idx ="
                                     L2="domoticz_idx = "
                                     L3=$IDX
-                                    sed -i '/'"$L1"'/ c\'"$L2"''"$L3"'' ~/script/am2315.py
+                                    sed -i '/'"$L1"'/ c\'"$L2"''"$L3"'' /home/$utilisateur/script/am2315.py
                                     boucle=false
                                 else
                                     echo "Tu as annulé... Recommence :-("
@@ -1103,7 +1113,7 @@ while $boucle_principale;do
                             else
                                 echo -e "${vertclair}\nModification de la crontab ${neutre}"
                                 echo -e "#AM2315 Affichage de la température et de l'humidité toutes les 10 mn chaque jour" >> /tmp/toto.txt # ajout de la ligne dans le fichier temporaire
-                                echo -e "*/10 * * * * cd ~/script && python am2315.py" >> /tmp/toto.txt # ajout de la ligne dans le fichier temporaire
+                                echo -e "*/10 * * * * cd /home/$utilisateur/script && python am2315.py" >> /tmp/toto.txt # ajout de la ligne dans le fichier temporaire
                                 crontab /tmp/toto.txt # import de la crontab
                                 rm /tmp/toto.txt* # le fichier temporaire ne sert plus à rien
                             fi
@@ -1144,9 +1154,9 @@ while $boucle_principale;do
                             echo -e "${rougeclair}Ne pas oublier d'activer les GPIO avec sudo raspi-config ${neutre}"
                             echo -e "${rougeclair}Ne pas oublier d'activer I2C avec sudo raspi-config ${neutre}"
 
-                            if [ -d "~/script/Adafruit_Python_SSD1306" ]; then
-                                echo -e "${cyanclair}Le répertoire d'installation ~/script/Adafruit_Python_SSD1306 existe déjà. Suppression du répertoire avant la nouvelle installation ${neutre}"
-                                rm -r ~/script/Adafruit_Python_SSD1306
+                            if [ -d "/home/$utilisateur/script/Adafruit_Python_SSD1306" ]; then
+                                echo -e "${cyanclair}Le répertoire d'installation /home/$utilisateur/script/Adafruit_Python_SSD1306 existe déjà. Suppression du répertoire avant la nouvelle installation ${neutre}"
+                                rm -r /home/$utilisateur/script/Adafruit_Python_SSD1306
                             fi
                             if [ -f "/usr/share/fonts/truetype/Minecraftia/Minecraftia-Regular.ttf" ] ; then
                                 echo -e "${cyanclair}\nLe répertoire /usr/share/fonts/truetype/Minecraftia existe déjà. Suppression du répertoire avant la nouvelle installation ${neutre}"
@@ -1161,10 +1171,10 @@ while $boucle_principale;do
                             rm /usr/share/fonts/truetype/Minecraftia/minecraftia.zip*
 
                             #Téléchargement des bibliothèques et des fichiers
-                            cd ~/script
+                            cd /home/$utilisateur/script
                             echo -e "${bleuclair}\nInstallation des bilbiothèques AdaFruit pour l'écran Kuman (nécessite Domoticz et DHT22) ${neutre}"
                             git clone https://github.com/adafruit/Adafruit_Python_SSD1306.git
-                            chown $user:$user ~/script/Adafruit_Python_SSD1306
+                            chown $utilisateur:$utilisateur /home/$utilisateur/script/Adafruit_Python_SSD1306
 
                             apt·install·-y·python-smbus·i2c-tools
                             version=$(python --version 2>&1 | cut -c1-8)
@@ -1172,24 +1182,24 @@ while $boucle_principale;do
                             echo -e $version
                             if [[ $version =~ "Python 3" ]]; then
                                 #installation si Python3
-                                cd ~/script/Adafruit_Python_SSD1306
+                                cd /home/$utilisateur/script/Adafruit_Python_SSD1306
                                 python3 setup.py install
                             else
                                 #installation si Python2
-                                cd ~/script/Adafruit_Python_SSD1306
+                                cd /home/$utilisateur/script/Adafruit_Python_SSD1306
                                 python setup.py install
                             fi
 
                             if [[ $CHOIX_KUMAN =~ "1" ]]; then
-                                if [ -f "~/script/Kuman.py" ] ; then
-                                    echo -e "${cyanclair}\nLe fichier ~/script/Kuman.py existe déjà${neutre}"
+                                if [ -f "/home/$utilisateur/script/Kuman.py" ] ; then
+                                    echo -e "${cyanclair}\nLe fichier /home/$utilisateur/script/Kuman.py existe déjà${neutre}"
                                     echo -e "${cyanclair}Effacement du fichier puis téléchargement du nouveau fichier ${neutre}"
-                                    rm ~/script/Kuman.py
+                                    rm /home/$utilisateur/script/Kuman.py
                                 fi
                                 echo -e "${vertclair}\nTéléchargement du fichier kuman.py ${neutre}"
-                                wget -P ~/script $lien_github_raw/Kuman.py
-                                chown $user:$user ~/script/Kuman.py
-                                chmod +x ~/script/Kuman.py
+                                wget -P /home/$utilisateur/script $lien_github_raw/Kuman.py
+                                chown $utilisateur:$utilisateur /home/$utilisateur/script/Kuman.py
+                                chmod +x /home/$utilisateur/script/Kuman.py
 
                                 if [ -f "/etc/systemd/system/interrupteur_kuman.service" ] ; then
                                     echo -e "${cyanclair}\nLe fichier /etc/systemd/system/interrupteur_kuman.service existe ${neutre}"
@@ -1206,7 +1216,7 @@ while $boucle_principale;do
                                  else
                                     echo -e "${vertclair}\nModification de la crontab ${neutre}"
                                     echo -e "\n#Kuman Affichage permanent de la température et de l'humidité" >> /tmp/toto.txt # ajout de la ligne dans le fichier temporaire
-                                    echo -e "*/10 * * * * cd ~/script && python Kuman.py" >> /tmp/toto.txt # ajout de la ligne dans le fichier temporaire
+                                    echo -e "*/10 * * * * cd /home/$utilisateur/script && python Kuman.py" >> /tmp/toto.txt # ajout de la ligne dans le fichier temporaire
                                     crontab /tmp/toto.txt # import de la crontab
                                     rm /tmp/toto.txt* # le fichier temporaire ne sert plus à rien
                                 fi
@@ -1227,21 +1237,21 @@ while $boucle_principale;do
                                 fi
                                 echo -e "${vertclair}\nTéléchargement du fichier interrupteur_kuman.service ${neutre}"
                                 wget -P /etc/systemd/system $lien_github_raw/interrupteur_kuman.service
-                                chown $user:$user /etc/systemd/system/interrupteur_kuman.service
+                                chown $utilisateur:$utilisateur /etc/systemd/system/interrupteur_kuman.service
                                 echo -e "${vertclair}\nActivation et démarrage du service interrupteur.service ${neutre}"
                                 systemctl enable interrupteur_kuman.service
                                 systemctl start interrupteur_kuman.service
 
                                 #Téléchargment du fichier interrupteur_kuman.py
-                                if [ -f "~/script/interrupteur_kuman.py" ] ; then
-                                    echo -e "${cyanclair}Le fichier ~/script/interrupteur_kuman.py existe déjà ${neutre}"
+                                if [ -f "/home/$utilisateur/script/interrupteur_kuman.py" ] ; then
+                                    echo -e "${cyanclair}Le fichier /home/$utilisateur/script/interrupteur_kuman.py existe déjà ${neutre}"
                                     echo -e "${cyanclair}Effacement du fichier puis création du nouveau fichier ${neutre}"
-                                    rm ~/script/interrupteur_kuman.py*
+                                    rm /home/$utilisateur/script/interrupteur_kuman.py*
                                 fi
                                 echo -e "${vertclair}\nTéléchargement du fichier interrupteur_kuman.py ${neutre}"
-                                wget -P ~/script $lien_github_raw/interrupteur_kuman.py
-                                chown $user:$user ~/script/interrupteur_kuman.py
-                                chmod +x ~/script/interrupteur_kuman.py
+                                wget -P /home/$utilisateur/script $lien_github_raw/interrupteur_kuman.py
+                                chown $utilisateur:$utilisateur /home/$utilisateur/script/interrupteur_kuman.py
+                                chmod +x /home/$utilisateur/script/interrupteur_kuman.py
 
                                 #Modification du fichier interrupteur_kuman.py en renseignant le numéro de GPIO BCM
                                 echo -e "${vertclair}\nAjout du GPIO (BCM) dans le fichier interrupteur.py ${neutre}"
@@ -1255,7 +1265,7 @@ while $boucle_principale;do
                                         L1="BCM ="
                                         L2="BCM = "
                                         L3=$BCM
-                                        sed -i '/'"$L1"'/ c\'"$L2"''"$L3"'' ~/script/interrupteur_kuman.py
+                                        sed -i '/'"$L1"'/ c\'"$L2"''"$L3"'' /home/$utilisateur/script/interrupteur_kuman.py
                                         boucle=false
                                     else
                                         echo "Tu as annulé... Recommence :-("
@@ -1312,7 +1322,7 @@ while $boucle_principale;do
                             echo -e "${rougeclair}Ne pas oublier d'activer I2C avec sudo raspi-config ${neutre}"
 
                             #Téléchargement des bibliothèques et des fichiers
-                            cd ~/script
+                            cd /home/$utilisateur/script
                             apt install -y python-smbus i2c-tools
 
                             ### ===============================================================
@@ -1320,15 +1330,15 @@ while $boucle_principale;do
                             ### ===============================================================
 
                             if [[ $CHOIX_LCD =~ "1" ]]; then
-                                if [ -f "~/script/lcd.py" ] ; then
-                                    echo -e "${cyanclair}\nLe fichier ~/script/lcd.py existe déjà${neutre}"
+                                if [ -f "/home/$utilisateur/script/lcd.py" ] ; then
+                                    echo -e "${cyanclair}\nLe fichier /home/$utilisateur/script/lcd.py existe déjà${neutre}"
                                     echo -e "${cyanclair}Effacement du fichier puis téléchargement du nouveau fichier ${neutre}"
-                                    rm ~/script/lcd.py
+                                    rm /home/$utilisateur/script/lcd.py
                                 fi
                                 echo -e "${vertclair}\nTéléchargement du fichier lcd.py ${neutre}"
-                                wget -P ~/script $lien_github_raw/lcd.py
-                                chown $user:$user ~/script/lcd.py
-                                chmod +x ~/script/lcd.py
+                                wget -P /home/$utilisateur/script $lien_github_raw/lcd.py
+                                chown $utilisateur:$utilisateur /home/$utilisateur/script/lcd.py
+                                chmod +x /home/$utilisateur/script/lcd.py
 
                                 if [ -f "/etc/systemd/system/interrupteur_lcd.service" ] ; then
                                     echo -e "${cyanclair}\nLe fichier /etc/systemd/system/interrupteur_lcd.service existe ${neutre}"
@@ -1346,7 +1356,7 @@ while $boucle_principale;do
                                  else
                                     echo -e "${vertclair}\nModification de la crontab ${neutre}"
                                     echo -e "\n#LCD Affichage permanent de la température et de l'humidité" >> /tmp/toto.txt # ajout de la ligne dans le fichier temporaire
-                                    echo -e "*/10 * * * * cd ~/script && python lcd.py" >> /tmp/toto.txt # ajout de la ligne dans le fichier temporaire
+                                    echo -e "*/10 * * * * cd /home/$utilisateur/script && python lcd.py" >> /tmp/toto.txt # ajout de la ligne dans le fichier temporaire
                                     crontab /tmp/toto.txt # import de la crontab
                                     rm /tmp/toto.txt* # le fichier temporaire ne sert plus à rien
                                 fi
@@ -1376,15 +1386,15 @@ while $boucle_principale;do
 
                                 #Téléchargement du fichier interrupteur_lcd.py
                                 echo -e "${vertclair}\nTéléchargement du fichier interrupteur_lcd.py ${neutre}"
-                                if [ -f "~/script/interrupteur_lcd.py" ] ; then
-                                    echo -e "${cyanclair}Le fichier ~/script/interrupteur_lcd.py existe déjà ${neutre}"
+                                if [ -f "/home/$utilisateur/script/interrupteur_lcd.py" ] ; then
+                                    echo -e "${cyanclair}Le fichier /home/$utilisateur/script/interrupteur_lcd.py existe déjà ${neutre}"
                                     echo -e "${cyanclair}Effacement du fichier puis création du nouveau fichier ${neutre}"
-                                    rm ~/script/interrupteur_lcd.py*
+                                    rm /home/$utilisateur/script/interrupteur_lcd.py*
                                 fi
                                 echo -e "${vertclair}\nTéléchargement du fichier interrupteur_lcd.py ${neutre}"
-                                wget -P ~/script $lien_github_raw/interrupteur_lcd.py
-                                chown $user:$user ~/script/interrupteur_lcd.py
-                                chmod +x ~/script/interrupteur_lcd.py
+                                wget -P /home/$utilisateur/script $lien_github_raw/interrupteur_lcd.py
+                                chown $utilisateur:$utilisateur /home/$utilisateur/script/interrupteur_lcd.py
+                                chmod +x /home/$utilisateur/script/interrupteur_lcd.py
 
                                 #Modification du fichier interrupteur_lcd.py en renseignant le numéro de GPIO BCM
                                 echo -e "${vertclair}\nAjout du GPIO (BCM) dans le fichier interrupteur_lcd.py ${neutre}"
@@ -1398,7 +1408,7 @@ while $boucle_principale;do
                                         L1="BCM ="
                                         L2="BCM = "
                                         L3=$BCM
-                                        sed -i '/'"$L1"'/ c\'"$L2"''"$L3"'' ~/script/interrupteur_lcd.py
+                                        sed -i '/'"$L1"'/ c\'"$L2"''"$L3"'' /home/$utilisateur/script/interrupteur_lcd.py
                                         boucle=false
                                     else
                                         echo "Tu as annulé... Recommence :-("
@@ -1454,14 +1464,14 @@ while $boucle_principale;do
                             echo -e "${rougeclair}Ne pas oublier d'activer SPI avec sudo raspi-config ${neutre}"
 
                             #Téléchargement des bibliothèques et des fichiers
-                            if [ -d "~/script/Python_ST7735" ]; then
-                                echo -e "${cyanclair}Le répertoire d'installation ~/script/Python_ST7735 existe déjà. Suppression du répertoire avant la nouvelle installation ${neutre}"
-                                rm -r ~/script/Python_ST7735
+                            if [ -d "/home/$utilisateur/script/Python_ST7735" ]; then
+                                echo -e "${cyanclair}Le répertoire d'installation /home/$utilisateur/script/Python_ST7735 existe déjà. Suppression du répertoire avant la nouvelle installation ${neutre}"
+                                rm -r /home/$utilisateur/script/Python_ST7735
                             fi
-                            cd ~/script/
+                            cd /home/$utilisateur/script/
                             echo -e "${bleuclair}\nInstallation des bilbiothèques pour l'écran SPI (nécessite Domoticz et DHT22) ${neutre}"
                             git clone https://github.com/cskau/Python_ST7735
-                            cd ~/script/Python_ST7735
+                            cd /home/$utilisateur/script/Python_ST7735
 
                             if [ -f "/usr/share/fonts/truetype/Minecraftia/Minecraftia-Regular.ttf" ] ; then
                                 echo -e "${cyanclair}\nLe répertoire /usr/share/fonts/truetype/Minecraftia existe déjà. Suppression du répertoire avant la nouvelle installation ${neutre}"
@@ -1477,28 +1487,28 @@ while $boucle_principale;do
                             rm /usr/share/fonts/truetype/Minecraftia/minecraftia.zip*
 
                             #Téléchargement et décompactage des images météos
-                            if [ -f "~/script/Python_ST7735/meteo_BVR/" ] ; then
-                                echo -e "${cyanclair}\nLe répertoire ~/script/Python_ST7735/meteo_BVR existe déjà. Suppression du répertoire avant la nouvelle installation ${neutre}"
-                                rm -r ~/script/Python_ST7735/meteo_BVR/      
+                            if [ -f "/home/$utilisateur/script/Python_ST7735/meteo_BVR/" ] ; then
+                                echo -e "${cyanclair}\nLe répertoire /home/$utilisateur/script/Python_ST7735/meteo_BVR existe déjà. Suppression du répertoire avant la nouvelle installation ${neutre}"
+                                rm -r /home/$utilisateur/script/Python_ST7735/meteo_BVR/      
                             fi
                             echo -e "${cyanclair}\nTéléchargement des images météos ${neutre}"
-                             mkdir ~/script/Python_ST7735/meteo_BVR  >/dev/null
-                            cd ~/script/Python_ST7735/meteo_BVR/
-                            wget -P ~/script/Python_ST7735/meteo_BVR/ $lien_github_zip/meteo_BVR.zip
+                             mkdir /home/$utilisateur/script/Python_ST7735/meteo_BVR  >/dev/null
+                            cd /home/$utilisateur/script/Python_ST7735/meteo_BVR/
+                            wget -P /home/$utilisateur/script/Python_ST7735/meteo_BVR/ $lien_github_zip/meteo_BVR.zip
                             unzip -u meteo_BVR.zip
-                            rm -r ~/script/Python_ST7735/meteo_BVR/meteo_BVR.zip*
+                            rm -r /home/$utilisateur/script/Python_ST7735/meteo_BVR/meteo_BVR.zip*
 
                             #Téléchargement et décompactage des images lunaires pour l'écran
-                            if [ -f "~/script/Python_ST7735/moons_BVR/" ] ; then
-                                echo -e "${cyanclair}\nLe répertoire ~/script/Python_ST7735/moons_BVR existe déjà. Suppression du répertoire avant la nouvelle installation ${neutre}"
-                                rm -r ~/script/Python_ST7735/moons_BVR/
+                            if [ -f "/home/$utilisateur/script/Python_ST7735/moons_BVR/" ] ; then
+                                echo -e "${cyanclair}\nLe répertoire /home/$utilisateur/script/Python_ST7735/moons_BVR existe déjà. Suppression du répertoire avant la nouvelle installation ${neutre}"
+                                rm -r /home/$utilisateur/script/Python_ST7735/moons_BVR/
                             fi
                             echo -e "${cyanclair}\nTéléchargement des images lunaires ${neutre}"
-                            mkdir ~/script/Python_ST7735/moons_BVR  >/dev/null
-                            cd ~/script/Python_ST7735/moons_BVR/
-                            wget -P ~/script/Python_ST7735/moons_BVR/ $lien_github_zip/moons_BVR.zip
+                            mkdir /home/$utilisateur/script/Python_ST7735/moons_BVR  >/dev/null
+                            cd /home/$utilisateur/script/Python_ST7735/moons_BVR/
+                            wget -P /home/$utilisateur/script/Python_ST7735/moons_BVR/ $lien_github_zip/moons_BVR.zip
                             unzip -u moons_BVR.zip
-                            rm -r ~/script/Python_ST7735/moons_BVR/moons_BVR.zip*
+                            rm -r /home/$utilisateur/script/Python_ST7735/moons_BVR/moons_BVR.zip*
 
                             apt install -y build-essential python-dev python-smbus
                             version=$(python --version 2>&1 | cut -c1-8)
@@ -1507,13 +1517,13 @@ while $boucle_principale;do
                             if [[ $version =~ "Python 3" ]]; then
                                 #installation si Python3
                                 sudo pip3 install Adafruit_GPIO
-                                cd ~/script/Python_ST7735
+                                cd /home/$utilisateur/script/Python_ST7735
                                 python3 setup.py install
                                 sudo pip3 install lune
                             else
                                 #installation si Python2
                                 sudo pip install Adafruit_GPIO
-                                cd ~/script/Python_ST7735
+                                cd /home/$utilisateur/script/Python_ST7735
                                 python setup.py install
                                 sudo pip install lune
                             fi
@@ -1523,15 +1533,15 @@ while $boucle_principale;do
                             ### ===============================================================
 
                             if [[ $CHOIX_SPI =~ "1" ]]; then
-                                if [ -f "~/script/st7735.py" ] ; then
-                                    echo -e "${cyanclair}\nLe fichier ~/script/st7735.py existe déjà${neutre}"
+                                if [ -f "/home/$utilisateur/script/st7735.py" ] ; then
+                                    echo -e "${cyanclair}\nLe fichier /home/$utilisateur/script/st7735.py existe déjà${neutre}"
                                     echo -e "${cyanclair}Effacement du fichier puis téléchargement du nouveau fichier ${neutre}"
-                                    rm ~/script/st7735.py
+                                    rm /home/$utilisateur/script/st7735.py
                                 fi
                                 echo -e "${vertclair}\nTéléchargement du fichier st7735.py ${neutre}"
-                                wget -P ~/script $lien_github_raw/st7735.py
-                                chown $user:$user ~/script/st7735.py
-                                chmod +x ~/script/st7735.py
+                                wget -P /home/$utilisateur/script $lien_github_raw/st7735.py
+                                chown $utilisateur:$utilisateur /home/$utilisateur/script/st7735.py
+                                chmod +x /home/$utilisateur/script/st7735.py
 
                                 if [ -f "/etc/systemd/system/interrupteur_spi.service" ] ; then
                                     echo -e "${cyanclair}\nLe fichier /etc/systemd/system/interrupteur_spi.service existe ${neutre}"
@@ -1549,7 +1559,7 @@ while $boucle_principale;do
                                  else
                                     echo -e "${vertclair}\nModification de la crontab ${neutre}"
                                     echo -e "\n#ST7735 Affichage permanent de la température et de l'humidité toutes les 10 mn chaque jour" >> /tmp/toto.txt # ajout de la ligne dans le fichier temporaire
-                                    echo -e "*/10 * * * * cd ~/script && python st7735.py" >> /tmp/toto.txt # ajout de la ligne dans le fichier temporaire
+                                    echo -e "*/10 * * * * cd /home/$utilisateur/script && python st7735.py" >> /tmp/toto.txt # ajout de la ligne dans le fichier temporaire
                                     crontab /tmp/toto.txt # import de la crontab
                                     rm /tmp/toto.txt* # le fichier temporaire ne sert plus à rien
                                 fi
@@ -1579,15 +1589,15 @@ while $boucle_principale;do
 
                                 #Téléchargement du fichier interrupteur_spi.py
                                 echo -e "${vertclair}\nTéléchargement du fichier interrupteur_spi.py ${neutre}"
-                                if [ -f "~/script/interrupteur_spi.py" ] ; then
-                                    echo -e "${cyanclair}Le fichier ~/script/interrupteur_spi.py existe déjà ${neutre}"
+                                if [ -f "/home/$utilisateur/script/interrupteur_spi.py" ] ; then
+                                    echo -e "${cyanclair}Le fichier /home/$utilisateur/script/interrupteur_spi.py existe déjà ${neutre}"
                                     echo -e "${cyanclair}Effacement du fichier puis création du nouveau fichier ${neutre}"
-                                    rm ~/script/interrupteur_spi.py*
+                                    rm /home/$utilisateur/script/interrupteur_spi.py*
                                 fi
                                 echo -e "${vertclair}\nTéléchargement du fichier interrupteur_spi.py ${neutre}"
-                                wget -P ~/script $lien_github_raw/interrupteur_spi.py
-                                chown $user:$user ~/script/interrupteur_spi.py
-                                chmod +x ~/script/interrupteur_spi.py
+                                wget -P /home/$utilisateur/script $lien_github_raw/interrupteur_spi.py
+                                chown $utilisateur:$utilisateur /home/$utilisateur/script/interrupteur_spi.py
+                                chmod +x /home/$utilisateur/script/interrupteur_spi.py
 
                                 #Modification du fichier interrupteur_spi.py en renseignant le numéro de GPIO BCM
                                 echo -e "${vertclair}\nAjout du GPIO (BCM) dans le fichier interrupteur_spi.py ${neutre}"
@@ -1601,7 +1611,7 @@ while $boucle_principale;do
                                         L1="BCM ="
                                         L2="BCM = "
                                         L3=$BCM
-                                        sed -i '/'"$L1"'/ c\'"$L2"''"$L3"'' ~/script/interrupteur_spi.py
+                                        sed -i '/'"$L1"'/ c\'"$L2"''"$L3"'' /home/$utilisateur/script/interrupteur_spi.py
                                         boucle=false
                                     else
                                         echo "Tu as annulé... Recommence :-("
@@ -1685,17 +1695,17 @@ while $boucle_principale;do
 
                                 if [[ $CHOIX_DEL =~ "DHT22" ]]; then
                                     echo -e "${bleuclair}\nDésinstallation du capteur de température et d'humidité DHT22. ${neutre}"
-                                    if [ -d "~/script/Adafruit_Python_DHT" ]; then
-                                        echo -e "${cyanclair}\nSuppression du répertoire d'installation ~/script/Adafruit_Python_DHT. ${neutre}"
-                                        rm -r ~/script/Adafruit_Python_DHT
+                                    if [ -d "/home/$utilisateur/script/Adafruit_Python_DHT" ]; then
+                                        echo -e "${cyanclair}\nSuppression du répertoire d'installation /home/$utilisateur/script/Adafruit_Python_DHT. ${neutre}"
+                                        rm -r /home/$utilisateur/script/Adafruit_Python_DHT
                                     fi
-                                    if [ -f "~/script/dht22.py" ] ; then
-                                        echo -e "${cyanclair}\nSuppression du fichier ~/script/dht22.py ${neutre}" 
-                                        rm ~/script/dht22.py*
+                                    if [ -f "/home/$utilisateur/script/dht22.py" ] ; then
+                                        echo -e "${cyanclair}\nSuppression du fichier /home/$utilisateur/script/dht22.py ${neutre}" 
+                                        rm /home/$utilisateur/script/dht22.py*
                                     fi
-                                    if [ -f "~/script/data_dht22.txt" ] ; then
-                                        echo -e "${cyanclair}\nSuppression du fichier ~/script/data_dht22.txt ${neutre}"
-                                        rm ~/script/data_dht22.txt*
+                                    if [ -f "/home/$utilisateur/script/data_dht22.txt" ] ; then
+                                        echo -e "${cyanclair}\nSuppression du fichier /home/$utilisateur/script/data_dht22.txt ${neutre}"
+                                        rm /home/$utilisateur/script/data_dht22.txt*
                                     fi
 
                                     #Modification de la crontab pour supprimer affichage de température et humidité toutes les 10 minutes
@@ -1727,13 +1737,13 @@ while $boucle_principale;do
 
                                 if [[ $CHOIX_DEL =~ "DS18B20" ]]; then
                                     echo -e "${bleuclair}\nDésinstallation du capteur de température DS18B20. ${neutre}"
-                                    if [ -f "~/script/ds18b20.py" ] ; then
-                                        echo -e "${cyanclair}\nSuppression du fichier ~/script/ds18b20.py ${neutre}"
-                                        rm ~/script/ds18b20.py*
+                                    if [ -f "/home/$utilisateur/script/ds18b20.py" ] ; then
+                                        echo -e "${cyanclair}\nSuppression du fichier /home/$utilisateur/script/ds18b20.py ${neutre}"
+                                        rm /home/$utilisateur/script/ds18b20.py*
                                     fi
-                                    if [ -f "~/script/data_ds18b20.txt" ] ; then
-                                        echo -e "${cyanclair}\nSuppression du fichier ~/script/data_ds18b20.txt ${neutre}"
-                                        rm ~/script/data_ds18b20.txt*
+                                    if [ -f "/home/$utilisateur/script/data_ds18b20.txt" ] ; then
+                                        echo -e "${cyanclair}\nSuppression du fichier /home/$utilisateur/script/data_ds18b20.txt ${neutre}"
+                                        rm /home/$utilisateur/script/data_ds18b20.txt*
                                     fi
 
                                     #Modification du fichier /boot/config.txt
@@ -1773,13 +1783,13 @@ while $boucle_principale;do
 
                                 if [[ $CHOIX_DEL =~ "AM2315" ]]; then
                                     echo -e "${bleuclair}\nDésinstallation du capteur de température et d'humidité AM2315. ${neutre}"
-                                    if [ -f "~/script/am2315.py" ] ; then
-                                        echo -e "${cyanclair}\nSuppression du fichier ~/script/am2315.py ${neutre}"
-                                        rm ~/script/am2315.py*
+                                    if [ -f "/home/$utilisateur/script/am2315.py" ] ; then
+                                        echo -e "${cyanclair}\nSuppression du fichier /home/$utilisateur/script/am2315.py ${neutre}"
+                                        rm /home/$utilisateur/script/am2315.py*
                                     fi
-                                    if [ -f "~/script/data_am2315.txt" ] ; then
-                                        echo -e "${cyanclair}\nSuppression du fichier ~/script/data_am2315.txt ${neutre}"
-                                        rm ~/script/data_am2315.txt*
+                                    if [ -f "/home/$utilisateur/script/data_am2315.txt" ] ; then
+                                        echo -e "${cyanclair}\nSuppression du fichier /home/$utilisateur/script/data_am2315.txt ${neutre}"
+                                        rm /home/$utilisateur/script/data_am2315.txt*
                                     fi
 
                                     #Modification de la crontab pour supprimer affichage de température et humidité toutes les 10 minutes
@@ -1812,13 +1822,13 @@ while $boucle_principale;do
                                 if [[ $CHOIX_DEL =~ "Kuman" ]]; then
                                     echo -e "${bleuclair}\nDésinstallation de l'écran Kuman. ${neutre}"
 
-                                    if [ -d "~/script/Adafruit_Python_SSD1306" ]; then
-                                        echo -e "${cyanclair}Suppression du répertoire d'installation ~/script/Adafruit_Python_SSD1306. ${neutre}"
-                                        rm -r ~/script/Adafruit_Python_SSD1306
+                                    if [ -d "/home/$utilisateur/script/Adafruit_Python_SSD1306" ]; then
+                                        echo -e "${cyanclair}Suppression du répertoire d'installation /home/$utilisateur/script/Adafruit_Python_SSD1306. ${neutre}"
+                                        rm -r /home/$utilisateur/script/Adafruit_Python_SSD1306
                                     fi
-                                    if [ -f "~/script/Kuman.py" ] ; then
-                                        echo -e "${cyanclair}\nSuppression du fichier ~/script/Kuman.py ${neutre}"
-                                        rm ~/script/Kuman.py
+                                    if [ -f "/home/$utilisateur/script/Kuman.py" ] ; then
+                                        echo -e "${cyanclair}\nSuppression du fichier /home/$utilisateur/script/Kuman.py ${neutre}"
+                                        rm /home/$utilisateur/script/Kuman.py
                                     fi
                                     if [ -f "/etc/systemd/system/interrupteur_kuman.service" ] ; then
                                         echo -e "${cyanclair}\nSuppression du service /etc/systemd/system/interrupteur_kuman.service ${neutre}"
@@ -1862,9 +1872,9 @@ while $boucle_principale;do
                                         systemctl disable interrupteur_lcd.service
                                         rm /etc/systemd/system/interrupteur_lcd.service
                                     fi
-                                    if [ -f "~/script/interrupteur_lcd.py" ] ; then
-                                        echo -e "${cyanclair}\nSuppression du fichier ~/script/interrupteur_lcd.py ${neutre}"
-                                        rm ~/script/interrupteur_lcd.py*
+                                    if [ -f "/home/$utilisateur/script/interrupteur_lcd.py" ] ; then
+                                        echo -e "${cyanclair}\nSuppression du fichier /home/$utilisateur/script/interrupteur_lcd.py ${neutre}"
+                                        rm /home/$utilisateur/script/interrupteur_lcd.py*
                                     fi
 
                                     if [[ $CHOIX_DEL =~ "Debug" ]]; then
@@ -1909,7 +1919,7 @@ while $boucle_principale;do
                             echo -e "${rougeclair}Le Raspberry a été redémarré : ${neutre}"
                             echo -e "${rougeclair}GPIO, I2C, SPI et 1-wire doivent être activés si nécessaire avec sudo raspi-config ${neutre}"
 
-                            cd ~/script
+                            cd /home/$utilisateur/script
 
                             CHOIX_TEST=$(NEWT_COLORS='
                             root=,blue
@@ -1940,13 +1950,13 @@ while $boucle_principale;do
                                 ### ===============================================================
 
                                 if [[ $CHOIX_TEST =~ "GrovePi" ]]; then
-                                    if [ ! -e ~//Dexter/GrovePi/Troubleshooting ]; then
-                                        echo -e "${vertclair}\nLe répertoire ~/.........../GrovePi n'existe pas ${neutre}"
+                                    if [ ! -e /home/$utilisateur//Dexter/GrovePi/Troubleshooting ]; then
+                                        echo -e "${vertclair}\nLe répertoire /home/$utilisateur/.........../GrovePi n'existe pas ${neutre}"
                                         echo -e "${vertclair}\nPoursuite des tests ${neutre}"
                                     else
                                         echo -e "${vertclair}\nTest de shield GrovePi ${neutre}"
-                                        mkdir ~/Desktop >/dev/null
-                                        cd ~/Dexter/GrovePi/Troubleshooting
+                                        mkdir /home/$utilisateur/Desktop >/dev/null
+                                        cd /home/$utilisateur/Dexter/GrovePi/Troubleshooting
                                         bash all_tests.sh
                                     fi
                                     if [[ $CHOIX_TEST =~ "Debug" ]]; then
@@ -1965,12 +1975,12 @@ while $boucle_principale;do
                                 ### ===============================================================
 
                                 if [[ $CHOIX_TEST =~ "DHT22" ]]; then
-                                    if [ ! -e ~/script/dht22.py ]; then
+                                    if [ ! -e /home/$utilisateur/script/dht22.py ]; then
                                         echo -e "${vertclair}\nLe fichier dht22.py n'existe pas ${neutre}"
                                         echo -e "${vertclair}\nPoursuite des tests ${neutre}"
                                     else
                                         echo -e "${vertclair}\nTest du capteur de température et d'humidité DHT22 ${neutre}"
-                                        ~/script/dht22.py
+                                        /home/$utilisateur/script/dht22.py
                                      fi
                                     if [[ $CHOIX_TEST =~ "Debug" ]]; then
                                         echo -e "${violetclair}\nFin du test du capteur de température et d'humidité DHT22. Appuyer sur Entrée pour poursuivre les tests ${neutre}"
@@ -1983,12 +1993,12 @@ while $boucle_principale;do
                                 ### ===============================================================
 
                                 if [[ $CHOIX_TEST =~ "DS18B20" ]]; then
-                                    if [ ! -e ~/script/ds18b20.py ]; then
+                                    if [ ! -e /home/$utilisateur/script/ds18b20.py ]; then
                                         echo -e "${vertclair}\nLe fichier ds18b20.py n'existe pas ${neutre}"
                                         echo -e "${vertclair}\nTéléchargement du fichier ds18b20.py ${neutre}"
                                     else
                                         echo -e "${vertclair}\nTest du capteur de température DS18B20 ${neutre}"
-                                        ~/script/ds18b20.py
+                                        /home/$utilisateur/script/ds18b20.py
                                     fi
                                     if [[ $CHOIX_TEST =~ "Debug" ]]; then
                                         echo -e "${violetclair}\nFin du test du capteur DS18B20. Appuyer sur Entrée pour poursuivre les tests ${neutre}"
@@ -2005,15 +2015,15 @@ while $boucle_principale;do
                                     lsmod | grep i2c_
                                     echo -e "${vertclair}\nAffichage de l'adresse du (des) périphériques i2c : ${neutre}"
                                     i2cdetect -y 1
-                                    if [ ! -e ~/script/Kuman.py ]; then
+                                    if [ ! -e /home/$utilisateur/script/Kuman.py ]; then
                                         echo -e "${vertclair}\nLe fichier Kuman.py n'existe pas ${neutre}"
                                         echo -e "${vertclair}\nTéléchargement du fichier kuman.py ${neutre}"
-                                        wget -P ~/script $lien_github_raw/Kuman.py
-                                        chown $user:$user ~/script/Kuman.py
-                                        chmod +x ~/script/Kuman.py
+                                        wget -P /home/$utilisateur/script $lien_github_raw/Kuman.py
+                                        chown $utilisateur:$utilisateur /home/$utilisateur/script/Kuman.py
+                                        chmod +x /home/$utilisateur/script/Kuman.py
                                     fi
                                     echo -e "${vertclair}\nTest de l'écran Kuman ${neutre}"
-                                    ~/script/Kuman.py
+                                    /home/$utilisateur/script/Kuman.py
                                     if [[ $CHOIX_TEST =~ "Debug" ]]; then
                                         echo -e "${violetclair}\nFin du test de l'écran Kuman. Appuyer sur Entrée pour poursuivre les tests ${neutre}"
                                         read
@@ -2029,15 +2039,15 @@ while $boucle_principale;do
                                     lsmod | grep i2c_
                                     echo -e "${vertclair}\nAffichage de l'adresse du (des) périphériques i2c : ${neutre}"
                                     i2cdetect -y 1
-                                    if [ ! -e ~/script/lcd.py ]; then
+                                    if [ ! -e /home/$utilisateur/script/lcd.py ]; then
                                         echo -e "${vertclair}\nLe fichier lcd.py n'existe pas ${neutre}"
                                         echo -e "${vertclair}\nTéléchargement du fichier lcd.py ${neutre}"
-                                        wget -P ~/script $lien_github_raw/lcd.py
-                                        chown $user:$user ~/script/lcd.py
-                                        chmod +x ~/script/lcd.py
+                                        wget -P /home/$utilisateur/script $lien_github_raw/lcd.py
+                                        chown $utilisateur:$utilisateur /home/$utilisateur/script/lcd.py
+                                        chmod +x /home/$utilisateur/script/lcd.py
                                     fi
                                     echo -e "${vertclair}\nTest de l'écran LCD RGB Blacklight ${neutre}"
-                                    ~/script/lcd.py
+                                    /home/$utilisateur/script/lcd.py
                                     if [[ $CHOIX_TEST =~ "Debug" ]]; then
                                         echo -e "${violetclair}\nFin du test de l'écran LCD RGB Blacklight. Appuyer sur Entrée pour poursuivre les tests ${neutre}"
                                         read
@@ -2049,12 +2059,12 @@ while $boucle_principale;do
                                 ### ===============================================================
 
                                 if [[ $CHOIX_TEST =~ "IntKuman" ]]; then
-                                    if [ ! -e ~/script/interrupteur_kuman.py ]; then
+                                    if [ ! -e /home/$utilisateur/script/interrupteur_kuman.py ]; then
                                         echo -e "${vertclair}\nLe fichier interrupteur_kuman.py n'existe pas ${neutre}"
                                         echo -e "${vertclair}\nPoursuite des tests ${neutre}"
                                     else
                                         echo -e "${vertclair}\nTest de l'interrupteur avec l'écran Kuman ${neutre}"
-                                        ~/script/interrupteur_kuman.py
+                                        /home/$utilisateur/script/interrupteur_kuman.py
                                     fi
                                     if [[ $CHOIX_TEST =~ "Debug" ]]; then
                                         echo -e "${violetclair}\nFin du test de l'interrupteur. Appuyer sur Entrée poursuivre pour les tests ${neutre}"
@@ -2067,12 +2077,12 @@ while $boucle_principale;do
                                 ### ===============================================================
 
                                 if [[ $CHOIX_TEST =~ "IntLCD" ]]; then
-                                    if [ ! -e ~/script/interrupteur_lcd.py ]; then
+                                    if [ ! -e /home/$utilisateur/script/interrupteur_lcd.py ]; then
                                         echo -e "${vertclair}\nLe fichier interrupteur_lcd.py n'existe pas ${neutre}"
                                         echo -e "${vertclair}\nPoursuite des tests ${neutre}"
                                     else
                                         echo -e "${vertclair}\nTest de l'interrupteur avec l'écran LCD ${neutre}"
-                                        ~/script/interrupteur_lcd.py
+                                        /home/$utilisateur/script/interrupteur_lcd.py
                                     fi
                                     if [[ $CHOIX_TEST =~ "Debug" ]]; then
                                         echo -e "${violetclair}\nFin du test de l'interrupteur. Appuyer sur Entrée pour poursuivre les tests ${neutre}"
