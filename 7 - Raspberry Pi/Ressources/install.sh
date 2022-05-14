@@ -58,7 +58,7 @@ fi
 ### Déplacement dans le répertoire de l'utilisateur courant
 ### ===============================================================
 
-utilisateur=`cat /etc/passwd | grep "home/" | grep -v "nologin" | cut -d ":"$
+utilisateur=`cat /etc/passwd | grep "home/" | grep -v "nologin" | cut -d ":" -f1`
 echo -e "${jauneclair}L'utilisateur est $utilisateur \n ${neutre}"
 cd /home/$utilisateur
 
