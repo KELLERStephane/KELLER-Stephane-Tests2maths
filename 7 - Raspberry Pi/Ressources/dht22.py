@@ -25,10 +25,10 @@ password =
 domoticz_idx =
 
 #récupération du chemin de l'utilisateur courant
-path_user=os.path.expanduser('~')
-print("path_user =", path_user)
-username=path_user[6:]
-print("USER =", username)
+path_utilisateur=os.path.expanduser('~')
+print("path_utilisateur =", path_utilisateur)
+utilisateur=path_utilisateur[6:]
+print("USER =", utilisateur)
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # les paramètres du DHT à compléter :
@@ -71,7 +71,7 @@ if humidity is not None and temperature is not None:
     humid = str(int(humidity))
 
     #Sauvegarde température et humidité dans le fichier data_dht22.txt
-    path=path_user+"/domoticz/scripts"
+    path=path_utilisateur+"/domoticz/scripts"
     path_dht22=path+'dht22.txt'
     os.chdir(path)
 
@@ -81,7 +81,7 @@ if humidity is not None and temperature is not None:
     with open(path_dht22,'w') as fichier:
         for el in li:
             fichier.write(el)
-#    os.system("chown username:username data_dht22.txt")
+#    os.system("chown utilisateur:utilisateur data_dht22.txt")
 
     # l URL Domoticz pour le widget virtuel
     url='/json.htm?type=command&param=udevice&idx='+str(domoticz_idx)
