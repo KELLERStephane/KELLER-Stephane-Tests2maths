@@ -22,7 +22,11 @@ domoticz_ip =
 domoticz_port = '8080'
 user =
 password =
-domoticz_idx =
+domoticz_id
+
+#récupération du nom de l'utilisateur courant
+username =os.system(cat /etc/passwd |grep "home/" | grep -v "nologin" | cut -d ":" -f1)
+print("username =", username)
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # les paramètres du DHT à compléter :
@@ -64,15 +68,15 @@ if humidity is not None and temperature is not None:
         temp = str(temp1)
     humid = str(int(humidity))
     #Sauvegarde température et humidité dans le fichier data_dht22.txt
-    os.system("cd /home/$user/domoticz/script")
+    os.system("cd /home/$USER/domoticz/script")
     # Ecriture du fichier data_dht22.txt en mode write 'w'
-    chemin = os.environ['HOME'] + '/domoticz/script/data_dht22.txt'
+    chemin = os.environ['HOME'] + '/domoticz/scripts/data_dht22.txt'
     print("Ecriture des données dans le fichier", chemin)
     li = ["Température : ", temp, "\n", "Humidité : ", humid]
     with open(chemin,'w') as fichier:
         for el in li:
             fichier.write(el)
-    os.system("chown $user:$user data_dht22.txt")
+    os.system("chown username:username data_dht22.txt")
 
     # l URL Domoticz pour le widget virtuel
     url='/json.htm?type=command&param=udevice&idx='+str(domoticz_idx)
