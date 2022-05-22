@@ -2,7 +2,7 @@
 # coding: utf-8
 
 # basé sur le script Adafruit et adapté pour Domoticz
-import os
+from os import system, chdir
 import sys
 import Adafruit_DHT
 from requests.auth import HTTPBasicAuth
@@ -19,16 +19,23 @@ import time
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 domoticz_ip =
-domoticz_port = '8080'
+domoticz_port =
 user =
 password =
 domoticz_idx =
 
 #récupération du chemin de l'utilisateur courant
-path_utilisateur=os.path.expanduser('~')
-print("path_utilisateur =", path_utilisateur)
-utilisateur=path_utilisateur[6:]
-print("USER =", utilisateur)
+import csv
+
+with open("/etc/passwd") as f:
+    reader = csv.reader(f, delimiter=':')
+    for row in reader:
+        for el in row:
+            if "/home/" in el:
+                utilisateur = row[0]
+                path_user = "/home/" + utilisateur + "/"
+                print("L'utilisateur courant est", utilisateur)
+                print("Le répertoire utilisateur courant est :", path_user)
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # les paramètres du DHT à compléter :
@@ -49,7 +56,7 @@ pin =
 def maj_widget(val_url):
     requete='http://'+domoticz_ip+':'+domoticz_port+val_url
     print("Requete = ", requete)
-    r=requests.get(requete,auth=HTTPBasicAuth(user,password))
+    r=requests.get(requete,auth=HTTPBasicAuth(user, password))
     if  r.status_code != 200:
         print("Erreur API Domoticz")
 
@@ -71,17 +78,17 @@ if humidity is not None and temperature is not None:
     humid = str(int(humidity))
 
     #Sauvegarde température et humidité dans le fichier data_dht22.txt
-    path=path_utilisateur+"/domoticz/scripts"
-    path_dht22=path+'dht22.txt'
-    os.chdir(path)
+    path_scripts=path_user+"/domoticz/scripts/"
+    path_dht22=path_scripts+'dht22.txt'
+#    chdir(path)
 
     # Ecriture du fichier data_dht22.txt en mode write 'w'
-    print("Ecriture des données dans le fichier", path_dht22)
+    print("Ecriture des données dans le fichier ", path_dht22)
     li = ["Température : ", temp, "\n", "Humidité : ", humid]
     with open(path_dht22,'w') as fichier:
         for el in li:
             fichier.write(el)
-#    os.system("chown utilisateur:utilisateur data_dht22.txt")
+#    system("chown username:username data_dht22.txt")
 
     # l URL Domoticz pour le widget virtuel
     url='/json.htm?type=command&param=udevice&idx='+str(domoticz_idx)
@@ -92,4 +99,4 @@ if humidity is not None and temperature is not None:
 
 else:
     print('Problème avec la lecture du DHT22. Try again!')
-    sys.exit(1)
+    sys.
