@@ -117,6 +117,10 @@ while $boucle_principale;do
             echo -e "${bleuclair}\nInstallation de locate si nécessaire et indexation des fichiers ${neutre}"
             apt install -y locate && updatedb
 
+            echo -e "${bleuclair}\nInstallation de PIP si nécessaire et indexation des fichiers ${neutre}"
+            apt-get install -y libopenjp2-7-devapt && updatedb
+            apt-get install -y python3-pil && updatedb
+			
             echo -e "${bleuclair}\nInstallation du protocole de synchronisation de l'heure si nécessaire ${neutre}"
             aptitude install ntp -y
             /etc/init.d/ntp start
@@ -642,18 +646,22 @@ while $boucle_principale;do
             echo -e "${bleuclair}\nInstallation de wiringpi pour l'utilisation des GPIO (nécessite Fail2ban) ${neutre}"
             echo -e "${rougeclair}Ne pas oublier d'activer les GPIO avec sudo raspi-config ${neutre}"
             echo -e "${vertclair}\nTéléchargement et installation de wiringpi si nécessaire ${neutre}"
-            apt install -y wiringpi
+			cd /temp
+			wget https://project-downloads.drogon.net/wiringpi-latest.deb
+			dpkg -i wiringpi-latest.deb
             echo -e "${rougeclair}\nExecuter la commande gpio readall pour voir la configuration des broches ${neutre}"
 
             if [[ $version =~ "Python 3" ]]; then
                 #installation si Python3
                 echo -e "${vertclair}\nTéléchargement et installation de RPi.GPIO pour python3 si nécessaire ${neutre}"
-                apt install -y python3-rpi.gpio
+                apt install -y python3-pip
+				apt install -y python3-rpi.gpio
                 python3 -m pip install RPi.GPIO
             else
                 #installation si Python2
                 echo -e "${vertclair}\nTéléchargement et installation de RPi.GPIO pour python2 si nécessaire ${neutre}"
-                apt install -y python-rpi.gpio
+                apt install -y python-pip
+				apt install -y python-rpi.gpio
                 python -m pip install RPi.GPIO
             fi
 
@@ -670,7 +678,7 @@ while $boucle_principale;do
 
         if [[ $CHOIX =~ "Domoticz" ]]; then
             echo -e "${bleuclair}\nInstallation de Domoticz ${neutre}"
-            curl -L install.domoticz.com | bash
+            sudo bash -c "$(curl -sSfL https://install.domoticz.com)"
 
             echo -e "${vertclair}Création du fichier log /var/log/domoticz.log ${neutre}"
             cp /etc/init.d/domoticz.sh /etc/init.d/domoticz.copy
